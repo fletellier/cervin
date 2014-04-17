@@ -27,14 +27,17 @@ $sous_parcours = $transition->sous_parcours;
 	<div class="page-header">
 		<div class="row-fluid">
 			<div class="span9">
-				<?php if($sous_parcours !== null) : ?>
-					<h3><?php echo $this->escapeHtml($sous_parcours->titre); ?></h3>
-				<?php endif;?>
-				<?php if ($est_recommandee) : ?>
-				<h1><p class="text-info"><?php echo $this->escapeHtml($title); ?> recommandée</p></h1>
+				<?php if($sous_parcours === null) : ?>
+					<h1><p class="text-info"><?php echo $this->escapeHtml($title); ?> inter sous parcours</p></h1>
 				<?php else :?>
-				<h1><p class="muted"><?php echo $this->escapeHtml($title); ?> secondaire</p></h1>
+					<h3><?php echo $this->escapeHtml($sous_parcours->titre); ?></h3>
+					<?php if ($est_recommandee) : ?>
+					<h1><p class="text-info"><?php echo $this->escapeHtml($title); ?> recommandée</p></h1>
+					<?php else :?>
+					<h1><p class="muted"><?php echo $this->escapeHtml($title); ?> secondaire</p></h1>
+					<?php endif;?>
 				<?php endif;?>
+			
 			</div>
 			
 			<div class="span3">
