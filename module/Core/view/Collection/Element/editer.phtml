@@ -1,0 +1,1174 @@
+<?php 
+$is_artefact = ($element instanceOf \Collection\Entity\Artefact);
+$is_artefact ? $icon='<i class="icon-tag"></i> ' : $icon='<i class="icon-picture"></i> ';
+$title = $element->titre;
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-wysihtml5.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datatable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/select2.css');
+?>
+
+<?php if ($element->public) :?>
+	<div class="alert alert-error">
+	  <button type="button" class="close" data-dismiss="alert">&times;</button>
+	  <h2><i class="icon-warning-sign"></i> Attention ! <i class="icon-warning-sign"></i></h2> Cet élément est <strong>public</strong>, pensez à le passer en brouillon si vous ne voulez pas que vos modifications soit immédiatement visibles (bouton 'Actions' à droite de l'écran).
+	</div>
+<?php endif;?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('collection') ?>">Collection Numérique</a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('element/voir',	array('id' => $element->id)) ?>"> <?php echo $icon.$this->escapeHtml($title); ?> </a> <span class="divider">/</span></li>
+    <li class="active">Edition</li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Cette page vous permet de modifier les informations d'un élément de la collection numérique.
+    	</p>
+    	<p>
+    	A gauche de lécran, un éditeur permet de modifier la description de l'élément.
+    	</p>
+    	<p>
+    	A droite de lécran, le menu permet de modifier :
+    		<ul>
+    		<li> La valeur des champs en cliquant directement dessus. </li>
+    		<li> Les liaisons avec d'autres éléments de la collection numérique. </li>
+    		</ul>
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header row-fluid">
+	<div class="span9">
+		<!-- TITRE -->
+		<h1>
+		<i class="icon-pencil"></i>
+		<span class="edit CursorPointer" 
+			data-inputclass="span12" 
+			data-name="titre" 
+			data-type="text" 
+			data-pk="1" 
+			data-url="<?php echo $this->url("element/editer",array('id'=>$element->id)) ?>">
+			<?php echo $this->escapeHtml($title); ?>
+		</span> 
+		<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small>
+		</h1>
+	</div>
+	
+	<div class="span3">
+		<!-- ACTIONS -->
+		<?php if ($element->public) :?>
+			<p><strong><i class="icon-eye-open"></i> 
+				<?php echo $is_artefact ? 'Cet artefact est public' : 'Ce média est public'; ?>
+			</strong></p>
+			<?php $btn_visibilite = '<i class="icon-eye-close"></i> Passer en brouillon'; ?>
+		<?php else :?>
+			<p><strong><i class="icon-eye-close"></i>
+				<?php echo $is_artefact ? 'Cet artefact est un brouillon' : 'Ce média est un brouillon'; ?>
+			</strong></p>
+			<?php $btn_visibilite = '<i class="icon-eye-open"></i> Passer en public'; ?>
+		<?php endif;?>
+		
+		<p class="text-warning">
+			<em> <i class="icon-cogs"></i> 
+			<?php echo $is_artefact ? 'Cet artefact' : 'Ce média'; ?> fait partie de 
+			<a href="<?php echo $this->url('chantier'); ?>" class="text-warning"> vos chantiers en cours </a>
+			</em>
+		</p>
+		<div class="btn-group btn-block">
+    		<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+    			Actions 
+    			<span class="caret"></span>
+    		</a>
+    		<ul class="dropdown-menu">
+	   			<li>
+					<a href="<?php echo $this->url('chantier/terminerChantierElement',array(
+						'idElement' => $element->id,
+						'idUser' => $this->zfcUserIdentity()->getId(),
+						'return'=>'element')); ?>" >
+						<span class="text-warning"><i class="icon-unlock"> </i></span> Terminer le chantier
+					</a>
+				</li>
+				<li>
+					<a href="<?php echo $this->url('element/changerVisibilite', array('id' => $element->id, 'return'=>'editer')); ?>">
+						<?php echo $btn_visibilite; ?>
+					</a>
+				</li>
+				<li>
+					<a href="<?php echo $this->url('element/voir',array('id' => $element->id)) ?>">
+			        	<i class="icon-reply"> </i> Retour à la fiche de <?php echo $is_artefact ? 'cet artefact' : 'ce média'; ?>
+			        </a>
+				</li>
+				<li>
+					<a href="#confirmModal" 
+						data-toggle="modal" >
+						<span class="text-error"> <i class="icon-trash"> </i></span>  
+						<?php echo $is_artefact ? 'Supprimer cet artefact' : 'Supprimer ce média'; ?>
+					</a>
+				</li>
+				<li class="divider"></li>
+				<li class="disabled"><a tabindex="-1" href="#">Crée le <?php echo (($element->created) ? $element->created->format('Y-d-m') : 'N/A');?></a></li>
+				<li class="disabled"><a tabindex="-1" href="#">Modifié le <?php echo (($element->updated) ? $element->updated->format('Y-d-m') : 'N/A');?></a></li>
+			</ul>
+    	</div>
+    </div>
+    
+</div>
+
+<!-- Suppression Confirm Modal -->
+<div id="confirmModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Confirmation : suppression d'un artefact</h3>
+    </div>
+    <div class="modal-body">
+    	Êtes-vous sur de vouloir supprimer l'élément "<?php echo $this->escapeHtml($element->titre); ?>" ?
+    </div>
+    <div class="modal-footer">
+	    <a href="<?php echo $this->url('element/supprimer', array('id' => $element->id)) ?>" class="btn btn-primary">Supprimer</a>
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="row-fluid">
+
+	<div class="span6 well">
+		<h4>Description</h4>
+		<form id="textarea">
+			<textarea class="textarea-wysihtml5 input-block-level" 
+				data-name="description" 
+				rows="10" 
+				data-url="<?php echo $this->url("element/editer",array('id'=>$element->id)) ?>">
+				<?php echo $element->description;?>
+			</textarea>
+			<button type="button" class="textarea-submit btn btn-primary editable-submit"><i class="icon-ok icon-white"></i> Enregistrer</button>
+		</form>
+		<div id="textarea-return"></div>
+	</div>
+	
+	<div class="span6 well">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#tab1" data-toggle="tab"><i class="icon-info-sign"></i> Informations</a></li>
+			<li><a href="#tab2" data-toggle="tab"><i class="icon-sitemap"></i> Artefacts liés</a></li>
+			<?php if ($is_artefact) :?>
+				<li><a href="#tab3" data-toggle="tab"><i class="icon-sitemap"></i> Médias liés</a></li>
+			<?php endif;?>
+		</ul>
+		
+		<div class="tab-content" style="padding-bottom: 9px; border-bottom: 1px solid #ddd;">
+			<div class="tab-pane active" id="tab1">
+				<dl>
+					<dt>Type d'élément</dt>
+					<dd>
+						<?php 
+							echo $this->escapeHtml($element->type_element->nom); 
+							echo '<br/><br/>';
+						?>
+					</dd>
+					<?php foreach($ChampsDatasElement as $champData) :?>
+					<dt>
+						<?php echo $this->escapeHtml($champData['champ']->label); ?> 
+						<?php if ($champData['champ']->description != null) : ?>
+				        	<a href="#" 
+			        			class="description"
+			        			rel="popover"
+			        			data-content="<?php echo $this->escapeHtml($champData['champ']->description); ?>"
+			        			data-original-title="Description du champ"><i class="icon-question-sign"></i></a>  
+			        	<?php endif; ?>
+					</dt>
+					<dd>
+						<?php
+						switch ($champData['champ']->format) :
+							case 'texte':
+								if($champData['data'] == null or $champData['data']->texte == null){
+									$texte = null;
+								} else {
+									$texte = $champData['data']->texte;
+								}
+								echo '<span class="edit CursorPointer" 
+										data-name="data" 
+										data-type="text" 
+										data-pk="'.$champData['champ']->id.'" 
+										data-url="'.$this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id)).'">
+									'.$this->escapeHtml($texte).'
+								</span>';
+								echo '<br/><br/>';
+								break;
+							case 'select':
+								if($champData['data'] == null or $champData['data']->option == null){
+				    				$initSelection = '';
+								} else {
+				    				$initSelection = $champData['data']->option->id;
+								}
+								$select_options = $champData['champ']->select->select_options;
+								$source = array();
+								foreach ($select_options as  $key => $select_option) {
+									$source[] = array( "id" => $select_option->id, "text" => $this->escapeHtml($select_option->text) );
+								}
+								echo '<span class="Xselect2 CursorPointer" 
+										data-name="data"
+										data-type="select2" 
+										data-pk="'.$champData['champ']->id.'" 
+										data-source=\''.json_encode($source).'\'
+										data-value=\''.$initSelection.'\'
+										data-url="'.$this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id)).'">
+										</span>';
+								echo '<br/><br/>';
+								break;
+							case 'textarea':
+								if($champData['data'] == null or $champData['data']->textarea == null){
+									$textarea = null;
+								} else {
+									$textarea = $champData['data']->textarea;
+								}
+								echo '<span class="edit CursorPointer" 
+										data-name="data" 
+										data-type="textarea"
+										data-pk="'.$champData['champ']->id.'" 
+										data-url="'.$this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id)).'">
+	    							'.$this->escapeHtml($textarea).'
+    							</span>';
+								echo '<br/><br/>';
+								break;
+
+							case 'date':
+								echo '<div class="row-fluid"> <div class="span3">';
+								if ($champData['data'] != null) {
+									$format = $champData['data']->format; 
+								} else {
+									$format = 0;
+								}
+								if ($format == null) {
+									$format = 0;
+								}
+								echo '<select class="format_date input-block-level"
+										name="select_'. $champData['champ']->id .'"
+										data-input-name="date_'. $champData['champ']->id .'">';
+								if ($format == 0) {
+									echo'<option value="0" selected>Jour</option>
+										 <option value="1">Mois</option>
+										 <option value="2">Année</option>
+									</select>';
+								} elseif ($format == 1) {
+									echo '<option value="0">Jour</option>
+										 <option value="1" selected>Mois</option>
+										 <option value="2">Année</option>
+									</select>';
+								} elseif ($format == 2) {
+									echo '<option value="0">Jour</option>
+										 <option value="1">Mois</option>
+										 <option value="2" selected>Année</option>
+									</select>';
+								}
+								echo '</div> <div class="span9">';
+								if($champData['data'] == null or $champData['data']->date == null){
+									$date = null;
+								} else {
+									switch ($champData['data']->format) :
+										case 2:
+										 	($champData['data']->date) ? $date = $champData['data']->date->format('Y') : $date = null ;
+										break;
+										case 1:
+											($champData['data']->date) ? $date = $champData['data']->date->format('Y-m') : $date = null ;
+											break;
+										default:
+											($champData['data']->date) ? $date = $champData['data']->date->format('Y-d-m') : $date = null ;
+											break;
+									endswitch;
+								}
+								echo '<span class="picker CursorPointer" 
+											name="date_'. $champData['champ']->id .'"
+											data-select-name="select_'. $champData['champ']->id .'"
+    										data-name="data"
+    										data-type="date"
+    										data-pk="'.$champData['champ']->id.'" 
+	    									data-url="'.$this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id)).'">
+										'.$date.'
+									</span>';
+								echo '</div> </div>';
+								echo '<br/>';
+								break;
+							
+							case 'nombre':
+								if($champData['data'] == null or $champData['data']->nombre == null){
+									$nombre = null;
+								} else {
+									$nombre = $champData['data']->nombre;
+								}
+								echo '<span class="edit CursorPointer" 
+											data-name="data" 
+											data-type="number" 
+											data-pk="'.$champData['champ']->id.'" 
+											data-url="'.$this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id)).'">
+										'.$this->escapeHtml($nombre).'
+									</span>';
+								echo '<br/><br/>';
+								break;
+
+							case 'url':
+								if($champData['data'] == null or $champData['data']->url == null){
+									$url = null;
+								} else {
+									$url = $champData['data']->url;
+								}
+								echo '<span class="edit CursorPointer"
+										data-name="data"
+										data-type="url"
+										data-pk="'.$champData['champ']->id.'"
+	    								data-url="'.$this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id)).'">
+	    							'.$this->escapeHtml($url).'
+    							</span>';
+								echo '<br/><br/>';
+								break;
+									
+							case 'fichier':
+								echo 'Fichier actuel : <a href="' . ROOT_DIR . $champData['data']->fichier.'">'. $this->escapeHtml(basename($champData['data']->fichier)) .'</a><br/>';
+								echo '<form class="file-input-form" method="POST" action = "'. $this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id)) .'">
+									<input title="Parcourir" name="file-input" id="'.$champData['champ']->id.'" type="file">
+									<button class="btn btn-primary" type="submit"><i class="icon-ok"> </i> Modifier</button>
+    							</form>';
+    							break;
+									
+							case 'geoposition':
+								
+								if($champData['data'] == null){
+									$adresse   = null;
+									$latitude  = null;
+									$longitude = null;
+								} else {
+									$adresse   = ( $champData['data']->adresse == null )   ? null : $this->escapeHtml($champData['data']->adresse);
+									$latitude  = ( $champData['data']->latitude == null )  ? null : $this->escapeHtml($champData['data']->latitude);
+									$longitude = ( $champData['data']->longitude == null ) ? null : $this->escapeHtml($champData['data']->longitude);
+								}
+								
+								$id  = $champData['champ']->id;
+								$url = $this->url("element/editer",array('id'=> $element->id,'idData'=>$champData['champ']->id));
+								
+								echo '<div class="row-fluid">
+									<div class="span5 geoposition">
+										<label for="adresse_champ">Adresse</label>
+										<textarea name="adresse_champ_'.$id.'" readonly="readonly" class="adresse span11 " rows="4">'.$adresse.'</textarea>
+									</div>
+			        				<div class="span5 geoposition">
+			        					<label for="latitude_champ">Latitude</label>
+										<input type="text" name="latitude_champ_'.$id.'" readonly="readonly" class="latitude span11" value="'.$latitude.'">
+										<label for="longitude_champ">Longitude</label>
+										<input type="text" name="longitude_champ_'.$id.'" readonly="readonly" class="longitude span11" value="'.$longitude.'">
+									</div>
+									<div class="span2">
+										<a href="#" data-id="champ_'.$id.'" data-url="'.$url.'" class="btn showGMapsModal"><i class="icon-map-marker"></i> </a>
+									</div>
+								</div>';
+								
+								break;
+
+						endswitch ;?>
+					</dd>
+				<?php endforeach ;?>
+				</dl>
+			</div>
+			
+			<div class="tab-pane" id="tab2">
+				<?php if ($is_artefact) : ?>
+					<!-- ARTEFACT : ARTEFACTS LIES -->
+					<h4> Artefacts déjà liés </h4>
+					<?php if ($element->relations_origine!= null || $element->relations_destination!= null) : ?>
+						<table class="table">
+						<tr>
+							<th> Origine  </th>
+							<th> Sémantique  </th>
+							<th> Destination </th>
+						</tr>
+						<?php foreach($element->relations_origine as $relation) : ?>
+							<tr>
+								<td> <?php echo $this->escapeHtml($element->titre); ?>  </td>
+								<td> <?php echo $this->escapeHtml($relation->semantique->semantique); ?>  </td>
+								<td>
+									<a href="<?php echo $this->url('element/voir',array('id' => $relation->destination->id)); ?>">
+									<i class="icon-tag"></i>  
+									<?php echo $this->escapeHtml($relation->destination->titre); ?> 
+									[<?php echo $this->escapeHtml($relation->destination->type_element->nom); ?>]
+									</a>
+								</td>
+								<td>
+									<a href="#" 
+					            		data-url="<?php echo $this->url('relation/supprimerRelationArtefactSemantique', array('idRelation'=>$relation->id)); ?> "
+					            		class="SupprimerRelationArtefact">
+					            	<i class="icon-trash"></i>
+					            	</a>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+						<?php foreach($element->relations_destination as $relation) : ?>
+							<tr>
+								<td>
+									<a href="<?php echo $this->url('element/voir',array('id' => $relation->origine->id)); ?>">
+									<i class="icon-tag"></i>  
+									<?php echo $this->escapeHtml($relation->origine->titre); ?> 
+									[<?php echo $this->escapeHtml($relation->origine->type_element->nom); ?>]
+									</a>
+								</td>
+								<td> <?php echo $this->escapeHtml($relation->semantique->semantique); ?>  </td>
+								<td> <?php echo $this->escapeHtml($element->titre); ?>  </td>
+								<td>
+									<a href="#" 
+					            		data-url="<?php echo $this->url('relation/supprimerRelationArtefactSemantique', array('idRelation'=>$relation->id)); ?> "
+					            		class="SupprimerRelationArtefact">
+					            	<i class="icon-trash"></i>
+					            	</a>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+						</table>
+					<?php else : ?>
+						<p> Aucun artefact n'est lié à cet artefact. </p>
+					<?php endif; ?>
+					<h4>Lier un nouvel artefact</h4>
+					<div class="well">
+						<?php echo $this->DatatableWidget('semantique', array(array('type'=>'type','value'=>'artefact')) ); ?>
+					</div>
+					
+				<?php else :?>
+					<!-- MEDIA : ARTEFACTS LIES -->
+					<h4> Artefacts déjà liés </h4>
+					<?php if ($element->artefacts->count() > 0) : ?>
+						<table class="table">
+						<?php foreach( ($element->artefacts) as $artefact) : ?>
+							<tr>
+							<td>
+								<a href="<?php echo $this->url('element/voir',array('id' => $artefact->id)); ?>">
+								<i class="icon-picture"></i>  
+								<?php echo $this->escapeHtml($artefact->titre); ?> 
+								[<?php echo $this->escapeHtml($artefact->type_element->nom); ?>]
+								</a>
+							</td>
+							<td>
+								<!-- Le boutton supprimer déclenche en javascript une modale de confirmation -->
+				            	<a href="#" 
+				            		data-url="<?php echo $this->url('relation/supprimerRelationMediaArtefact', array('idMedia'=>$element->id, 'idArtefact'=>$artefact->id)); ?> "
+				            		class="SupprimerRelationMedia">
+				            	<i class="icon-trash"></i>
+				            	</a>
+							</td>
+							</tr>
+						<?php endforeach; ?>
+						</table>
+					<?php else : ?>
+						<p> Aucun artefact n'est lié à ce média. </p>
+					<?php endif; ?>
+					
+					<h4>Lier un nouvel artefact</h4>
+					<div class="well">
+						<?php echo $this->DatatableWidget('media', array( array('type'=>'type','value'=>'artefact') ) ); ?>
+				</div>
+				<?php endif;?>
+			</div>
+			
+			<!-- ARTEFACT : MEDIAS LIES -->
+			<?php if ($is_artefact) : ?>
+				<div class="tab-pane" id="tab3">
+					<h4> Médias déjà liés </h4>
+					<?php if ($element->medias->count() > 0) : ?>
+						<table class="table">
+						<?php foreach( ($element->medias) as $media) : ?>
+							<tr>
+							<td>
+								<a href="<?php echo $this->url('element/voir',array('id' => $media->id)); ?>">
+								<i class="icon-picture"></i>  
+								<?php echo $this->escapeHtml($media->titre); ?> 
+								[<?php echo $this->escapeHtml($media->type_element->nom); ?>]
+								</a>
+							</td>
+							<td>
+								<!-- Le boutton supprimer déclenche en javascript une modale de confirmation -->
+				            	<a href="#" 
+				            		data-url="<?php echo $this->url('relation/supprimerRelationMediaArtefact', array('idMedia'=>$media->id, 'idArtefact'=>$element->id)); ?> "
+				            		class="SupprimerRelationMedia">
+				            	<i class="icon-trash"></i>
+				            	</a>
+							</td>
+							</tr>
+						<?php endforeach; ?>
+						</table>
+					<?php else : ?>
+						<p> Aucun média n'est lié à cet artefact. </p>
+					<?php endif; ?>
+					
+					<h4>Lier un nouveau média</h4>
+					<div class="well">
+						<?php echo $this->DatatableWidget('artefact', array( array('type'=>'type','value'=>'media') ) ); ?>
+					</div>
+				</div>
+			<?php endif;?>
+		</div>
+	</div>
+</div>
+
+<!-- Contiendra la pop-up de confirmation lors d'un clic sur un bouton 'supprimer' -->
+<div id="confirmDiv" > </div>
+
+<div id="modalDiv" class="modal hide fade">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Carte</h3>
+	</div>
+	<div class="modal-body">
+		<div id="gmaps"></div>
+		<form class="form-inline form-geo">
+			<div>
+				<div class="input-append pull-left">
+					<input class="input-large addressInput" type="text" placeholder="Adresse">
+					<button class="btn searchAddress" type="button"><i class="icon-map-marker"></i></button>
+				</div>
+				&nbsp;
+				<div class="input-append pull-right">
+					<input type="text" class="input-small latitudeInput" placeholder="Latitude" >
+					<input type="text" class="input-small longitudeInput" placeholder="Longitude" >
+					<button class="btn placeMarker" type="button"><i class="icon-screenshot"></i></button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">Fermer</button>
+		<button class="btn btn-primary save">Sauvegarder</button>
+	</div>
+</div>
+
+<?php $this->inlineScript()->captureStart(); ?>
+
+	var element = {'id' : <?php echo $element->id; ?>, 'titre' : '<?php echo $this->escapeHtml($element->titre); ?>'};
+
+	$(function () {
+
+		$(".description").popover({placement:'top', trigger:'hover'}); 
+	
+		// affichage du X-editable : Select2
+		$('.Xselect2').editable({
+			mode: 'inline',
+			emptytext: 'Vide',
+			inputclass: 'input-large',
+			select2:{allowClear: true,placeholder:"Non renseigné"}
+		});
+
+		// Gestion du wysihtml5
+		$('.textarea-wysihtml5').wysihtml5({
+			locale: "fr-FR",
+			image: false,
+			stylesheets: ["<?php echo $this->basePath() . '/css/bootstrap.css';?>"],
+			"events": {
+				"load": function() { 
+					$("editor.composer.iframe").wysihtml5_size_matters();
+				}
+			}
+		});
+
+		// Enregistrement de la description tapée dans le wysihtml5
+		// via un appel ajax
+		$("#textarea").on("click",".textarea-submit", function(e){
+			$('body').css('cursor', 'wait');
+			DataValue = $('.textarea-wysihtml5').val();
+			$.ajax({
+				url: "<?php echo $this->url("element/editer",array('id'=>$element->id)) ?>",
+				type: "POST",
+				data:{ name:'description', value: DataValue }, 
+			}).done(function(){
+				$('body').css('cursor', 'auto');
+				$('#textarea-return').html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>Enregistrement réussi</div>')
+			});
+		});
+
+		// Modification d'un fichier uploadé (remplacement)
+		// via un appel ajax
+	    $(".file-input-form").on('submit', function (e){
+	    	$('body').css('cursor', 'wait');
+	    	e.preventDefault();
+	    	$(this).ajaxSubmit({
+				data: {name: 'data'},
+				success: function(data) { document.location.reload(); }
+            });
+	    });
+
+	    // Initialisation des datepickers
+	    $('.picker').each(function(){
+	    	var selectname = $(this).attr('data-select-name');
+	    	var format = $('select[name='+selectname+']').val();
+	    	if (format == 0) {
+				$(this).editable({
+					mode: 'popup',
+					placement: 'top',
+					format: 'yyyy-dd-mm',
+					viewformat: 'yyyy-dd-mm',
+					datepicker: {
+						language:'fr',
+				        format:'yyyy-dd-mm',
+				        autoclose:true,
+				        minViewMode:0,
+				        startView:0,
+					},
+					emptytext: 'Vide',
+					params: function(params) {
+					    params.format = format;
+					    return params;
+					}
+				});
+			} else if (format == 1) {
+				$(this).editable({
+					mode: 'popup',
+					placement: 'top',
+					format: 'yyyy-mm',
+					viewformat: 'yyyy-mm',
+					datepicker: {
+						language:'fr',
+				        format:'yyyy-mm',
+				        autoclose:true,
+				        minViewMode:1,
+				        startView:1,
+					},
+					emptytext: 'Vide',
+					params: function(params) {
+					    params.format = format;
+					    return params;
+					}
+				});
+			} else {
+				$(this).editable({
+					mode: 'popup',
+					placement: 'top',
+					format: 'yyyy',
+					viewformat: 'yyyy',
+					datepicker: {
+						language:'fr',
+				        format:'yyyy',
+				        autoclose:true,
+				        minViewMode:2,
+				        startView:2,
+					},
+					emptytext: 'Vide',
+					params: function(params) {
+					    params.format = format;
+					    return params;
+					}
+				});
+			}
+	    });
+	    
+	    // Maj des datepickers lors de changement jour/mois/année
+		$('.format_date').change(function() {
+			var inputname = $(this).attr('data-input-name');
+			var format = $(this).val();
+			var date = $('span[name='+inputname+']').text();
+			$('span[name='+inputname+']').editable('destroy');
+			
+			if (format == 0) {
+				$('span[name='+inputname+']').editable({
+					mode: 'popup',
+					placement: 'top',
+					format: 'yyyy-dd-mm',
+					viewformat: 'yyyy-dd-mm',
+					datepicker: {
+						language:'fr',
+				        format:'yyyy-dd-mm',
+				        autoclose:true,
+				        minViewMode:0,
+				        startView:0,
+					},
+					emptytext: 'Vide',
+					params: function(params) {
+					    params.format = format;
+					    return params;
+					}
+				});
+			} else if (format == 1) {
+				$('span[name='+inputname+']').editable({
+					mode: 'popup',
+					placement: 'top',
+					format: 'yyyy-mm',
+					viewformat: 'yyyy-mm',
+					datepicker: {
+						language:'fr',
+				        format:'yyyy-mm',
+				        autoclose:true,
+				        minViewMode:1,
+				        startView:1,
+					},
+					emptytext: 'Vide',
+					params: function(params) {
+					    params.format = format;
+					    return params;
+					}
+				});
+			} else {
+				$('span[name='+inputname+']').editable({
+					mode: 'popup',
+					placement: 'top',
+					format: 'yyyy',
+					viewformat: 'yyyy',
+					datepicker: {
+						language:'fr',
+				        format:'yyyy',
+				        autoclose:true,
+				        minViewMode:2,
+				        startView:2,
+					},
+					emptytext: 'Vide',
+					params: function(params) {
+					    params.format = format;
+					    return params;
+					}
+				});
+			}
+		});
+	   
+		// Gestion de X-Editable
+		$('.edit').editable({
+			mode: 'inline',
+			emptytext: 'Vide'
+		});
+		
+		// Modale de confirmation pour la suppression d'une relation avec un média
+		$(".SupprimerRelationMedia").click(function(event){
+			$('body').css('cursor', 'wait');
+        	var dataURL = $(this).attr('data-url');
+            $('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir supprimer cette relation ?",
+                callback: function() {
+                     $.post(
+                     	dataURL,
+                        function(response) {
+		                	document.location.reload();
+		            	}
+                    );
+                }
+          	});
+      	});
+      	
+      	// Modale de confirmation pour la suppression d'une relation avec un autre artefact
+		$(".SupprimerRelationArtefact").click(function(event){
+			$('body').css('cursor', 'wait');
+        	var dataURL = $(this).attr('data-url');
+            $('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir supprimer cette relation ?",
+                callback: function() {
+                     $.post(
+                     	dataURL,
+                        function(response) {
+		                	document.location.reload();
+		            	}
+                    );
+                }
+          	});
+      	});
+		
+		
+		window.GMaps = {
+			_position : "",
+			_lat : "48.85806239999999",
+			_lng : "2.295147199999974",
+			_kml : "http://www.ourairports.com/airports.kml",
+			_marker : "",
+			_map : "",
+			_geocoder : "",
+			_api_key : "",
+			_el : document.getElementById("gmaps"),
+			_elJq : $("#gmaps"),
+		
+			init : function(el) {
+
+				if(typeof el != 'undefined'){
+		            GMaps._el =  document.getElementById(el);
+		            GMaps._elJq =  $("#"+el);
+		        }
+		
+				if(typeof google === 'undefined'){
+					var script = document.createElement("script");
+					script.type = "text/javascript";
+					//script.src = "https://maps.googleapis.com/maps/api/js?key="+GMaps._api_key+"&sensor=false&callback=GMaps.load";
+					script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=weather&callback=GMaps.load';
+					document.body.appendChild(script);
+				} else {
+					GMaps.load();
+				}
+			},
+		
+			load : function() {
+				
+				var champsId = $('#modalDiv .save').data('id');
+				var champLat = $(".geoposition input[name='latitude_"+champsId+"'] ").val();
+				var champLng = $(".geoposition input[name='longitude_"+champsId+"'] ").val();
+				
+				if( champLat != '' && champLng != '' ){
+					$("#modalDiv .latitudeInput").val( champLat );
+		            $("#modalDiv .longitudeInput").val( champLng );
+					GMaps._position = new google.maps.LatLng(champLat, champLng);
+				} else {
+					GMaps._position = new google.maps.LatLng(GMaps._lat, GMaps._lng);
+				}
+
+				GMaps._geocoder = new google.maps.Geocoder();
+				
+				var mapOptions = {
+					zoom: 7,
+					center: GMaps._position,
+					disableDefaultUI: true,
+					mapTypeControl: true,
+					mapTypeId: google.maps.MapTypeId.HYBRID
+				}
+				
+				GMaps.drawMap(mapOptions);
+
+				GMaps.setMarker();
+				
+				GMaps.geocodePosition( GMaps._position );
+				
+				$(window).resize(function() {
+					GMaps.resizeInModal();
+				});
+			},
+		
+			drawMap : function(mapOptions){
+				
+				if( typeof mapOptions == 'undefined' && mapOptions == null ){
+					mapOptions = {
+						zoom: 7,
+						center: GMaps._position,
+						disableDefaultUI: true,
+						mapTypeControl: true,
+						mapTypeId: google.maps.MapTypeId.HYBRID
+					}
+				}
+				
+			    GMaps._map = new google.maps.Map(GMaps._el, mapOptions);
+			},
+		
+			centerMap : function(position){
+				GMaps._map.setCenter(position);
+			},
+		
+			setKmlLayer : function(){
+			    var ctaLayer = new google.maps.KmlLayer(
+			        GMaps._kml,
+			        {   
+			            preserveViewport: true,
+			            suppressInfoWindows: false
+			        }
+			    );
+		
+			    ctaLayer.setMap(GMaps._map);
+			},
+		
+			setWeatherLayer : function(){
+			    var weatherLayer = new google.maps.weather.WeatherLayer({
+		    		temperatureUnits: google.maps.weather.TemperatureUnit.CELSIUS
+		  		});
+		
+			    weatherLayer.setMap(GMaps._map);
+			},
+		
+			setTransitLayer : function(){
+			    var transitLayer = new google.maps.TransitLayer();
+			    transitLayer.setMap(GMaps._map);
+			},
+		
+			setBikeLayer : function(){
+			    var bikeLayer = new google.maps.BicyclingLayer();
+		  		bikeLayer.setMap(GMaps._map);
+			},
+		
+			setTrafficLayer : function(){
+			    var trafficLayer = new google.maps.TrafficLayer();
+		  		trafficLayer.setMap(GMaps._map);
+			},
+		
+			setCloudLayer : function(){
+			    var cloudLayer = new google.maps.weather.CloudLayer();
+		  		cloudLayer.setMap(GMaps._map);
+			},
+			
+			searchPosition : function(lat, lng, callback){
+			
+				if( ( typeof lat != 'undefined' && parseFloat(lat) != NaN ) && ( typeof lng != 'undefined' && parseFloat(lng) != NaN ) ){
+					GMaps._position = new google.maps.LatLng(lat, lng);
+				} else {
+					console.error("Vous devez spécifier une latitude et une longitude");
+				}
+						
+				GMaps.centerMap( GMaps._position );
+
+				GMaps.changeZoom(14);
+
+				GMaps.setMarker();
+				
+				GMaps.geocodePosition( GMaps._position );
+				
+				if(typeof callback != 'undefined'){
+			    	callback;
+			    }
+			},
+			
+			geocodePosition : function(markerPos){
+			    
+			    GMaps._geocoder.geocode(
+			        {
+			            latLng: markerPos
+			        }, 
+			        function(results, status){
+			            if (status == google.maps.GeocoderStatus.OK){
+			            
+			            	$("#modalDiv .addressInput").val(results[0].formatted_address);
+							//$("#modalDiv .latitudeInput").val(results[0].geometry.location.lat());
+							//$("#modalDiv .longitudeInput").val(results[0].geometry.location.lng());
+							$("#modalDiv .latitudeInput").val( GMaps._marker.getPosition().lat() );
+							$("#modalDiv .longitudeInput").val( GMaps._marker.getPosition().lng() );
+			            
+			                /*console.log("Results : ", results);
+			                console.log("Adresse : ", results[0].formatted_address);
+			                console.log("Latitude : ", results[0].geometry.location.lat());
+			                console.log("Longitude : ", results[0].geometry.location.lng());*/
+
+			            } else {
+			                console.error("Cannot determine address at this location "+status);
+			                $("#modalDiv .addressInput").val("N/A");
+			                $("#modalDiv .latitudeInput").val( GMaps._marker.getPosition().lat() );
+			                $("#modalDiv .longitudeInput").val( GMaps._marker.getPosition().lng() );
+			            }
+			        }
+			    );
+			},
+
+			geocodeAddress : function(address) {
+		
+				/* Appel au service de geocodage avec l'adresse en paramètre */
+				GMaps._geocoder.geocode( { 'address': address}, function(results, status) {
+					/* Si l'adresse a pu être géolocalisée */
+					if (status == google.maps.GeocoderStatus.OK) {
+						/* Récupération de sa latitude et de sa longitude */
+						
+						/*console.log("Result : ", results);
+						console.log("Latitude : ", results[0].geometry.location.lat());
+			            console.log("Longitude : ", results[0].geometry.location.lng());*/
+		
+						$("#modalDiv .addressInput").val(results[0].formatted_address);
+						$("#modalDiv .latitudeInput").val(results[0].geometry.location.lat());
+						$("#modalDiv .longitudeInput").val(results[0].geometry.location.lng());
+
+						GMaps._position = results[0].geometry.location;
+						
+						GMaps.centerMap( GMaps._position );
+		
+						GMaps.changeZoom(14);
+
+						GMaps.setMarker();
+		
+					} else {
+						console.error("Cannot find this address "+status);
+					}
+
+				});
+			},
+		
+			changeZoom : function(zoomValue){
+				/*console.log("Zoom : ", GMaps._map.getZoom());
+		
+				if(GMaps._map.getZoom() > zoomValue){
+					for (var i = GMaps._map.getZoom(); i >= zoomValue; i--) {
+						window.setTimeout( 
+							( function(zoom){ 
+								return function(){ 
+									GMaps._map.setZoom(zoom);
+									console.log(zoom);
+								}; 
+							} )( i ),
+							5000
+						);
+					}
+				} else if(GMaps._map.getZoom() < zoomValue){
+					for (var i = GMaps._map.getZoom(); i <= zoomValue; i++) {
+						window.setTimeout( 
+							( function(zoom){ 
+								return function(){ 
+									GMaps._map.setZoom(zoom);
+									console.log(zoom);
+								}; 
+							} )( i ),
+							5000
+						);
+					}
+				}
+				console.log("Zoom : ", GMaps._map.getZoom());*/
+		
+				GMaps._map.setZoom(zoomValue);
+			},
+
+			setMarker : function(lat, lng, callback){
+				
+				if( ( typeof lat != 'undefined' && lat != null ) && ( typeof lng != 'undefined' && lng != null ) ){
+					GMaps._position = new google.maps.LatLng(lat, lng);
+				}
+			
+				if( GMaps._marker != "" ){
+					GMaps._marker.setMap(null);
+				}
+				
+				/* Affichage du marker */
+				GMaps._marker = new google.maps.Marker({
+					map: GMaps._map,
+					draggable: true,
+	       			animation: google.maps.Animation.DROP,
+					position: GMaps._position
+				});
+
+				google.maps.event.addListener(GMaps._marker, 'dragend', function(){
+			        GMaps.geocodePosition(GMaps._marker.getPosition());
+			    });
+			    
+			    if(typeof callback != 'undefined'){
+			    	callback;
+			    }
+			},
+			
+			resizeInModal : function(){
+				GMaps._elJq.height( ( $(window).height() - ( $('#modalDiv').outerHeight() - $('#modalDiv .modal-body').height() ) ) );
+				if( GMaps._elJq.height() >= $('#modalDiv .modal-body').height() ){
+					GMaps._elJq.height( ( $('#modalDiv .modal-body').height() - $('.form-geo').outerHeight() ) - 65 );
+				}
+				GMaps._elJq.width( $('#modalDiv .modal-body').width() );
+			}
+			
+		};
+				
+		//Gestion de la modale contenant la minimap
+		$(document).on( 'click', '.showGMapsModal', function(e){
+			$('#modalDiv').modal();
+			$('#modalDiv .save').data('id', $(this).data('id'));
+			$('#modalDiv .save').data('url', $(this).data('url'));
+			e.preventDefault();
+		});
+		
+		$('#modalDiv').on('shown', function (e) {
+    		GMaps.resizeInModal();
+    		GMaps.init();
+    		GMaps.resizeInModal();
+		});
+		
+		$(document).on( 'click', '#modalDiv .save', function(e){
+			var champsId = $(this).data('id');
+			var url      = $(this).data('url');
+			
+			var adresse   = $("#modalDiv .addressInput").val();
+			var latitude  = parseFloat($("#modalDiv .latitudeInput").val());
+			var longitude = parseFloat($("#modalDiv .longitudeInput").val());
+
+			if( adresse != "" && latitude != "" && longitude != "" ){
+				$('body').css('cursor', 'wait');
+				$.ajax({
+				url: url,
+				type: "POST",
+				data:{ 'name' : 'data', 'adresse' : adresse, 'latitude' : latitude, 'longitude' : longitude }, 
+				}).done(function(e){
+					$('body').css('cursor', 'auto');
+					$(".geoposition textarea[name='adresse_"+champsId+"'] ").val(adresse);
+					$(".geoposition input[name='latitude_"+champsId+"'] ").val( latitude );
+					$(".geoposition input[name='longitude_"+champsId+"'] ").val( longitude );
+				});
+			}
+
+			$(this).data('id', '');
+			$('#modalDiv').modal('hide')
+		});
+		//Fin Gestion de la modale contenant la minimap
+		
+		//Gestion du champ adresse dans la minimap
+		$(document).on( 'click', '#modalDiv .searchAddress', function(e){
+			GMaps.geocodeAddress( $("#modalDiv .addressInput").val() );
+		});
+		
+		$(document).on( 'keypress', '#modalDiv .addressInput', function(e){
+			if( e.which == 13 ){ // Code touche entrée = 13
+				$("#modalDiv .searchAddress").click();
+				$(this).blur();
+				e.preventDefault();
+			}
+		});
+				
+		$(document).on( 'mouseup', '#modalDiv .addressInput', function(e){
+			e.preventDefault();
+		});
+		
+		$(document).on( 'focus', '#modalDiv .addressInput', function(e){
+			$(this).select();
+		});
+		// Fin Gestion du champ adresse dans la minimap
+		
+		//Gestion des champs latitude et longitude dans la minimap
+		$(document).on( 'click', '#modalDiv .placeMarker', function(e){
+			GMaps.searchPosition( $("#modalDiv .latitudeInput").val(), $("#modalDiv .longitudeInput").val() );
+		});
+		
+		$(document).on( 'keypress', '#modalDiv .latitudeInput', function(e){
+			if( e.which == 13 ){ // Code touche entrée = 13
+				$("#modalDiv .placeMarker").click();
+				$(this).blur();
+				e.preventDefault();
+			}
+		});
+				
+		$(document).on( 'mouseup', '#modalDiv .latitudeInput', function(e){
+			e.preventDefault();
+		});
+		
+		$(document).on( 'focus', '#modalDiv .latitudeInput', function(e){
+			$(this).select();
+		});
+		
+		$(document).on( 'keypress', '#modalDiv .longitudeInput', function(e){
+			if( e.which == 13 ){ // Code touche entrée = 13
+				$("#modalDiv .placeMarker").click();
+				$(this).blur();
+				e.preventDefault();
+			}
+		});
+				
+		$(document).on( 'mouseup', '#modalDiv .longitudeInput', function(e){
+			e.preventDefault();
+		});
+		
+		$(document).on( 'focus', '#modalDiv .longitudeInput', function(e){
+			$(this).select();
+		});
+		//Fin Gestion des champs latitude et longitude dans la minimap
+		
+    });
+    
+<?php 
+$this->inlineScript()->captureEnd();
+
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.form.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.dataTables.js');
+$this->headScript()->appendFile($this->basePath() . '/js/ResultSet.js'); 
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/wysihtml5-0.3.0.min.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-wysihtml5.js') ; 
+$this->headScript()->appendFile($this->basePath() . '/js/locales/bootstrap-datepicker.fr.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/locales/bootstrap-wysihtml5.fr-FR.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/editable.wysihtml5.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.wysihtml5_size_matters.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap.file-input.js');
+$this->headScript()->appendFile($this->basePath() . '/js/select2.js');
+$this->headScript()->appendFile($this->basePath() . '/js/locales/select2_locale_fr.js') ;
+?>

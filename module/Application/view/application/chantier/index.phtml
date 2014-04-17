@@ -1,0 +1,127 @@
+<?php 
+$title = "Mes chantiers en cours";
+$this->headTitle($title);
+?>
+<?php $user = $this->zfcUserIdentity(); ?>
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li class="active"> <?php echo $this->escapeHtml($title); ?> </li>
+</ul>
+
+<div class="page-header">
+	<h1> <?php echo $this->escapeHtml($title); ?>
+	<?php $notifs = $this->Notification('chantier', $user); 
+	if ($notifs > 0) :?>
+		<span class="badge badge-info">
+			<?php echo $notifs; ?>
+		</span>
+	<?php endif;?>
+	</h1>
+	<p class="muted">Les éléments de la collection et les sous-parcours en chantier sont éditables uniquement par vous. Lorsque vous avez fini vos modifications, pensez à terminer le chantier pour permettre l'édition par d'autres utilisateurs.</p>
+</div>
+
+<h3>Eléments de la collection numérique
+
+<?php if ($user->elements_chantier != null) :?>
+	<?php if ($user->elements_chantier->count() == 0): ?>
+		</h3> Aucun élément de la collection numérique ne fait partie de vos chantiers
+	<?php else : ?>
+		<span class="badge badge-info">
+			<?php echo $user->elements_chantier->count(); ?>
+		</span> </h3>
+		
+		<table class="table table-hover">
+		<tr>
+			<th>Elément</th>
+			<th>Type</th>
+			<th>Commencé le</th>
+			<th>Visibilité</th>
+			<th></th>
+		</tr>
+		<?php foreach ($user->elements_chantier as $element) :?>
+		<tr>
+			
+			
+			<td>
+				<a href="<?php echo $this->url('element/voir', array('id'=>$element->id));?>">
+					<i class="icon-tag"></i> <?php echo $element->titre; ?>	
+				</a>
+			</td>
+			<?php if ($element instanceOf \Collection\Entity\Artefact) : ?>
+				<td>Artefact</td>
+		    <?php  else : ?>
+		    	<td>Média</td>
+		    <?php endif; ?>
+		    <td><?php echo (($element->utilisateurChange) ? $element->utilisateurChange->format('Y-m-d à H:i') : 'N/A'); ?></td>
+			<td>
+			<?php if ($element->public) :?>
+				<p class="text-error"><i class="icon-warning-sign"></i> Public <i class="icon-warning-sign"></i> </p>
+			<?php else :?>
+				Brouillon
+			<?php endif; ?>
+			</td>
+			<td>
+				<p class="text-right">
+				<a href="<?php echo $this->url('chantier/terminerChantierElement',array(
+						'idElement' => $element->id,
+						'idUser' => $user->getId(),
+						'return'=>'perso')); ?>" 
+					class="btn btn-primary">
+					<i class="icon-unlock"> </i> Terminer le chantier
+				</a>
+				</p>
+			</td>
+		</tr>
+		<?php endforeach;?>
+		</table>
+	<?php endif;?>
+<?php endif; ?>
+
+<h3>Sous-parcours
+<?php if ($user->sous_parcours_chantier != null) :?>
+	<?php if ($user->sous_parcours_chantier->count() == 0): ?>
+		</h3> Aucun sous-parcours ne fait partie de vos chantiers
+	<?php else : ?>
+		<span class="badge badge-info">
+			<?php echo $user->sous_parcours_chantier->count(); ?>
+		</span> </h3>
+		
+		<table class="table table-hover">
+		<tr>
+			<th>Sous-parcours</th>
+			<th>Parcours</th>
+			<th>Commencé le</th>
+			<th>Visibilité</th>
+			<th></th>
+		<?php foreach ($user->sous_parcours_chantier as $sous_parcours) :?>
+		<tr>
+			<td><?php echo $sous_parcours->titre; ?></td>
+			<td>
+				<a href="<?php echo $this->url('parcours/voir', array('id'=>$sous_parcours->parcours->id)); ?>" >
+				<?php echo $sous_parcours->parcours->titre; ?>
+				</a>
+			</td>
+		    <td><?php echo (($sous_parcours->utilisateurChange) ? $sous_parcours->utilisateurChange->format('Y-m-d à H:i') : 'N/A'); ?></td>
+		   <td>
+			<?php if ($sous_parcours->parcours->public) :?>
+				<p class="text-error"><i class="icon-warning-sign"></i> Public <i class="icon-warning-sign"></i> </p>
+			<?php else :?>
+				Brouillon
+			<?php endif; ?>
+			</td>
+			<td>
+				<p class="text-right">
+				<a href="<?php echo $this->url('chantier/terminerChantierSousParcours',array(
+						'idSousParcours' => $sous_parcours->id,
+						'idUser' => $user->getId(),
+						'return'=>'perso')); ?>" 
+					class="btn btn-primary">
+					<i class="icon-unlock"> </i> Terminer le chantier
+				</a>
+				</p>
+			</td>
+		</tr>
+		<?php endforeach;?>
+		</table>
+	<?php endif;?>
+<?php endif; ?>

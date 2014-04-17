@@ -1,0 +1,734 @@
+<?php 
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-wysihtml5.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datatable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/pillbox.css');
+
+$title = $scene->titre;
+$this->headTitle($title);
+?>
+
+<?php $sous_parcours = $scene->sous_parcours; ?>
+<?php $parcours = $sous_parcours->parcours; ?>
+
+<?php if ($parcours->public) :?>
+	<div class="alert alert-error">
+	  <button type="button" class="close" data-dismiss="alert">&times;</button>
+	  <h2><i class="icon-warning-sign"></i> Attention ! <i class="icon-warning-sign"></i></h2> Ce parcours est <strong>public</strong>, pensez à le passer en brouillon si vous ne voulez pas que vos modifications soit immédiatement visibles
+	  (depuis <a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>">la page d'accueil du parcours</a>).
+	</div>
+<?php endif;?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>"> <i class="icon-road"></i> <?php echo $this->escapeHtml($parcours->titre); ?></a> <span class="divider">/</span></li>
+    <li class="active"> <?php echo $this->escapeHtml($sous_parcours->titre); ?> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('scene/voirScene', array('id'=>$scene->id)) ?>"> <i class="icon-file-alt"></i> <?php echo $this->escapeHtml($scene->titre); ?></a> <span class="divider">/</span></li>
+    <li class="active">Edition</li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Cette page vous permet de modifier une scène.
+    	</p>
+    	<p>
+    	L'onglet 'Contenu de la scène' permet de modifier la narration de la scène ainsi que la liste des éléments à voir dans la scène.
+    	</p>
+    	<p>
+    	L'onglet 'Scènes voisines' permet de gérer les transitions autour de la scène. Vous pouvez ainsi relier la scène à une scène existante ou à une nouvelle scène, modifier les transitions environnantes (sémantique et narration), ...
+    	</p>
+    	<p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<?php $estRecommandee = ($scene instanceof \Parcours\Entity\SceneRecommandee);?>
+
+<!-- En tête -->
+<div class="page-header">
+	<div class="row-fluid">
+		<div class="span9">
+			<h3><?php echo $this->escapeHtml($sous_parcours->titre); ?></h3>
+			<?php if ($estRecommandee) :?>
+					<h1><p class="text-info">
+			<?php else : ?>
+					<h1><p class="muted">
+			<?php endif;?>
+			<i class="icon-pencil"></i>
+			<span class="edit CursorPointer" data-inputclass="span12" data-name="titre" data-type="text" data-pk="1" data-url="<?php echo $this->url("scene/editScene",array('id'=>$scene->id)) ?>"><?php echo $this->escapeHtml($title); ?></span> 
+			<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </p></h1>
+			<div class="messageInfos">&nbsp;</div>
+		</div>
+		
+		<div class="span3">
+			<?php if ($parcours->public) :?>
+				<p><strong><i class="icon-eye-open"></i> Ce parcours est public</strong></p>
+			<?php else :?>
+				<p><strong><i class="icon-eye-close"></i> Ce parcours est un brouillon</strong></p>
+			<?php endif;?>
+			<p class="text-warning">
+				<em> <i class="icon-cogs"></i> 
+				Ce sous-parcours fait partie de 
+				<a href="<?php echo $this->url('chantier'); ?>" class="text-warning"> vos chantiers en cours </a>
+				</em>
+			</p>
+			<div class="btn-group btn-block">
+	    		<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+	    			Actions 
+	    			<span class="caret"></span>
+	    		</a>
+	    		<ul class="dropdown-menu">
+			   			<li>
+							<a href="<?php echo $this->url('chantier/terminerChantierSousParcours',array(
+								'idSousParcours' => $sous_parcours->id,
+								'idUser' => $this->zfcUserIdentity()->getId(),
+								'return'=>'sousparcours')); ?>" >
+								<span class="text-warning"><i class="icon-unlock"> </i></span> Terminer le chantier
+							</a>
+						</li>
+					<li>
+						<a href="<?php echo $this->url('scene/voirScene',array('id' => $scene->id)) ?>">
+				        	<span class="text-info"><i class="icon-reply"> </i></span> Retour à la fiche de cette scène
+				        </a>
+					</li>
+					<li>
+						<?php if (!$estRecommandee) :?>
+							<a href="#" data-url="<?php echo $this->url('scene/retirerSceneSecondaire',array('id' => $scene->id)); ?>" 
+								class="supprSceneSec">
+								<span class="text-error"><i class="icon-trash"> </i></span> Supprimer cette scène
+							</a>
+						<?php else :?>
+							<a href="#" 
+								class="retirerCheminRecommande"
+								data-url="<?php echo $this->url('scene/retirerSceneRecommandee', array('id'=>$scene->id));?>">
+								<span class="text-error"><i class="icon-remove"> </i></span> Retirer cette scène du chemin recommandé
+							</a>
+						<?php endif;?>
+					</li>
+				</ul>
+	    	</div>
+	    </div>
+	    
+    </div>
+</div>
+    
+<div class="tabbable">
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#tab1" data-toggle="tab">Contenu de la scène</a></li>
+		<li><a href="#tab2" data-toggle="tab">Scènes voisines</a></li>
+	</ul>
+
+	<div class="tab-content">
+		<!-- Contenu de la scène -->
+		<div class="tab-pane active" id="tab1">
+		
+			<div class="row-fluid">
+
+				<!-- Narration -->
+				<div class="span6 well">
+					<h3>Narration</h3>
+					<hr>
+					<form id="textarea">
+						<textarea class="textarea-wysihtml5 input-block-level" data-name="description" rows="10" data-url="<?php echo $this->url("scene/editScene",array('id'=>$scene->id)) ?>"><?php echo $scene->narration;?></textarea>
+						<button type="button" class="textarea-submit btn btn-primary editable-submit"><i class="icon-ok icon-white"></i> Enregistrer</button>
+					</form>
+					<div id="textarea-return"></div>
+				</div>
+				
+				<!-- A voir dans la scsène -->
+				<div class="span6 well">
+					<h3>À voir dans cette scène</h3>
+					<hr/>
+					<h4> Eléments déjà présents </h4>
+					<?php if ($scene->elements->count() == 0): ?>
+							Aucun élément de la collection n'est lié à cette scène.
+					<?php endif; ?>
+					<?php if ($scene->elements != null) : ?>
+						<table class="table">
+						<?php foreach($scene->elements as $element) : ?>
+							<?php if($element instanceof Collection\Entity\Artefact) : ?>
+								<tr>
+								<td>
+									<a href="<?php echo $this->url('element/voir',array('id' => $element->id))?>"> 
+									<i class="icon-tag"></i> <?php echo $this->escapeHtml($element->titre); ?>
+								 	</a>
+								</td>
+								<td>
+									<a href="#" data-value=" <?php echo $this->escapeHtml($element->titre); ?>" 
+										class="deleteElement"
+										data-url="<?php echo $this->url('scene/deleteElement', array('idScene' => $scene->id, 'idElement' => $element->id)); ?>">
+									<i class="icon-trash"></i>
+									</a>
+								</td>
+								<tr>
+							<?php elseif($element instanceof Collection\Entity\Media) : ?>
+								<tr>
+								<td>
+									<a href="<?php echo $this->url('media/voirMedia',array('id' => $element->id))?>"> 
+									<i class="icon-picture"></i> <?php echo $this->escapeHtml($element->titre); ?>
+								 	</a>
+								</td>
+								<td>
+									<a href="#" data-value=" <?php echo $this->escapeHtml($element->titre); ?>" 
+										class="deleteElement"
+										data-url="<?php echo $this->url('scene/deleteElement', array('idScene' => $scene->id, 'idElement' => $element->id)); ?>">
+									<i class="icon-trash"></i>
+									</a>
+								</td>
+								<tr>
+							<?php endif; ?>
+						<?php endforeach ;?>
+						</table>
+					<?php else : ?>
+						<p> Aucun élément de la collection n'est présent cette scène. </p>
+					<?php endif; ?>
+					
+					<h4>Ajouter des éléments à la scène </h4>
+					<div class="well">
+						<?php echo $this->DatatableWidget( 'scene' ); ?> 
+					</div>
+				</div> <!-- /span6 -->
+			</div> <!-- /row-fluid -->
+			
+		</div> <!-- /tab1 contenu de la scène -->
+		
+		<!-- Scènes voisines -->
+		<div class="tab-pane" id="tab2">
+		
+			<!-- Transitions recommandées autour de cette scène -->
+			<?php if ($estRecommandee) :?>
+			<div class="row-fluid">
+				<!-- Transition recommandée entrante -->
+				<div class="span6">
+					<h3><p class="text-info">Transition recommandée entrante</p></h3>
+						<table class="table">
+						<?php if ($scene->transition_recommandee_entrante == null) :?>
+							<p class="text-info">Première scène recommandée du parcours</p>
+						<?php else: ?>
+							<tr>
+								<td>
+									<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene->transition_recommandee_entrante->scene_origine->id)) ?>"> 
+										<p class="text-info">
+										<i class="icon-file-alt"></i>  
+										<em> <?php echo $this->escapeHtml($scene->transition_recommandee_entrante->scene_origine->titre); ?> </em>
+										<i class="icon-arrow-right"></i>  
+										</p>
+									</a>
+								</td>
+								<td>
+									<p class="text-info">
+									[<?php echo ($scene->transition_recommandee_entrante->semantique) ? $scene->transition_recommandee_entrante->semantique->semantique : 'Sémantique inconnue' ; ?>
+									<a href="#" 
+						            	class="selectSemantiques" 
+						            	data-value="<?php echo ($scene->transition_recommandee_entrante->semantique) ? $scene->transition_recommandee_entrante->semantique->id : 'null' ; ?>"
+						                data-url="<?php echo $this->url('parcours/modifierTransition', array('id' => $scene->transition_recommandee_entrante->id)) ?>">
+						                <i class="icon-pencil"></i>  
+						            </a>]
+						            <a href="<?php echo $this->url('transition/modifier', array('id' => $scene->transition_recommandee_entrante->id)) ?>"> 
+										(modifier)
+									</a>
+							        </p>
+								</td>
+							</tr>
+						<?php endif;?>
+						<td>
+			       			<div class="input-append">
+						       	<select id="selectSceneRecommandeeAvant">
+						       		<option value="0">
+										-- Créer une nouvelle scène recommandée --
+									</option>
+						       		<?php foreach ($scenes_parcours as $scene_parcours) :?>
+							       		<?php if ($scene_parcours instanceof \Parcours\Entity\SceneSecondaire) : ?>
+										<option value="<?php echo $scene_parcours->id; ?>">
+											<?php echo $scene_parcours->titre; ?>
+										</option>
+										<?php endif;?>
+									<?php endforeach; ?>
+								</select>
+								<button class="btn btn-primary ajouterSceneRecommandeeAvant" type="submit">
+									<i class="icon-plus"></i>
+								</button>
+						 	</div>
+						</td>
+						<td>
+							<p class="text-info">... Insérer une scène avant dans le chemin recommandé</p>
+						</td>
+					</table>
+				</div> <!-- /span6 transition recommandée entrante -->
+				
+				<!-- Tranition recommandée sortante -->
+				<div class="span6">
+					<h3><p class="text-info">Transition recommandée sortante</p></h3>
+					<table class="table">
+						<?php if ($scene->transition_recommandee == null ) :?>
+							<p class="text-info">Dernière scène recommandée du parcours</p>
+						<?php else: ?>
+							<?php $transition = $scene->transition_recommandee; ?>
+							<tr>
+								<td>
+									<p class="text-info">
+									[<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+									<a href="#" 
+						            	class="selectSemantiques" 
+						            	data-value="<?php echo ($transition->semantique) ? $transition->semantique->id : 'null' ; ?>"
+						                data-url="<?php echo $this->url('parcours/modifierTransition', array('id' => $transition->id)) ?>">
+						                <i class="icon-pencil"></i> 
+						            </a>]
+						             <a href="<?php echo $this->url('transition/modifier', array('id' => $transition->id)) ?>"> 
+										(modifier)
+									</a>
+							        </p>
+								</td>
+						        <td>
+									<a href="<?php echo $this->url('scene/voirScene', array('id' => $transition->scene_destination->id)) ?>"> 
+										<p class="text-info">
+										<i class="icon-arrow-right"></i>  
+										<i class="icon-file-alt"></i>  
+										<em> <?php echo $this->escapeHtml($transition->scene_destination->titre); ?> </em>
+										</p>
+									</a>
+								</td>
+							</tr>
+						<?php endif;?>
+						<td>
+							<p class="text-info">Insérer une scène après dans le chemin recommandé... </p>
+						</td>
+						<td>
+			       			<div class="input-append">
+						       	<select id="selectSceneRecommandeeApres">
+						       		<option value="0">
+										-- Créer une nouvelle scène recommandée --
+									</option>
+						       		<?php foreach ($scenes_parcours as $scene_parcours) :?>
+						       			<?php if ($scene_parcours instanceof \Parcours\Entity\SceneSecondaire) : ?>
+										<option value="<?php echo $scene_parcours->id; ?>">
+											<?php  echo $scene_parcours->titre; ?>
+										</option>
+										<?php endif;?>
+									<?php endforeach; ?>
+								</select>
+								<button class="btn btn-primary ajouterSceneRecommandeeApres" type="submit">
+									<i class="icon-plus"></i>
+								</button>
+						 	</div>
+						</td>
+			       	</table>
+				</div> <!-- /span6 transition recommandée sortante -->
+			</div> <!-- /row-fluid transitions recommandées -->
+			<hr>
+			<?php endif;?>
+		
+			<!-- Transitions secondaires autour de cette scène -->
+			<div class="row-fluid">
+			
+				<!-- Transitions secondaires entrantes -->
+				<div class="span6">
+					<h3><p class="muted">Transitions secondaires entrantes</p></h3>
+					<table class="table">
+						<?php if ($scene->transitions_secondaires_entrantes == null
+								|| $scene->transitions_secondaires_entrantes->count() == 0) :?>
+							<p class="muted">Aucune tansition secondaire ne mène à cette scène.</p>
+						<?php else: ?>
+							<?php foreach ($scene->transitions_secondaires_entrantes as $transition) : ?>
+								<tr>
+								<td>
+									<a href="<?php echo $this->url('scene/voirScene', array('id' => $transition->scene_origine->id)) ?>"> 
+										<?php if ($transition->scene_origine instanceof \Parcours\Entity\SceneRecommandee) : ?>
+											<p class="text-info">
+										<?php else : ?>
+											<p class="muted">
+										<?php endif;?>
+										<i class="icon-file-alt"></i>  
+										<em> <?php echo $this->escapeHtml($transition->scene_origine->titre); ?> </em>
+										<i class="icon-arrow-right"></i>  
+										</p>
+									</a>
+								</td>
+								<td>
+									<p class="muted">
+									[<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+									<a href="#" 
+						            	class="selectSemantiques" 
+						            	data-value="<?php echo ($transition->semantique) ? $transition->semantique->id : 'null' ; ?>"
+						                data-url="<?php echo $this->url('transition/modifier', array('id' => $transition->id)) ?>">
+						                <i class="icon-pencil"></i>  
+						            </a>]
+						             <a href="<?php echo $this->url('transition/modifier', array('id' => $transition->id)) ?>"> 
+										(modifier)
+									</a>
+							        </p>
+								</td>
+								<td>
+									<a href="#" 
+										data-value=" <?php echo $this->escapeHtml($transition->narration); ?>" 
+										class="deleteTransition"
+										data-url="<?php echo $this->url('transition/supprimerTransitionSec', array('id' => $transition->id)); ?>">
+									<p class="text-error"><i class="icon-trash"></i></p>
+									</a>
+								</td>
+								</tr>
+							<?php endforeach; ?>
+						<?php endif;?>
+						<td>
+			       			<div class="input-append">
+						       	<select id="selectSceneOrigine">
+						       		<?php foreach ($scenes_parcours as $scene_parcours) :?>
+									<option value="<?php echo $scene_parcours->id; ?>">
+										<?php  echo $scene_parcours->titre; ?>
+									</option>
+									<?php endforeach; ?>
+								</select>
+								<button class="btn ajouterTransitionSecEntrante" type="submit">
+									<i class="icon-plus"></i>
+								</button>
+						 	</div>
+						</td>
+						<td>
+							<p class="muted">... Ajouter une transition secondaire entrante depuis</p>
+						</td>
+						<td>
+						</td>
+					</table>
+				</div> <!-- /span 6 transitions secondaires entrantes -->
+				
+				<!-- Tranitions secondaires sortantes -->
+				<div class="span6">
+					<h3><p class="muted">Transitions secondaires sortantes</p></h3>
+					<table class="table">
+						<?php if ($scene->transitions_secondaires == null 
+								|| $scene->transitions_secondaires->count() == 0) :?>
+							Aucune tansition secondaire ne part de cette scène.
+						<?php else: ?>
+							<?php foreach ($scene->transitions_secondaires as $transition) : ?>
+								<tr>
+								<td>
+									<p class="muted">
+									[<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+									<a href="#" 
+						            	class="selectSemantiques" 
+						            	data-value="<?php echo ($transition->semantique) ? $transition->semantique->id : 'null' ; ?>"
+						                data-url="<?php echo $this->url('transition/modifier', array('id' => $transition->id)) ?>">
+						                <i class="icon-pencil"></i> 
+						            </a>]
+						             <a href="<?php echo $this->url('transition/modifier', array('id' => $transition->id)) ?>"> 
+										(modifier)
+									</a>
+							        </p>
+								</td>
+						        <td>
+									<a href="<?php echo $this->url('scene/voirScene', array('id' => $transition->scene_destination->id)) ?>"> 
+										<?php if ($transition->scene_destination instanceof \Parcours\Entity\SceneRecommandee) : ?>
+											<p class="text-info">
+										<?php else : ?>
+											<p class="muted">
+										<?php endif;?>
+										<i class="icon-arrow-right"></i>  
+										<i class="icon-file-alt"></i>  
+										<em> <?php echo $this->escapeHtml($transition->scene_destination->titre); ?> </em>
+										</p>
+									</a>
+								</td>
+								<td>
+									<a href="#" 
+										data-value=" <?php echo $this->escapeHtml($transition->narration); ?>" 
+										class="deleteTransition"
+										data-url="<?php echo $this->url('transition/supprimerTransitionSec', array('id' => $transition->id)); ?>">
+									<p class="text-error"><i class="icon-trash"></i></p>
+									</a>
+								</td>
+								</tr>
+							<?php endforeach; ?>
+						<?php endif;?>
+						<tr>
+							<td>
+								<p class="muted">Ajouter une transition sortante vers...</p>
+							</td>
+							<td>
+			       			    <div class="input-append">
+						       		<select id="selectSceneDestination">
+						       			<option value="0">
+											-- Créer une nouvelle scène secondaire --
+										</option>
+						       			<?php foreach ($scenes_parcours as $scene_parcours) :?>
+										<option value="<?php echo $scene_parcours->id; ?>">
+											<?php  echo $scene_parcours->titre; ?>
+										</option>
+										<?php endforeach; ?>
+									</select>
+									<button class="btn ajouterTransitionSecSortante" type="submit">
+										<i class="icon-plus"></i>
+									</button>
+							 	</div>
+							</td>
+							<td>
+							</td>
+						</tr>
+			       	</table>
+				</div> <!-- /span6 transitions secondaires sortantes -->
+			</div> <!-- /row-fluid transitions secondaires -->
+			
+		</div> <!-- /tab2 scènes voisines -->
+	</div> <!-- / tab-conttent -->
+</div> <!-- / tabbable -->
+
+<div id="confirmDiv" >
+</div>
+
+<div id="modalDiv"></div>
+
+<?php $this->inlineScript()->captureStart(); ?>
+	
+	var element = {'id' : <?php echo $scene->id; ?>, 'titre' : '<?php echo $this->escapeHtml($scene->titre); ?>' };
+	
+	$(function () {
+
+		// Retirer la scène du chemin recommandé
+		$(".retirerCheminRecommande").click(function(event){
+        	var dataURL = $(this).attr('data-url');
+        	$('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir retirer cette scène du chemin recommandé ? Celle-ci deviendra une scène secondaire",
+                callback: function() {
+                	$('body').css('cursor', 'wait');
+                    $.post(
+                     	dataURL,
+                        function(response) {
+      						$(location).attr('href',"<?php echo $this->url('parcours/voir', array('id'=>$scene->sous_parcours->parcours->id));?>");
+		                }
+                    );
+                }
+          	});
+      	});
+	
+		// Suppression d'un élément de 'à voir dans la scène'
+		$(".deleteElement").click(function(event){
+        	var dataURL = $(this).attr('data-url');
+            var dataValue = $(this).attr('data-value');
+            $('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir supprimer définitivement la liaison entre cette scène et <i>" + dataValue + " </i>?",
+                callback: function() {
+                	$('body').css('cursor', 'wait');
+                     $.post(
+                     	dataURL,
+                        { name: "supprimer" },
+                        function(response) {
+		                	document.location.reload();
+		            	}
+                    );
+                }
+          	});
+      	});
+      	
+      	// Suppression d'une transition secondaire autour de la scène
+      	$(".deleteTransition").click(function(event){
+        	var dataURL = $(this).attr('data-url');
+            var dataValue = $(this).attr('data-value');
+            $('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir supprimer définitivement la transition <i>" + dataValue + " </i>?",
+                callback: function() {
+                	$('body').css('cursor', 'wait');
+                     $.post(
+                     	dataURL,
+                        { name: "supprimer" },
+                        function(response) {
+		                	document.location.reload();
+		            	}
+                    );
+                }
+          	});
+      	});
+      	
+      	// Insertion d'une scene recommandée avant
+      	$(".ajouterSceneRecommandeeAvant").click(function(e){
+      		$('body').css('cursor', 'wait');
+      		selectElmt = document.getElementById('selectSceneRecommandeeAvant');
+      		idNouvelleScene = selectElmt.options[selectElmt.selectedIndex].value;
+            $.ajax({
+				url: "<?php echo $this->url('scene/insererSceneRecommandee'); ?>",
+				type: "POST",
+				data:{
+					type: "ajAvant",
+					idScene: <?php echo $scene->id;?>,
+					idNouvelleScene: idNouvelleScene
+					}
+			}).done(function(){
+				document.location.reload()
+			});
+      	});
+      	
+      	// Insertion d'une scene recommandée après
+      	$(".ajouterSceneRecommandeeApres").click(function(e){
+      		$('body').css('cursor', 'wait');
+      		selectElmt = document.getElementById('selectSceneRecommandeeApres');
+      		idNouvelleScene = selectElmt.options[selectElmt.selectedIndex].value;
+            $.ajax({
+				url: "<?php echo $this->url('scene/insererSceneRecommandee'); ?>",
+				type: "POST",
+				data:{
+					type: "ajApres",
+					idScene: <?php echo $scene->id;?>,
+					idNouvelleScene: idNouvelleScene
+					}
+			}).done(function(){
+				document.location.reload()
+			});
+      	});
+      	
+      	// Création d'une transition secondaire entrantre
+      	$(".ajouterTransitionSecSortante").click(function(e){
+      		$('body').css('cursor', 'wait');
+      		selectElmt = document.getElementById('selectSceneDestination');
+      		idSceneDest = selectElmt.options[selectElmt.selectedIndex].value;
+            $.ajax({
+				url: "<?php echo $this->url('transition/ajouterTransitionSec'); ?>",
+				type: "POST",
+				data:{
+					idSceneOrigine: <?php echo $scene->id;?>,
+					idSceneDestination: idSceneDest
+					}
+			}).done(function(){
+				document.location.reload()
+			});
+      	});
+      	
+		// Création d'une transition secondaire sortante
+      	$(".ajouterTransitionSecEntrante").click(function(e){
+      		$('body').css('cursor', 'wait');
+      		selectElmt = document.getElementById('selectSceneOrigine');
+      		idSceneOrigine = selectElmt.options[selectElmt.selectedIndex].value;
+            $.ajax({
+				url: "<?php echo $this->url('transition/ajouterTransitionSec'); ?>",
+				type: "POST",
+				data:{
+					idSceneOrigine: idSceneOrigine,
+					idSceneDestination: <?php echo $scene->id;?>
+					}
+			}).done(function(){
+				document.location.reload()
+			});
+      	});
+      	
+		$('.textarea-wysihtml5').wysihtml5({
+			locale: "fr-FR",
+			image: false,
+			stylesheets: ["<?php echo $this->basePath() . '/css/bootstrap.css';?>"],
+			"events": {
+				"load": function() { 
+					$("editor.composer.iframe").wysihtml5_size_matters();
+				}
+			}
+		});
+
+		$("#textarea").on("click",".textarea-submit", function(e){
+      		$('body').css('cursor', 'wait');
+			DataValue = $('.textarea-wysihtml5').val();
+			$.ajax({
+				url: "<?php echo $this->url("scene/editScene",array('id'=>$scene->id)) ?>",
+				type: "POST",
+				data:{ name:'description', value: DataValue }, 
+			}).done(function(){
+				$('#textarea-return').html('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>Enregistrement réussi</div>')
+				$('body').css('cursor', 'auto');
+			});
+		});
+
+	    $(".file-input-form").on('submit', function (e){
+	    	e.preventDefault();
+	    	$(this).ajaxSubmit({
+				data: {name: 'data'},
+				success: function(data) { document.location.reload(); }
+            });
+	    });
+
+		$('.picker').editable({
+			mode: 'popup',
+			placement: 'top',
+			format: 'yyyy-mm-dd',
+			viewformat: 'dd-mm-yyyy',
+			 datepicker: {
+				language:'fr',
+			}
+		});
+		
+		$('.edit').editable({
+			mode: 'inline',
+			emptytext: 'Vide'
+		});
+		
+		// on affiche le modal avec les semantiques
+        $(".selectSemantiques").on("click", function(e){
+            var dataURL = $(this).attr('data-url');
+            var dataValue = $(this).attr('data-value');
+
+            var body = new String('<form id="semantiqueTransitions" action="'+dataURL+'"><dl><?php foreach ($SemantiqueTransitions as $semantique) { ?><label class="radio"><dt><input type="radio" name="SemantiqueTransitions" id="SemantiqueTransitions<?php echo $this->escapeHtml($semantique->id) ;?>" value="<?php echo $this->escapeHtml($semantique->id) ;?>" ><?php echo $this->escapeHtml($semantique->semantique) ;?></dt><dd><?php echo $this->escapeHtml($semantique->description) ;?></dd></label><?php } ?></dl></form>');
+            body = body.replace('id="SemantiqueTransitions'+dataValue+'"', 'id="SemantiqueTransitions'+dataValue+'" checked="checked"' );
+            $('#confirmDiv').confirmModal({
+                heading:"Sélectionner la sémantique",
+                body:body,
+                callback: function() {
+               		$('body').css('cursor', 'wait');
+                    var $form = $('#semantiqueTransitions');
+                    var inputVal = $form.find( 'input[name="SemantiqueTransitions"]:checked' ).val();
+                    var URL = $form.attr( 'action' );
+                     $.post(
+                        dataURL,
+                        { name: "semantique",value:inputVal },
+                        function() {
+                        	document.location.reload();
+                        }
+                    );
+                }
+            });
+            $('#SemantiqueTransitions'+dataValue).prop('checked');
+        });
+
+		// Affiche la modal de confirmation pour la suppression d'une scène
+		$(document).on( 'click', '.supprSceneSec', function(e){
+	   		e.preventDefault();
+		    var URL = $(this).attr('data-url');
+
+			$.ajax({
+				url: URL,
+				type: "POST",
+				data:{ 'action' : 'delete' }, 
+				success:function(response){
+					$('#modalDiv').html('<div id="ChampModal" class="modal">' + response + '</div>').modal();
+				},
+				error: function(){
+					$('.messageInfos').showInfos("Impossible d'afficher la popup", "error");
+				}
+			});
+		});
+		
+    });
+    
+<?php 
+$this->inlineScript()->captureEnd();
+
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.form.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.dataTables.js');
+$this->headScript()->appendFile($this->basePath() . '/js/ResultSet.js');
+$this->headScript()->appendFile($this->basePath() . '/js/pillbox.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/wysihtml5-0.3.0.min.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-wysihtml5.js') ; 
+$this->headScript()->appendFile($this->basePath() . '/js/locales/bootstrap-datepicker.fr.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/locales/bootstrap-wysihtml5.fr-FR.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/editable.wysihtml5.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.wysihtml5_size_matters.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap.file-input.js');
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+
+?>

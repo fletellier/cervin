@@ -1,0 +1,106 @@
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Ajouter un champ</h3>
+  </div>
+  <div class="modal-body">
+    
+
+  	<ul class="nav nav-tabs" id="myTab">
+  		<li class="<?php echo $Champ;?>"><a href="#Champ" data-toggle="tab">Champ classique</a></li>
+  		<li class="<?php echo $ChampSelect;?>"><a href="#ChampSelect" data-toggle="tab">Champ de type Select</a></li>
+  	</ul>
+
+  	<div class="tab-content">
+  		<div class="tab-pane <?php echo $Champ;?>" id="Champ">
+	<?php
+	$form = $this->formChamp;
+
+	$form->setAttribute('class','ajChampForm form-horizontal no-submit');
+	$form->get('label')->setAttribute('placeholder','Label')->setLabelAttributes(array('class' => 'control-label'));
+	$form->get('description')->setAttribute('placeholder','Description')->setLabelAttributes(array('class' => 'control-label'));
+	$form->get('format')->setLabelAttributes(array('class' => 'control-label'));
+	$form->get('submit')->setLabel('Valider')->setAttribute('class','ajChampSubmit btn btn-primary');
+
+	$form->prepare();
+
+	echo $this->form()->openTag($form);
+	echo $this->formHidden($form->get('id')); ?>
+
+	<div class="control-group">
+		<?php echo $this->formLabel($form->get('label')) ?>
+		<div class="controls">
+		<?php echo $this->formInput($form->get('label')) ?>
+		<?php echo $this->formElementErrors($form->get('label')) ?>
+		</div>
+	</div>
+	<div class="control-group">
+		<?php echo $this->formLabel($form->get('format')) ?>
+		<div class="controls">
+		<?php echo $this->formSelect($form->get('format')) ?>
+		<?php echo $this->formElementErrors($form->get('format')) ?>
+		</div>
+	</div>
+	<div class="control-group">
+		<?php echo $this->formLabel($form->get('description')) ?>
+		<div class="controls">
+		<?php echo $this->formTextarea($form->get('description')) ?>
+		<?php echo $this->formElementErrors($form->get('description')) ?>
+		</div>
+	</div>
+	  <div class="modal-footer">
+	  	<a href="#" class="btn btn-primary ajChampSubmit">Ajouter</a>
+	  	<button class="btn" data-dismiss="modal" aria-hidden="true">Annuler</button>
+	<?php //  echo $this->formSubmit($form->get('submit')); ?>
+	</div>
+	<?php echo $this->form()->closeTag();?>
+
+  		</div>
+  		<div class="tab-pane <?php echo $ChampSelect;?>" id="ChampSelect">
+	<?php
+	$form = $this->formChampSelect;
+	$form->get('label')->setLabelAttributes(array('class' => 'control-label'));
+	$form->get('select')->setLabelAttributes(array('class' => 'control-label'));
+	$form->get('description')->setLabelAttributes(array('class' => 'control-label'));
+
+	$form->prepare();
+
+	echo $this->form()->openTag($form);
+	echo $this->formHidden($form->get('id')); ?>
+	<div class="control-group">
+		<?php echo $this->formLabel($form->get('label')) ?>
+		<div class="controls">
+		<?php echo $this->formInput($form->get('label')) ?>
+		<?php echo $this->formElementErrors($form->get('label')) ?>
+		</div>
+	</div>
+	<div class="control-group">
+		<?php echo $this->formLabel($form->get('select')) ?>
+		<div class="controls">
+		<?php echo $this->formSelect($form->get('select')) ?>
+		<?php echo $this->formElementErrors($form->get('select')) ?>
+		</div>
+	</div>
+	<div class="control-group">
+		<?php echo $this->formLabel($form->get('description')) ?>
+		<div class="controls">
+		<?php echo $this->formTextarea($form->get('description')) ?>
+		<?php echo $this->formElementErrors($form->get('description')) ?>
+		</div>
+	</div>
+	  <div class="modal-footer">
+	  	<a href="#" class="btn btn-primary ajChampSelectSubmit">Ajouter</a>
+	  	<button class="btn" data-dismiss="modal" aria-hidden="true">Annuler</button>
+	<?php //  echo $this->formSubmit($form->get('submit')); ?>
+	</div>
+	<?php echo $this->form()->closeTag();?>
+
+  		</div>
+  	</div>
+
+
+
+
+
+</div>
+

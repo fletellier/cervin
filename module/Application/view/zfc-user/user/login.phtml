@@ -1,0 +1,51 @@
+<?php
+$title = 'Login';
+$this->headTitle($title);
+?>
+
+<div class="page-header">
+    <h1><?php echo $this->escapeHtml($title); ?> <!-- <small>Subtext for header</small> --></h1>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="<?php echo $this->url("zfcuser/login"); ?>">Connexion</a></li>
+    <li><a href="<?php echo $this->url("zfcuser/register"); ?>">Inscription</a></li>
+</ul>
+<div class="tab-content">
+<?php
+$form = $this->loginForm;
+$form->prepare();
+$form->setAttribute('action', $this->url('zfcuser/login'));
+$form->setAttribute('method', 'post');
+$form->setAttribute('class','form-horizontal');
+$form->get('identity')->setAttribute('placeholder','Login')->setLabel('Login')->setLabelAttributes(array('class' => 'control-label'));
+$form->get('credential')->setAttribute('placeholder','******')->setLabel('Mot de passe')->setLabelAttributes(array('class' => 'control-label'));
+$form->get('submit')->setLabel('Valider')->setAttribute('class','btn btn-primary');
+
+echo $this->form()->openTag($form); ?>
+
+    <fieldset>
+        <?php echo $this->formElementErrors($form->get('identity')) ?>
+        <div class="control-group">
+            <?php echo $this->formLabel($form->get('identity')) ?>
+            <div class="controls">
+            <?php echo $this->formInput($form->get('identity')) ?>
+            </div>
+        </div>
+        <div class="control-group">
+            <?php echo $this->formLabel($form->get('credential')) ?>
+            <div class="controls">
+            <?php echo $this->formInput($form->get('credential')) ?>
+            </div>
+        </div>
+            <?php if ($this->redirect): ?>
+                <input type="hidden" name="redirect" value="<?php echo $this->escapeHtml($this->redirect) ?>" />
+            <?php endif ?>
+        <div class="form-actions">
+            <?php echo $this->formButton($form->get('submit')) ?>
+        </div>
+    </fieldset>
+<?php echo $this->form()->closeTag() ?>
+</div>
+
+Pas encore de compte ? <a href="<?php echo $this->url('zfcuser/register') ?>">S'enregistrer !</a><br/><br/>

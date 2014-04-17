@@ -1,0 +1,330 @@
+<?php
+$title = 'Consultation des logs';
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datatable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/pillbox.css');
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li class="active"> Consultation des logs </li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Cette page vous permet de consulter les actions des utilisateurs.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header">
+    <h1><?php echo $this->escapeHtml($title); ?> 
+    <small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+</div>
+
+<div class="well">
+    <h3>Recherche</h3>
+    <form id="form-multi" name="form-multi" class="">
+        <div class="row-fluid">
+    
+            <div class="span3 input-prepend input-append input-block-level">
+                <span class="add-on"><p class="text-info"><i class="icon-wrench"> </i></p></span>
+                <select class="form-type">
+                    <?php 
+                        foreach ($selectActions as $select){
+                            echo '<option data-type="action">'.$select['action'].'</option>';
+                        }
+                    ?>
+                </select>
+                <button class="btn btn-info form-plus-type" type="button"><i class="icon-plus"> </i></button>
+            </div>
+                
+            <div class="span3 input-prepend input-append input-block-level">
+                <span class="add-on"><p class="text-warning"><i class="icon-briefcase"> </i></p></span>
+                <select class="form-type ">
+                    <?php 
+                        foreach ($selectObjectClass as $select){
+                            echo '<option data-type="objectClass">'.$select['objectClass'].'</option>';
+                        }
+                    ?>
+                </select>
+                <button class="btn btn-warning form-plus-type" type="button"><i class="icon-plus"> </i></button>
+            </div>
+                    
+            <div class="span3 input-append input-block-level">
+                <input class="form-id" type="number" min="1" placeholder="Id" data-type="objectId" />
+                <button class="btn btn-danger form-plus-id" type="button"><i class="icon-plus"> </i></button>
+            </div>
+
+            <div class="span3 input-prepend input-append input-block-level">
+                <span class="add-on"><p class="text-success"><i class="icon-user"> </i></p> </span>
+                <select class="form-type">
+                    <?php 
+                        foreach ($selectUsers as $select){
+                            echo '<option data-type="username">'.$select['username'].'</option>';
+                         }
+                    ?>
+                </select>
+                <button class="btn btn-success form-plus-type" type="button"><i class="icon-plus"> </i></button>
+            </div>
+
+        </div> <!-- /row-fluid -->
+
+        <div class="form-actions">
+            <div id="form-pillbox" class="pillbox" style="width:100%;">
+                <p><strong>Tags :</strong></p> 
+                <ul>
+                </ul>
+            </div>
+            <button id="submit" class="btn btn-primary"><i class="icon-search"> </i> Lancer la recherche</button>
+            <button class="btn btn-danger form-clear"><i class="icon-remove"> </i> Vider</button>
+        </div>
+
+    </form>
+</div>
+
+<div class="infos"></div> 
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <div>
+                <table class="table table-striped table-bordered data">
+                    <thead>
+                        <tr>
+                            <th><span class="">Date</span></th>
+                            <th><span class="text-info"><i class="icon-wrench"> </i> Action</span></th>
+                            <th><span class="text-warning"><i class="icon-briefcase"> </i> Objet</span></th>
+                            <th><span class="text-error">Id Objet</span></th>
+                            <th><span class="">Version</span></th>
+                            <th><span class="text-success"><i class="icon-user"> </i> Utilisateur</span></th>
+                            <th><span class=""></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7">En cours de téléchargement</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDiv" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="modal-title"></h3>
+    </div>
+    <div class="modal-body">
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div> 
+
+<?php $this->inlineScript()->captureStart(); ?>
+	var table;
+	$(function() {
+	
+	    table = ResultSet.paginate(
+	    	$('.data'),
+			{
+				"aaSorting": [ [0,'desc'] ],
+				"aoColumns": [
+		           	           	null,
+		           	           	null, 
+		           	        	null,
+                                null,
+                                null,
+		           	        	null,
+		                     	null
+	           	           	 ],
+	           	"iColumns": 7,
+	           	"bAutoWidth": false,
+				"bSortClasses":false,
+	           	"bProcessing": true,
+                "bServerSide": true,
+                "bFilter": false, //Supprime le champ de recherche
+                "sAjaxSource": "<?php echo $this->url("admin/logs"); ?>",
+                "fnServerParams": function ( aoData ) {
+                    
+                    var data = new Array();
+                    
+                    jQuery.each($('#form-pillbox').pillbox('items'), function() {
+                        var item =  new Object();
+                        item["type"] = this.type;
+                        item["value"] = this.value;
+        
+                        data.push(item);
+                    });
+
+                    if (data.length > 0) {
+                        aoData.push( { "name": "conditions", "value": JSON.stringify(data) } );
+                    }
+                },
+                "fnDrawCallback": function () {
+                    $(".popoverTop").popover({placement:'top', trigger:'hover'});
+                    $(".popoverLeft").popover({placement:'left', trigger:'hover'});
+
+                    $('.data td').on('click', '.revertObject', function(e){
+                        var url         = $(this).attr('data-url');
+
+                        var version     = $(this).attr('data-version');
+                        var objectClass = $(this).attr('data-object');
+                        var objectId    = $(this).attr('data-id');
+
+                        var data        = { "objectId" : objectId, "objectClass" : objectClass, "version" : version };
+
+                        $.post( 
+                            url,
+                            data,
+                            function(response) {
+
+                                var response = JSON.parse(response);
+
+                                if( typeof response.status != 'undefined' ){
+                                    if( response.status == true ){
+                                        $('.infos').showInfos(response.message, "success");
+                                    } else {
+                                        $('.infos').showInfos(response.message, "error");
+                                    }
+                                } else {
+                                    $('.infos').showInfos("Une erreur est survenue", "error");
+                                }
+
+                                table.fnDraw();
+                            }
+                        );
+
+                        e.preventDefault();
+                    }); 
+                }
+			}
+		);
+
+        $(document).on( 'click', '.InfoObject', function(e){
+            e.preventDefault();
+
+            var datas = $(this).data('data');
+ 
+            if( datas == null ){ return false; }
+
+            var table = $('<table>');
+            var thead = table.append('<thead>').children('thead').append('<tr />').children('tr').append('<th>Champ</th><th>Valeur</th>');
+            var tbody = table.append('<tbody />').children('tbody');
+
+            table.addClass('table table-striped table-bordered');
+
+            $.each( datas , function(index, value){
+                var tr = tbody.append('<tr />').children('tr:last');
+
+                if(typeof value == 'object'){ value = JSON.stringify(value); }
+
+                tr.append('<td>'+index.ucFirst()+'</td>');
+                tr.append('<td>'+value+'</td>');
+            });
+
+            $("#modalDiv .modal-title").text("Données modifiées");
+            $("#modalDiv .modal-body").html('');
+
+            table.appendTo('#modalDiv .modal-body');
+
+            $('#modalDiv').modal();
+        });
+        
+        $("#submit").click( function () {
+            table.fnDraw();
+            return false;
+        });
+
+        
+
+        // INITIALIZING PILLBOX
+
+        $('.form-plus-type').click(function () {
+            var el = $(this).parent().find('.form-type > option:selected')
+            var type = el.attr("data-type");
+            var value = $.trim(el.attr("value"));
+            
+            if(!isDuplicate( type, value )){
+                var icon = '';
+                var color = '';
+
+                if (type == 'action'){
+                    icon = '<i class="icon-wrench"> </i> ';
+                    color = 'status-info';
+                } else if (type == 'objectClass'){
+                    icon = '<i class="icon-briefcase"> </i> ';
+                    color = 'status-warning';
+                } else if (type == 'username') {
+                    icon = '<i class="icon-user"> </i> ';
+                    color = 'status-success';
+                }
+
+                $('#form-pillbox ul').append('<li class="' + color + '" data-type="' + type + '" data-value="' + value + '" >' + icon + value + '</li>');
+            }
+
+            $(this).parent().children('.form-type').prop('selectedIndex',0);
+
+        });
+
+        $('.form-plus-id').click(function () {
+            var e = jQuery.Event("keypress");
+            e.which = 13; // Code touche entrée = 13
+            $(this).parent().children('.form-id').trigger(e);
+        }); 
+
+        $('.form-id').keypress(function(event){
+            var value = parseInt($.trim($(this).attr("value")));
+            var type = $(this).attr("data-type");
+            if( event.which == 13 && value != "" && !isNaN(value) ){ // Code touche entrée = 13
+                $(this).attr("data-value", value);
+                if(!isDuplicate( type, value )){
+                    $('#form-pillbox ul').append('<li class="status-error" data-type="' + type + '" data-value="' + value + '">' + '"' + value + '"' + '</li>');
+                }
+                $(this).attr("value", "");
+                $(this).attr("data-value", "");
+                event.preventDefault();
+            }
+        });
+
+        $('.form-clear').click(function () {
+            $('.form-titre').attr("value", "").attr("data-value", "");
+            $('.form-type').prop('selectedIndex',0);
+            $('#form-pillbox ul > li').remove();
+            return false;
+        });
+
+        function isDuplicate(type, value, array){
+            var array = ( typeof(array) == 'undefined' ? $('#form-pillbox').pillbox('items') : array );
+            var duplicate = false;
+            jQuery.each(array, function() {
+                if(this.value == value && this.type == type){
+                    duplicate = true;
+                    return;
+                }
+            });
+            return duplicate;
+        }
+
+	});
+<?php
+$this->inlineScript()->captureEnd();
+
+$this->headScript()->appendFile($this->basePath() . '/js/pillbox.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.dataTables.js');
+$this->headScript()->appendFile($this->basePath() . '/js/ResultSet.js');
+?>

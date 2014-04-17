@@ -1,0 +1,194 @@
+	
+<?php 
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+
+$est_recommandee = $transition instanceof \Parcours\Entity\TransitionRecommandee;
+$title = 'Modifier une transition';
+
+$this->headTitle($title); 
+
+$scene_origine = $transition->scene_origine; 
+$scene_destination = $transition->scene_destination; 
+$parcours = ($transition->parcours) ? $transition->parcours : $transition->sous_parcours->parcours;
+$sous_parcours = $transition->sous_parcours;
+?>
+
+<?php if ($parcours->public) :?>
+	<div class="alert alert-error">
+	  <button type="button" class="close" data-dismiss="alert">&times;</button>
+	  <h2><i class="icon-warning-sign"></i> Attention ! <i class="icon-warning-sign"></i></h2> Ce parcours est <strong>public</strong>, pensez à le passer en brouillon si vous ne voulez pas que vos modifications soit immédiatement visibles
+	  (depuis <a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>">la page d'accueil du parcours</a>).
+	</div>
+<?php endif;?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>"> <i class="icon-road"></i>  <?php echo $this->escapeHtml($parcours->titre); ?></a> <span class="divider">/</span></li>
+    <!--  <li class="active"> <?php echo $this->escapeHtml($sous_parcours->titre); ?> <span class="divider">/</span></li> -->
+    <li class="active"> Détail d'une transition </li>
+</ul>
+
+<!-- En tête -->
+<div class="page-header">
+	<div class="row-fluid">
+		<div class="span9">
+			<h3><?php echo $this->escapeHtml($sous_parcours->titre); ?></h3>
+			<?php if ($est_recommandee) : ?>
+			<h1><p class="text-info"><?php echo $this->escapeHtml($title); ?> recommandée</p></h1>
+			<?php else :?>
+			<h1><p class="muted"><?php echo $this->escapeHtml($title); ?> secondaire</p></h1>
+			<?php endif;?>
+		</div>
+		
+		<div class="span3">
+			<?php if ($parcours->public) :?>
+				<p><strong><i class="icon-eye-open"></i> Ce parcours est public</strong></p>
+			<?php else :?>
+				<p><strong><i class="icon-eye-close"></i> Ce parcours est un brouillon</strong></p>
+			<?php endif;?>
+			<p class="text-warning">
+				<em> <i class="icon-cogs"></i> 
+				Ce sous-parcours fait partie de 
+				<a href="<?php echo $this->url('chantier'); ?>" class="text-warning"> vos chantiers en cours </a>
+				</em>
+			</p>
+			<div class="btn-group btn-block">
+	    		<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+	    			Actions 
+	    			<span class="caret"></span>
+	    		</a>
+	    		<ul class="dropdown-menu">
+			   			<li>
+							<a href="<?php echo $this->url('chantier/terminerChantierSousParcours',array(
+								'idSousParcours' => $sous_parcours->id,
+								'idUser' => $this->zfcUserIdentity()->getId(),
+								'return'=>'sousparcours')); ?>" >
+								<span class="text-warning"><i class="icon-unlock"> </i></span> Terminer le chantier
+							</a>
+						</li>
+					<li>
+						<a href="<?php echo $this->url('transition/voir',array('id' => $transition->id)) ?>">
+				        	<span class="text-info"><i class="icon-reply"> </i></span> Retour à la fiche de cette transition
+				        </a>
+					</li>
+				</ul>
+	    	</div>
+	    </div>
+	    
+    </div>
+</div>
+
+<div class="row-fluid">
+
+	<div class="span3 well">
+		<center>
+		<h4>Scène origine</h4>
+		<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene_origine->id)) ?>"> 
+			<?php if ($scene_origine instanceof \Parcours\Entity\SceneRecommandee) : ?>
+				<p class="text-info">
+			<?php else : ?>
+				<p class="muted">
+			<?php endif;?>
+			<i class="icon-file-alt"></i>  
+			<em> <?php echo $this->escapeHtml($scene_origine->titre); ?> </em>
+			</p>
+		</a>
+		<hr/>
+		</center>
+    	<div class="narration_scrollable" >
+    		<?php echo $scene_origine->narration; ?>
+    	</div>
+	</div>
+	<div class="span6">
+		<center>
+		<h3>Transition 
+			(<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+				<a href="#" 
+			        class="selectSemantiques" 
+			        data-value="<?php echo ($transition->semantique) ? $transition->semantique->id : 'null' ; ?>"
+			        data-url="<?php echo $this->url('transition/modifier', array('id' => $transition->id)) ?>">
+			        <i class="icon-pencil"></i>  
+		        </a>)
+		</h3>
+		<hr/>
+		</center>
+		<div class="narration_scrollable" >
+			<span class="edit CursorPointer"
+			       	data-url="<?php echo $this->url("transition/modifier", array("id" => $transition->id)); ?>"
+		            data-name="narration" 
+		            data-type="textarea"
+		            data-pk="1"><?php echo $this->escapeHtml($transition->narration); ?>
+		        </span>
+	    </div>
+    </div>
+    <div class="span3 well">
+    	<center>
+    	<h4>Scène destination</h4>
+    	<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene_destination->id)) ?>"> 
+			<?php if ($scene_destination instanceof \Parcours\Entity\SceneRecommandee) : ?>
+				<p class="text-info">
+			<?php else : ?>
+				<p class="muted">
+			<?php endif;?>
+			<i class="icon-file-alt"></i>  
+			<em> <?php echo $this->escapeHtml($scene_destination->titre); ?> </em>
+			</p>
+		</a>
+    	<hr/>
+		</center>
+		<div class="narration_scrollable" >
+    		<?php echo $scene_destination->narration; ?>
+    	</div>
+	</div>
+        
+</div>
+
+<div id="confirmDiv" >
+</div>
+
+<?php $this->inlineScript()->captureStart(); ?>
+
+	$(function () {
+	
+		$('.edit').editable({
+			mode: 'inline',
+			emptytext: 'Vide'
+		});
+	
+		// affichage le modal avec les semantiques
+	    $(".selectSemantiques").on("click", function(e){
+	        var dataURL = $(this).attr('data-url');
+	        var dataValue = $(this).attr('data-value');
+	
+	        var body = new String('<form id="semantiqueTransitions" action="'+dataURL+'"><dl><?php foreach ($SemantiqueTransitions as $semantique) { ?><label class="radio"><dt><input type="radio" name="SemantiqueTransitions" id="SemantiqueTransitions<?php echo $this->escapeHtml($semantique->id) ;?>" value="<?php echo $this->escapeHtml($semantique->id) ;?>" ><?php echo $this->escapeHtml($semantique->semantique) ;?></dt><dd><?php echo $this->escapeHtml($semantique->description) ;?></dd></label><?php } ?></dl></form>');
+	        body = body.replace('id="SemantiqueTransitions'+dataValue+'"', 'id="SemantiqueTransitions'+dataValue+'" checked="checked"' );
+	        $('#confirmDiv').confirmModal({
+	            heading:"Sélectionner la sémantique",
+	            body:body,
+	            callback: function() {
+	            	$('body').css('cursor', 'wait');
+	                var $form = $('#semantiqueTransitions');
+	                var inputVal = $form.find( 'input[name="SemantiqueTransitions"]:checked' ).val();
+	                var URL = $form.attr( 'action' );
+	                 $.post(
+	                    dataURL,
+	                    { name: "semantique",value:inputVal },
+	                    function() {
+	                       	document.location.reload();
+	                    }
+	                );
+	            }
+	        });
+	        $('#SemantiqueTransitions'+dataValue).prop('checked');
+	    });
+	    
+	});
+        
+<?php $this->inlineScript()->captureEnd(); 
+
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+
+?>

@@ -1,0 +1,306 @@
+<?php
+$title = 'Gestion des utilisateurs';
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datatable.css');
+?>
+
+<div class="messageEditUsers"></div>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li class="active"> Gestion des utilisateurs </li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>Cette page vous permet en tant qu'administrateur de l'application de gérer l'ensemble des utilisateurs. 
+    	Vous pouvez effectuer une recherche parmis tous les utilisateurs, puis modifier leur login, nom, email et rôle en cliquant directement dessus.
+    	</p>
+    	<p>
+    	Les rôles possibles pour un utilisateur sont :
+    	<dl class="dl-horizontal">
+    		<dt>Rôle Visiteur</dt>
+		    <dd>Personne non identifiée : peut consulter la collection et les parcours</dd>
+		    <dt>Rôle Utilisateur</dt>
+		    <dd>Contributeur enregistré sans droits : peut consulter la collection et les parcours</dd>
+		    <dt>Rôle Collection</dt>
+		    <dd>Permet (en plus) d'alimenter la collection</dd>
+		    <dt>Rôle Parcours</dt>
+		    <dd>Permet (en plus) d'éditer des parcours</dd>
+		    <dt>Rôle Modeleur</dt>
+			<dd>Permet (en plus) de modeler la structure de la collection numériques (types d'arefacts et de médias, champs qui les décrivent).</dd>
+		    <dt>Rôle Admin</dt>
+		    <dd>Tous les droits</dd>
+		</dl>
+		</p>
+    	<p>
+    	Si un utilisateur a demandé un rôle et est toujours en attente, une bulle rouge apparaît sur la ligne correspondante.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header row-fluid">
+	<div class="span9">
+    	<h1><?php echo $this->escapeHtml($title); ?> 
+    	<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+    </div>
+    <div class="span3">
+    <a href="<?php echo $this->url('admin/ajouter-utilisateur') ?>" class="btn btn-primary btn-block"><i class="icon-white icon-plus"></i> Ajouter un nouvel utilisateur </a>
+    </div>
+    
+</div>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <div>
+                <table class="table table-striped table-bordered data">
+                    <thead>
+                        <tr>
+                            <th>Login</th>
+                            <th>Nom / Prenom</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Adresse</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7">En cours de téléchargement</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmDiv" >
+</div> 
+
+<?php $this->inlineScript()->captureStart(); ?>
+	var table;
+	$(function() {
+	
+	    table = ResultSet.paginate(
+	    	$('.data'),
+			{
+				"aoColumns": [
+		           	           	null,
+		           	           	null, 
+		           	        	null,
+		                     	{ "bSortable": false  },
+		                     	{ "bSortable": false  },
+		                     	null,
+		                     	{ "bSortable": false  }
+	           	           	 ],
+	           	"iColumns": 7,
+	           	"bAutoWidth": false,
+				"bSortClasses":false,
+	           	"bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "<?php echo $this->url("admin/gestion-users"); ?>",
+				"fnDrawCallback": function () {
+					$('.status').editable({
+						source: [
+	                    <?php foreach ($roles as $role) : ?>
+									{value: <?php echo $role->getId();?>, text: '<?php echo $role->getRoleId();?>'},
+	                    <?php endforeach; ?>
+								],
+		                success: function(e) {
+						    notifications.decrement();
+						}
+					});
+	
+					$(".ResetPassword").popover({placement:'top', trigger:'hover'});
+					
+					$(".SupprimerUser").popover({placement:'top', trigger:'hover'});
+					
+					$(".DesactiverUser").popover({placement:'top', trigger:'hover'});
+					
+					$(".ReactiverUser").popover({placement:'top', trigger:'hover'});
+
+					$(".Info").popover({placement:'left', trigger:'hover'});
+	
+	                $('.text').editable({ 
+	                	emptytext: "Vide",
+		                success: function(e) {
+						    var resp = jQuery.parseJSON(e);
+							
+							if(resp.status === 'error'){
+								return resp.message;
+							} else {
+								$('.messageEditUsers').showInfos(resp.message, "success");
+							}				
+							
+							//table.fnDraw();
+						}
+	                 });
+					 
+	                $('td').on('click', '.refueRole', function(event) {
+	                    var dateURL = $(this).attr('data-url');
+						$.post( 
+							dateURL,
+							'',
+							function() {
+								$('.status').popover('hide').attr('data-original-title',"Demande refusée");
+								table.fnDraw();
+								notifications.decrement();
+							}
+						);
+	                }); 
+
+				}
+			}
+		);
+		
+		$(document).on( 'click', '.DesactiverUser', function(e){
+			var dateURL = $(this).attr('data-url');
+			var dateValue = $(this).attr('data-value');
+			$('#confirmDiv').confirmModal({
+				heading:'Confirmation',
+				body:"Êtes-vous sûr de vouloir désactiver l'utilisateur "+dateValue+" ?",
+				callback: function() {
+      				$('body').css('cursor', 'wait');
+					$.post(
+						dateURL,
+						{ name: "desactiver" },
+						function(e) {
+						                           
+							var resp = jQuery.parseJSON(e);
+															
+							if(resp.status === true){
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.message, "success");
+								$('body').css('cursor', 'auto');
+							} else {
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.error, "error");
+								$('body').css('cursor', 'auto');
+							}
+							
+							table.fnDraw();
+						}
+					);
+				}
+			});   
+		});
+		
+		$(document).on( 'click', '.ReactiverUser', function(e){
+			var dateURL = $(this).attr('data-url');
+			var dateValue = $(this).attr('data-value');
+			$('#confirmDiv').confirmModal({
+				heading:'Confirmation',
+				body:"Êtes-vous sûr de vouloir réactiver l'utilisateur "+dateValue+" ?",
+				callback: function() {
+      				$('body').css('cursor', 'wait');
+					$.post(
+						dateURL,
+						{ name: "reactiver" },
+						function(e) {
+						                           
+							var resp = jQuery.parseJSON(e);
+															
+							if(resp.status === true){
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.message, "success");
+								$('body').css('cursor', 'auto');
+							} else {
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.error, "error");
+								$('body').css('cursor', 'auto');
+							}
+							
+							table.fnDraw();
+						}
+					);
+				}
+			});   
+		});
+		
+		$(document).on( 'click', '.SupprimerUser', function(e){
+			var dateURL = $(this).attr('data-url');
+			var dateValue = $(this).attr('data-value');
+			$('#confirmDiv').confirmModal({
+				heading:'Confirmation',
+				body:"Êtes-vous sûr de vouloir supprimer l'utilisateur "+dateValue+" de la base de données ?",
+				callback: function() {
+      				$('body').css('cursor', 'wait');
+					$.post(
+						dateURL,
+						{ name: "supprimer" },
+						function(e) {
+						                           
+							var resp = jQuery.parseJSON(e);
+															
+							if(resp.status === true){
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.message, "success");
+								$('body').css('cursor', 'auto');
+							} else {
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.error, "error");
+								$('body').css('cursor', 'auto');
+							}
+							
+							table.fnDraw();
+						}
+					);
+				}
+			});   
+		});
+		
+		$(document).on( 'click', '.ResetPassword', function(e){
+			var dateURL = $(this).attr('data-url');
+			var dateValue = $(this).attr('data-value');
+			$('#confirmDiv').confirmModal({
+				heading:'Confirmation',
+				body:"Êtes-vous sûr de vouloir réinitialiser le mot de passe de l'utilisateur : "+dateValue+" ?<br/>Celui-ci obtiendra son nouveau mot de passe à l'adresse mail qu'il a indiqué.",
+				callback: function() {
+      				$('body').css('cursor', 'wait');
+					$.post(
+						dateURL,
+						{ name: "password" },
+						function(e) {
+													                                   
+							var resp = jQuery.parseJSON(e);
+															
+							if(resp.status === true){
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.message, "success");
+								$('body').css('cursor', 'auto');
+							} else {
+								//location.reload();
+								$('.messageEditUsers').showInfos(resp.error, "error");
+								$('body').css('cursor', 'auto');
+							}
+							
+							table.fnDraw();
+						}
+					);
+				}
+			});   
+		});
+
+	});
+<?php
+$this->inlineScript()->captureEnd();
+
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js');
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.dataTables.js');
+$this->headScript()->appendFile($this->basePath() . '/js/ResultSet.js');
+?>

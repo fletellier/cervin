@@ -1,0 +1,20 @@
+
+  	<div class="modal-header">
+    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    	<h3>Supprimer</h3>
+  	</div>
+  	<div class="modal-body">
+    	<?php if(!$presenceTransition): ?>
+    	Êtes-vous sûr de vouloir supprimer la scène : <?php echo $sceneSecondaire->titre; ?> ?
+		<div class="modal-footer">
+	  		<a href="<?php echo $this->url('scene/retirerSceneSecondaire', array( 'id' => $sceneSecondaire->id )); ?>" class="btn btn-primary validerSupprSceneSec">Supprimer</a>
+	  		<button class="btn" data-dismiss="modal" aria-hidden="true">Annuler</button>
+		</div>
+		<?php else: ?>
+		Vous ne pouvez pas supprimer cette scène car elle est rattachée à une ou plusieurs transitions.
+		<div class="modal-footer">
+	  		<button class="btn" data-dismiss="modal" aria-hidden="true">Annuler</button>
+		</div>
+		<?php endif; ?>
+	</div>
+

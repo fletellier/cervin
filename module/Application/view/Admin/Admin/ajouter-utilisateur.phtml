@@ -1,0 +1,72 @@
+<?php
+$title = "Création d'un nouvel utilisateur";
+$this->headTitle($title);
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('admin/gestion-users') ?>">Gestion des utilisateurs</a> <span class="divider">/</span></li>
+    <li class="active"> Création d'un nouvel utilisateur </li>
+</ul>
+
+<div class="page-header">
+    <h1><?php echo $this->escapeHtml($title); ?></h1>
+</div>
+
+<?php
+$form = $this->form;
+$form->prepare();
+$form->setAttribute('action', $this->url('admin/ajouter-utilisateur'));
+$form->setAttribute('method', 'post');
+$form->setAttribute('class','form-horizontal no-submit');
+
+$form->get('displayName')->setAttribute('placeholder','Nom Prénom');
+$form->get('email')->setAttribute('placeholder','exemple@exemple.fr');
+$form->get('username')->setAttribute('placeholder','Login');
+
+$form->get('telephone')->setAttribute('placeholder','0600000000');
+$form->get('adresse')->setAttribute('placeholder','12 rue Joseph REY');
+$form->get('code_postal')->setAttribute('placeholder','38000');
+$form->get('ville')->setAttribute('placeholder','Grenoble');
+$form->get('pays')->setAttribute('placeholder','France');
+
+$form->get('submit')->setLabel('Valider')->setAttribute('class','btn btn-primary');
+echo $this->form()->openTag($form); ?>
+
+    <fieldset>
+    <?php foreach ($form as $element): ?>
+    
+        <?php if (!$element instanceof Zend\Form\Element\Button): ?>
+        <div class="control-group">
+            <?php echo $this->formLabel($element->setLabelAttributes(array('class' => 'control-label'))); ?>
+        <?php endif ?>
+        
+        <?php if ($element instanceof Zend\Form\Element\Button): ?>
+        
+            <div class="form-actions">
+                <?php echo $this->formButton($element) ?>
+                
+        <?php elseif ($element instanceof Zend\Form\Element\Checkbox): ?>
+
+            <div class="controls"><?php echo $this->formCheckbox($element).$this->formElementErrors($element);?></div>
+
+        <?php elseif ($element instanceof Zend\Form\Element\Captcha): ?>
+        
+            <?php echo $this->formCaptcha($element) . $this->formElementErrors($element) ?></div>
+            
+        <?php elseif ($element instanceof Zend\Form\Element\Textarea): ?>
+        
+            <div class="controls"><?php echo $this->formTextarea($element) . $this->formElementErrors($element) ?></div>
+
+        <?php else: ?>
+        
+            <div class="controls"><?php echo $this->formInput($element) . $this->formElementErrors($element) ?></div>
+            
+        <?php endif ?>
+        
+        </div>
+    <?php endforeach ?>
+    </fieldset>
+<?php echo $this->form()->closeTag() ?>
+

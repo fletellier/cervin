@@ -1,0 +1,670 @@
+<?php
+($type == 'media') ? $title = 'Création d\'un média' : $title = 'Création d\'un artefact';
+$this->headTitle($title);
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datepicker.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-wysihtml5.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/select2.css');
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('collection') ?>">Collection Numérique</a> <span class="divider">/</span></li>
+    <li class="active"><?php echo $title; ?></li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Cette page permet de créer un nouvel élément dans la collection numérique
+    	En choisissant le type d'élément que vous voulez créer, des champs à renseigner vont s'afficher.
+    	</p>
+    	<p>
+    	L'éditeur de texte qui apparait à droite de l'écran permet de renseigner une description détaillée de l'élément qui vous donne la possibilité de rajouter toute donnée pertinent qui n'est pas prévue dans les champs prédéfinis.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header">
+    <h1><i class="icon-tag"></i>  <?php echo $this->escapeHtml($title); ?> 
+	<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+</div>
+
+<form id="selectform" class="form-horizontal">
+	<div class="control-group">
+		<label class="control-label" for="inputEmail">
+			<?php ($type == 'media') ? $label='Types de média' : $label='Types d\'artefacts';
+			echo $label; ?>
+		</label>
+	    <div class="controls">
+			<select name="type" class="target">
+				<option value="none">Veuillez choisir un type</option>
+				<?php foreach ($types_elements as $current) : ?>
+					<option value="<?php echo $current->id; ?>" <?php if($current->id == $type_element_id){echo 'selected="selected"';} ?>> <?php echo $this->escapeHtml($current->nom); ?> </option>
+				<?php endforeach; ?>
+			</select>
+	    </div> 
+	</div>
+</form>
+<hr>
+
+<div id="containsform">
+<?php if ($form) { 
+	$form->setAttribute('action', $this->url('element/ajouter', array('type'=>$type, 'type_element_id' => $type_element_id)));
+	$form->setAttribute('id','form');
+	$form->setAttribute('class','form-horizontal no-submit');
+	$form->setAttribute('method', 'post');
+	$form->prepare();
+	
+	// Configure Errors Helper
+	$errorsHelper  = $this->plugin('formelementerrors');
+
+	echo $this->form()->openTag($form);
+	?>
+	
+	<div class="row-fluid">
+		<div class="span6">
+
+			<?php foreach ($form as $element):
+		 	if (!$element instanceof Zend\Form\Element\Button && 
+				!$element instanceof Zend\Form\Element\Hidden &&
+				!($element->getAttribute('type') == 'hidden') &&
+				$element->getName() != 'description'): ?>
+		 		<!-- Label du champ -->
+		        <div class="control-group">
+			        <label class="control-label">
+			        	<?php echo $this->formLabel($element); ?>
+			        </label>
+			    	<div class="controls">
+			    		<!-- Element du formulaire -->
+			    		<div class="row-fluid">
+			    			<div class="span11">
+					    		<?php
+					    		 if ($element instanceof Zend\Form\Element\File) { 
+					    			echo $this->formFile($element);
+					    		} elseif ($element instanceof Zend\Form\Element\Textarea) {
+									echo $this->formTextarea($element);
+								} elseif ($element->getAttribute('besoin_format')) {
+									echo '
+										<div class="row-fluid">
+										<div class="span6">';
+									$format = $form->get('format'.$element->getAttribute('name'));
+									echo $this->formSelect($format);
+									echo '</div>
+										<div class="span6">';
+									echo $this->formInput($element);
+									echo '</div></div>';
+								} elseif ($element instanceof DoctrineModule\Form\Element\ObjectSelect ) {
+					    			echo $this->formSelect($element);
+								} elseif ($element->getAttribute('geoposition')) {
+									echo '<div class="row-fluid">
+										<div class="span10 geoposition"><blockquote>';
+										echo $this->formLabel($form->get('adresse_'.$element->getAttribute('name')));
+										echo $this->formTextarea($form->get('adresse_'.$element->getAttribute('name')));
+										echo $this->formElementErrors($form->get('adresse_'.$element->getAttribute('name')));
+
+										echo $this->formLabel($form->get('latitude_'.$element->getAttribute('name')));
+										echo $this->formText($form->get('latitude_'.$element->getAttribute('name'))); 
+										echo $this->formElementErrors($form->get('latitude_'.$element->getAttribute('name')));
+
+										 echo $this->formLabel($form->get('longitude_'.$element->getAttribute('name')));
+										echo $this->formText($form->get('longitude_'.$element->getAttribute('name'))); 
+										echo $this->formElementErrors($form->get('longitude_'.$element->getAttribute('name')));
+           							echo '</blockquote></div><div class="span2">';
+           							echo '<a href="#" data-id="'.$element->getAttribute('name').'" class="btn showGMapsModal" ><i class="icon-map-marker"></i> </a>';
+           							echo '</div></div>';
+								} else {
+				        			echo $this->formInput($element); 
+								} ?> 
+							</div>
+							<div class="span1">
+				        		<!-- Bulle d'information sur le champ -->
+					        	<?php if ($element->getAttribute('description') != null) { ?>
+						        	<a href="#" 
+					        			id="<?php echo $element->getAttribute('name'); ?>"
+					        			class="description"
+					        			rel="popover"
+					        			data-content="<?php echo $this->escapeHtml($element->getAttribute('description')); ?>"
+					        			data-original-title="Description du champ"><i class="icon-question-sign"></i></a>  
+					        	<?php } ?>
+					        </div>
+			        	</div>
+				        <!-- Erreurs de validation du formulaire -->
+				        <?php echo $this->formElementErrors($element); ?>
+			        </div> <!-- /controls -->
+			    </div> <!-- control-group -->
+			<?php endif ?>
+		
+		<?php endforeach; ?>
+		</div>
+		
+		<!-- Description -->
+		<div class="span6 well">
+		<?php foreach ($form as $element):
+			if ($element->getName() == 'description'): ?>
+	        	<!-- Editeur pour la description -->
+	        	<?php echo $this->formInput($element); ?>
+	        <?php endif; ?>
+	    <?php endforeach; ?>
+		</div>
+	</div>
+	
+	<!-- Boutton -->
+	<?php foreach ($form as $element):
+		if ($element instanceof Zend\Form\Element\Button): ?>
+	    	<!-- Bouton de validation du formulaire -->
+	        <div class="form-actions"> 
+	        	<?php echo $this->formSubmit($element); ?>
+	        	<a href="<?php echo $this->url('collection/consulter') ?>" role="button" class="btn"> Annuler </a>
+	    	</div>
+	    <?php endif ?>
+	
+	<?php endforeach; ?>
+	
+	<?php echo $this->form()->closeTag(); ?>
+<?php } else { ?>
+	<div id="annuler">
+	        <form class="form-horizontal">
+		       	<div class="form-actions">
+		       		<a href="<?php echo $this->url('collection/consulter') ?>" role="button" class="btn"> Annuler </a>
+		       	</div>
+	        </form>
+	</div>
+	<hr>
+	<div id="containsform"></div>
+<?php } ?>
+</div>
+
+<div id="modalDiv" class="modal hide fade">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Carte</h3>
+	</div>
+	<div class="modal-body">
+		<div id="gmaps"></div>
+		<form class="form-inline form-geo">
+			<div>
+				<div class="input-append pull-left">
+					<input class="input-large addressInput" type="text" placeholder="Adresse">
+					<button class="btn searchAddress" type="button"><i class="icon-map-marker"></i></button>
+				</div>
+				&nbsp;
+				<div class="input-append pull-right">
+					<input type="text" class="input-small latitudeInput" placeholder="Latitude" >
+					<input type="text" class="input-small longitudeInput" placeholder="Longitude" >
+					<button class="btn placeMarker" type="button"><i class="icon-screenshot"></i></button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">Fermer</button>
+		<button class="btn btn-primary save">Sauvegarder</button>
+	</div>
+</div>
+<?php $this->inlineScript()->captureStart(); ?>
+
+	$(function () { 
+
+		$(".select").select2({
+			placeholder: "Non renseigné",
+			allowClear: true
+		});
+		
+		// Modification de la valeur du select des types d'élément
+		// On rappelle l'action element/ajouter pour récupérer le formulaire correspondant
+		$(".target").change(function() {
+		    if($("select option:selected").val()=='none') {
+		    	var url="<?php echo $this->url('element/ajouter', array('type'=>$type))?>";
+				$(location).attr('href',url);
+		    } else {
+			    var id = $("select option:selected").val();
+		    	var url = '<?php echo $this->url('element/ajouter', array('type'=>$type, 'type_element_id' => '\'+id+\''))?>';
+				$(location).attr('href',url);
+		    }
+		});
+
+		// Gestion du date picker
+	    $('.datepicker').datepicker({
+	        language:'fr-FR',
+	        format:'yyyy-dd-mm',
+	        autoclose:true
+	    });
+    	
+
+    	// Gestion des popover pour la description des champs
+    	$(".description").popover({placement:'top', trigger:'hover'}); 
+    	
+    	// Gestion du wysihtml5
+    	$('.wysihtml5-textarea').wysihtml5({
+			locale: "fr-FR",
+			image: false,
+			stylesheets: ["<?php echo $this->basePath() . '/css/bootstrap.css';?>"],
+			"events": {
+				"load": function() { 
+					$("editor.composer.iframe").wysihtml5_size_matters();
+				}
+			}
+		});
+		
+		// Gestion de la précision des dates (jour, mois, année)
+		$('.format_date').change(function() {
+			var name = $(this).attr('data-input-name');
+			$('input[name='+name+']').datepicker('remove');
+			$('input[name='+name+']').val('');
+			var format = $(this).val();
+			if (format == 0) {
+				$('input[name='+name+']').datepicker({
+			        language:'fr-FR',
+			        format:'yyyy-dd-mm',
+			        autoclose:true,
+			        minViewMode:0,
+			        startView:0
+			    });
+			} else if (format == 1) {
+				$('input[name='+name+']').datepicker({
+			        language:'fr-FR',
+			        format:'yyyy-mm',
+			        autoclose:true,
+			        minViewMode:1,
+			        startView:1
+			    });
+			} else {
+				$('input[name='+name+']').datepicker({
+			        language:'fr-FR',
+			        format:'yyyy',
+			        autoclose:true,
+			        minViewMode:2,
+			        startView:2
+			    });
+			}
+		});
+		
+		window.GMaps = {
+			_position : "",
+			_lat : "48.85806239999999",
+			_lng : "2.295147199999974",
+			_kml : "http://www.ourairports.com/airports.kml",
+			_marker : "",
+			_map : "",
+			_geocoder : "",
+			_api_key : "",
+			_el : document.getElementById("gmaps"),
+			_elJq : $("#gmaps"),
+		
+			init : function(el) {
+
+				if(typeof el != 'undefined'){
+		            GMaps._el =  document.getElementById(el);
+		            GMaps._elJq =  $("#"+el);
+		        }
+		
+				if(typeof google === 'undefined'){
+					var script = document.createElement("script");
+					script.type = "text/javascript";
+					//script.src = "https://maps.googleapis.com/maps/api/js?key="+GMaps._api_key+"&sensor=false&callback=GMaps.load";
+					script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=weather&callback=GMaps.load';
+					document.body.appendChild(script);
+				} else {
+					GMaps.load();
+				}
+			},
+		
+			load : function() {
+
+				var champsId = $('#modalDiv .save').data('id');
+				var champLat = $(".geoposition input[name='latitude_"+champsId+"'] ").val();
+				var champLng = $(".geoposition input[name='longitude_"+champsId+"'] ").val();
+				
+				if( champLat != '' && champLng != '' ){
+					$("#modalDiv .latitudeInput").val( champLat );
+		            $("#modalDiv .longitudeInput").val( champLng );
+					GMaps._position = new google.maps.LatLng(champLat, champLng);
+				} else {
+					GMaps._position = new google.maps.LatLng(GMaps._lat, GMaps._lng);
+				}
+
+				GMaps._geocoder = new google.maps.Geocoder();
+				
+				var mapOptions = {
+					zoom: 7,
+					center: GMaps._position,
+					disableDefaultUI: true,
+					mapTypeControl: true,
+					mapTypeId: google.maps.MapTypeId.HYBRID
+				}
+				
+				GMaps.drawMap(mapOptions);
+
+				GMaps.setMarker();
+				
+				GMaps.geocodePosition( GMaps._position );
+				
+				$(window).resize(function() {
+					GMaps.resizeInModal();
+				});
+			},
+		
+			drawMap : function(mapOptions){
+				
+				if( typeof mapOptions == 'undefined' && mapOptions == null ){
+					mapOptions = {
+						zoom: 7,
+						center: GMaps._position,
+						disableDefaultUI: true,
+						mapTypeControl: true,
+						mapTypeId: google.maps.MapTypeId.HYBRID
+					}
+				}
+				
+			    GMaps._map = new google.maps.Map(GMaps._el, mapOptions);
+			},
+		
+			centerMap : function(position){
+				GMaps._map.setCenter(position);
+			},
+		
+			setKmlLayer : function(){
+			    var ctaLayer = new google.maps.KmlLayer(
+			        GMaps._kml,
+			        {   
+			            preserveViewport: true,
+			            suppressInfoWindows: false
+			        }
+			    );
+		
+			    ctaLayer.setMap(GMaps._map);
+			},
+		
+			setWeatherLayer : function(){
+			    var weatherLayer = new google.maps.weather.WeatherLayer({
+		    		temperatureUnits: google.maps.weather.TemperatureUnit.CELSIUS
+		  		});
+		
+			    weatherLayer.setMap(GMaps._map);
+			},
+		
+			setTransitLayer : function(){
+			    var transitLayer = new google.maps.TransitLayer();
+			    transitLayer.setMap(GMaps._map);
+			},
+		
+			setBikeLayer : function(){
+			    var bikeLayer = new google.maps.BicyclingLayer();
+		  		bikeLayer.setMap(GMaps._map);
+			},
+		
+			setTrafficLayer : function(){
+			    var trafficLayer = new google.maps.TrafficLayer();
+		  		trafficLayer.setMap(GMaps._map);
+			},
+		
+			setCloudLayer : function(){
+			    var cloudLayer = new google.maps.weather.CloudLayer();
+		  		cloudLayer.setMap(GMaps._map);
+			},
+			
+			searchPosition : function(lat, lng, callback){
+			
+				if( ( typeof lat != 'undefined' && parseFloat(lat) != NaN ) && ( typeof lng != 'undefined' && parseFloat(lng) != NaN ) ){
+					GMaps._position = new google.maps.LatLng(lat, lng);
+				} else {
+					console.error("Vous devez spécifier une latitude et une longitude");
+				}
+						
+				GMaps.centerMap( GMaps._position );
+
+				GMaps.changeZoom(14);
+
+				GMaps.setMarker();
+				
+				GMaps.geocodePosition( GMaps._position );
+				
+				if(typeof callback != 'undefined'){
+			    	callback;
+			    }
+			},
+			
+			geocodePosition : function(markerPos){
+			    
+			    GMaps._geocoder.geocode(
+			        {
+			            latLng: markerPos
+			        }, 
+			        function(results, status){
+			            if (status == google.maps.GeocoderStatus.OK){
+			            
+			            	$("#modalDiv .addressInput").val(results[0].formatted_address);
+							//$("#modalDiv .latitudeInput").val(results[0].geometry.location.lat());
+							//$("#modalDiv .longitudeInput").val(results[0].geometry.location.lng());
+							$("#modalDiv .latitudeInput").val( GMaps._marker.getPosition().lat() );
+							$("#modalDiv .longitudeInput").val( GMaps._marker.getPosition().lng() );
+			            
+			                /*console.log("Results : ", results);
+			                console.log("Adresse : ", results[0].formatted_address);
+			                console.log("Latitude : ", results[0].geometry.location.lat());
+			                console.log("Longitude : ", results[0].geometry.location.lng());*/
+
+			            } else {
+			                console.error("Cannot determine address at this location "+status);
+			                $("#modalDiv .addressInput").val("N/A");
+			                $("#modalDiv .latitudeInput").val( GMaps._marker.getPosition().lat() );
+			                $("#modalDiv .longitudeInput").val( GMaps._marker.getPosition().lng() );
+			            }
+			        }
+			    );
+			},
+
+			geocodeAddress : function(address) {
+		
+				/* Appel au service de geocodage avec l'adresse en paramètre */
+				GMaps._geocoder.geocode( { 'address': address}, function(results, status) {
+					/* Si l'adresse a pu être géolocalisée */
+					if (status == google.maps.GeocoderStatus.OK) {
+						/* Récupération de sa latitude et de sa longitude */
+						
+						/*console.log("Result : ", results);
+						console.log("Latitude : ", results[0].geometry.location.lat());
+			            console.log("Longitude : ", results[0].geometry.location.lng());*/
+		
+						$("#modalDiv .addressInput").val(results[0].formatted_address);
+						$("#modalDiv .latitudeInput").val(results[0].geometry.location.lat());
+						$("#modalDiv .longitudeInput").val(results[0].geometry.location.lng());
+
+						GMaps._position = results[0].geometry.location;
+						
+						GMaps.centerMap( GMaps._position );
+		
+						GMaps.changeZoom(14);
+
+						GMaps.setMarker();
+		
+					} else {
+						console.error("Cannot find this address "+status);
+					}
+
+				});
+			},
+		
+			changeZoom : function(zoomValue){
+				/*console.log("Zoom : ", GMaps._map.getZoom());
+		
+				if(GMaps._map.getZoom() > zoomValue){
+					for (var i = GMaps._map.getZoom(); i >= zoomValue; i--) {
+						window.setTimeout( 
+							( function(zoom){ 
+								return function(){ 
+									GMaps._map.setZoom(zoom);
+									console.log(zoom);
+								}; 
+							} )( i ),
+							5000
+						);
+					}
+				} else if(GMaps._map.getZoom() < zoomValue){
+					for (var i = GMaps._map.getZoom(); i <= zoomValue; i++) {
+						window.setTimeout( 
+							( function(zoom){ 
+								return function(){ 
+									GMaps._map.setZoom(zoom);
+									console.log(zoom);
+								}; 
+							} )( i ),
+							5000
+						);
+					}
+				}
+				console.log("Zoom : ", GMaps._map.getZoom());*/
+		
+				GMaps._map.setZoom(zoomValue);
+			},
+
+			setMarker : function(lat, lng, callback){
+				
+				if( ( typeof lat != 'undefined' && lat != null ) && ( typeof lng != 'undefined' && lng != null ) ){
+					GMaps._position = new google.maps.LatLng(lat, lng);
+				}
+			
+				if( GMaps._marker != "" ){
+					GMaps._marker.setMap(null);
+				}
+				
+				/* Affichage du marker */
+				GMaps._marker = new google.maps.Marker({
+					map: GMaps._map,
+					draggable: true,
+	       			animation: google.maps.Animation.DROP,
+					position: GMaps._position
+				});
+
+				google.maps.event.addListener(GMaps._marker, 'dragend', function(){
+			        GMaps.geocodePosition(GMaps._marker.getPosition());
+			    });
+			    
+			    if(typeof callback != 'undefined'){
+			    	callback;
+			    }
+			},
+			
+			resizeInModal : function(){
+				GMaps._elJq.height( ( $(window).height() - ( $('#modalDiv').outerHeight() - $('#modalDiv .modal-body').height() ) ) );
+				if( GMaps._elJq.height() >= $('#modalDiv .modal-body').height() ){
+					GMaps._elJq.height( ( $('#modalDiv .modal-body').height() - $('.form-geo').outerHeight() ) - 65 );
+				}
+				GMaps._elJq.width( $('#modalDiv .modal-body').width() );
+			}
+			
+		};
+				
+		//Gestion de la modale contenant la minimap
+		$(document).on( 'click', '.showGMapsModal', function(e){
+			$('#modalDiv').modal();
+			$('#modalDiv .save').data('id', $(this).data('id'));
+			e.preventDefault();
+		});
+		
+		$('#modalDiv').on('shown', function (e) {
+    		GMaps.resizeInModal();
+    		GMaps.init();
+    		GMaps.resizeInModal();
+		});
+		
+		$(document).on( 'click', '#modalDiv .save', function(e){
+			var champsId = $(this).data('id');
+			
+			var adresse   = $("#modalDiv .addressInput").val();
+			var latitude  = $("#modalDiv .latitudeInput").val();
+			var longitude = $("#modalDiv .longitudeInput").val();
+
+			if( adresse != "" && latitude != "" && longitude != "" ){
+				$(".geoposition textarea[name='adresse_"+champsId+"'] ").val(adresse);
+				$(".geoposition input[name='latitude_"+champsId+"'] ").val( parseFloat(latitude) );
+				$(".geoposition input[name='longitude_"+champsId+"'] ").val( parseFloat(longitude) );
+			}
+			$(this).data('id', '');
+			$('#modalDiv').modal('hide')
+		});
+		//Fin Gestion de la modale contenant la minimap
+		
+		//Gestion du champ adresse dans la minimap
+		$(document).on( 'click', '#modalDiv .searchAddress', function(e){
+			GMaps.geocodeAddress( $("#modalDiv .addressInput").val() );
+		});
+		
+		$(document).on( 'keypress', '#modalDiv .addressInput', function(e){
+			if( e.which == 13 ){ // Code touche entrée = 13
+				$("#modalDiv .searchAddress").click();
+				$(this).blur();
+				e.preventDefault();
+			}
+		});
+				
+		$(document).on( 'mouseup', '#modalDiv .addressInput', function(e){
+			e.preventDefault();
+		});
+		
+		$(document).on( 'focus', '#modalDiv .addressInput', function(e){
+			$(this).select();
+		});
+		// Fin Gestion du champ adresse dans la minimap
+		
+		//Gestion des champs latitude et longitude dans la minimap
+		$(document).on( 'click', '#modalDiv .placeMarker', function(e){
+			GMaps.searchPosition( $("#modalDiv .latitudeInput").val(), $("#modalDiv .longitudeInput").val() );
+		});
+		
+		$(document).on( 'keypress', '#modalDiv .latitudeInput', function(e){
+			if( e.which == 13 ){ // Code touche entrée = 13
+				$("#modalDiv .placeMarker").click();
+				$(this).blur();
+				e.preventDefault();
+			}
+		});
+				
+		$(document).on( 'mouseup', '#modalDiv .latitudeInput', function(e){
+			e.preventDefault();
+		});
+		
+		$(document).on( 'focus', '#modalDiv .latitudeInput', function(e){
+			$(this).select();
+		});
+		
+		$(document).on( 'keypress', '#modalDiv .longitudeInput', function(e){
+			if( e.which == 13 ){ // Code touche entrée = 13
+				$("#modalDiv .placeMarker").click();
+				$(this).blur();
+				e.preventDefault();
+			}
+		});
+				
+		$(document).on( 'mouseup', '#modalDiv .longitudeInput', function(e){
+			e.preventDefault();
+		});
+		
+		$(document).on( 'focus', '#modalDiv .longitudeInput', function(e){
+			$(this).select();
+		});
+		//Fin Gestion des champs latitude et longitude dans la minimap
+
+    });
+
+<?php 
+$this->inlineScript()->captureEnd();
+
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-datepicker.js');
+$this->headScript()->appendFile($this->basePath() . '/js/locales/bootstrap-datepicker.fr.js');
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap.file-input.js');
+$this->headScript()->appendFile($this->basePath() . '/js/wysihtml5-0.3.0.min.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-wysihtml5.js') ; 
+$this->headScript()->appendFile($this->basePath() . '/js/locales/bootstrap-wysihtml5.fr-FR.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.wysihtml5_size_matters.js');
+$this->headScript()->appendFile($this->basePath() . '/js/select2.js');
+$this->headScript()->appendFile($this->basePath() . '/js/locales/select2_locale_fr.js') ;
+?>

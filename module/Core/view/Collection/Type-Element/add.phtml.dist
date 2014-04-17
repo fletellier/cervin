@@ -1,0 +1,89 @@
+<?php
+$title = 'Créer un nouveau type d\'éléments';
+$this->headTitle($title);
+?>
+
+<?php  $this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css'); ?>
+
+<div class="page-header">
+    <h1><?php echo $this->escapeHtml($title); ?> <!-- <small>Subtext for header</small> --></h1>
+</div>
+
+
+
+
+
+<?php
+	$form = $this->TypeElementForm;
+	 $form->setAttribute('action',$this->url('typeElement/add',array('media-artefacts'=> 'artefacts')));
+	 $form->setAttribute('method', 'post');
+
+	//$form->setAttribute('class','form-horizontal');
+	$form->get('nom')->setAttributes(array('placeholder'=>'Nom','class'=>'span12'));
+
+	$form->prepare();
+
+	echo $this->form()->openTag($form);
+	echo $this->formHidden($form->get('id')); ?>
+
+
+<div class="row">
+<?php echo $this->formRow($form->get('nom'));?>
+
+</div>
+<div class="row" id="champs">
+
+
+<?php
+$label = false;
+foreach ($form->get('Champs') as $champ): ?>
+<?php if($label != true):?>
+<div class="row">
+<div class="span4"><?php echo $this->formLabel($champ->get('label')) ?></div>
+<div class="span3"><?php echo $this->formLabel($champ->get('format')) ?></div>
+<div class="span4"><?php echo $this->formLabel($champ->get('description')) ?></div>
+<div class="span1"></div>
+</div>
+
+<?php
+$label = true;
+ endif;?>
+<fieldset>
+<div class="row-fluid" id="champ">
+<div class="span4"><?php echo $this->formInput($champ->get('label')) ?>
+		<?php echo $this->formElementErrors($champ->get('label')) ?></div>
+<div class="span3"><?php echo $this->formSelect($champ->get('format')) ?>
+		<?php echo $this->formElementErrors($champ->get('format')) ?></div>
+<div class="span4"><?php echo $this->formTextarea($champ->get('description')) ?>
+		<?php echo $this->formElementErrors($champ->get('description')) ?></div>
+<div class="span1"id="remove"></div>
+</div>
+</fieldset>
+<?php endforeach;?>
+</div>
+
+<?php  echo $this->formCollection()->renderTemplate($form->get('Champs')); ?>
+
+<button onclick="return add_category()" class="btn btn-info" type="button">+</button>
+
+<?php $this->inlineScript()->captureStart() ?>
+
+	$(function () {
+		function add_category() {
+			var currentCount = $('#champ').length;
+			//console.info(currentCount);
+			var template = $('form > span').data('template');
+			//console.info(template);
+			template = template.replace(/__index__/g, currentCount);
+
+			$('#champs').append(template);
+
+			return false;
+		}
+    });
+    
+<?php $this->inlineScript()->captureEnd() ?>
+
+	<?php   echo $this->formSubmit($form->get('submit')); ?>
+<?php echo $this->form()->closeTag(); ?>
+

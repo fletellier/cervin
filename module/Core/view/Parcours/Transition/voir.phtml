@@ -1,0 +1,164 @@
+<?php 
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+
+$est_recommandee = $transition instanceof \Parcours\Entity\TransitionRecommandee;
+$title = 'Détail d\'une transition';
+
+$this->headTitle($title); 
+
+$scene_origine = $transition->scene_origine; 
+$scene_destination = $transition->scene_destination; 
+$parcours = ($transition->parcours) ? $transition->parcours : $transition->sous_parcours->parcours;
+$sous_parcours = $transition->sous_parcours;
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>"> <i class="icon-road"></i>  <?php echo $this->escapeHtml($parcours->titre); ?></a> <span class="divider">/</span></li>
+    <!--  <li class="active"> <?php echo $this->escapeHtml($sous_parcours->titre); ?> <span class="divider">/</span></li> -->
+    <li class="active"> Détail d'une transition </li>
+</ul>
+
+
+
+<!-- Titre -->
+	<div class="page-header">
+		<div class="row-fluid">
+			<div class="span9">
+				<?php if($sous_parcours !== null) : ?>
+					<h3><?php echo $this->escapeHtml($sous_parcours->titre); ?></h3>
+				<?php endif;?>
+				<?php if ($est_recommandee) : ?>
+				<h1><p class="text-info"><?php echo $this->escapeHtml($title); ?> recommandée</p></h1>
+				<?php else :?>
+				<h1><p class="muted"><?php echo $this->escapeHtml($title); ?> secondaire</p></h1>
+				<?php endif;?>
+			</div>
+			
+			<div class="span3">
+			<?php if ($this->isAllowed('Parcours') === true) :?>
+				<?php if ($parcours->public) :?>
+					<p><strong><i class="icon-eye-open"></i> Ce parcours est public</strong></p>
+				<?php else :?>
+					<p><strong><i class="icon-eye-close"></i> Ce parcours est un brouillon</strong></p>
+				<?php endif;?>
+				<?php if($sous_parcours !== null) : ?>
+					<?php if ($sous_parcours->utilisateur === null) :?>
+					    <div class="btn-group btn-block">
+			    			<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+			    				Actions 
+			    				<span class="caret"></span>
+			    			</a>
+			    			<ul class="dropdown-menu">
+				   				<li>
+									<a href="<?php echo $this->url('chantier/demarrerChantierSousParcours',array(
+											'idSousParcours' => $sous_parcours->id,
+											'idUser' 	=> $this->zfcUserIdentity()->getId(),
+											'return' 	=> 'transition',
+											'idReturn' 	=> $transition->id)); ?>">
+										<span class="text-warning"><i class="icon-cogs"> </i></span> Commencer un chantier sur ce sous-parcours
+									</a>
+								</li>
+							</ul>
+			    		</div>
+					<?php elseif ($sous_parcours->utilisateur === $this->zfcUserIdentity()): ?>
+						<p class="text-warning">
+							<em> <i class="icon-cogs"></i> 
+							Ce sous-parcours fait partie de 
+							<a href="<?php echo $this->url('chantier'); ?>" class="text-warning"> vos chantiers en cours </a>
+							</em>
+						</p>
+						 <div class="btn-group btn-block">
+			    			<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+			    				Actions 
+			    				<span class="caret"></span>
+			    			</a>
+			    			<ul class="dropdown-menu">
+				   				<li>
+									<a href="<?php echo $this->url('chantier/terminerChantierSousParcours',array(
+											'idSousParcours' => $sous_parcours->id,
+											'idUser' => $this->zfcUserIdentity()->getId(),
+											'return'=>'sousparcours')); ?>">
+										<span class="text-warning"> <i class="icon-unlock"> </i></span> Terminer le chantier
+									</a>
+								</li>
+								<li>
+									<a href="<?php echo $this->url('transition/modifier',array('id' => $transition->id)) ?>">
+										<span class="text-info"><i class="icon-pencil"> </i></span> Modifier cette transition
+								    </a>
+								</li>
+							</ul>
+			    		</div>
+			
+					<?php else :?>
+						<p class="text-warning">
+							<em><i class="icon-cogs"></i>  Chantier en cours par : 
+							<a class="text-warning" href="mailto:<?php echo $sous_parcours->utilisateur->email; ?>"> 
+								<?php echo $sous_parcours->utilisateur->displayName; ?>  <i class="icon-envelope"></i>
+							</a>
+							</em> 
+						</p>
+			    		<a class="btn btn-primary btn-block disabled" data-toggle="dropdown" href="#">
+			    			Aucune action disponible
+			    		</a>
+					<?php endif;?>
+				<?php endif;?>
+		    <?php endif; ?>
+		
+		    </div>
+	    </div>
+	</div>
+
+<div class="row-fluid">
+
+	<div class="span3 well">
+		<center>
+		<h4>Scène origine</h4>
+		<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene_origine->id)) ?>"> 
+			<?php if ($scene_origine instanceof \Parcours\Entity\SceneRecommandee) : ?>
+				<p class="text-info">
+			<?php else : ?>
+				<p class="muted">
+			<?php endif;?>
+			<i class="icon-file-alt"></i>  
+			<em> <?php echo $this->escapeHtml($scene_origine->titre); ?> </em>
+			</p>
+		</a>
+		<hr/>
+		</center>
+    	<div class="narration_scrollable" >
+    		<?php echo $scene_origine->narration; ?>
+    	</div>
+	</div>
+	<div class="span6 ">
+		<center>
+		<h3>Transition (<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>)</h3>
+		<hr/>
+		</center>
+		<div class="narration_scrollable" >
+	        <?php echo $this->escapeHtml($transition->narration); ?>
+	    </div>
+    </div>
+    <div class="span3 well">
+    	<center>
+    	<h4>Scène destination</h4>
+    	<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene_destination->id)) ?>"> 
+			<?php if ($scene_destination instanceof \Parcours\Entity\SceneRecommandee) : ?>
+				<p class="text-info">
+			<?php else : ?>
+				<p class="muted">
+			<?php endif;?>
+			<i class="icon-file-alt"></i>  
+			<em> <?php echo $this->escapeHtml($scene_destination->titre); ?> </em>
+			</p>
+		</a>
+    	<hr/>
+		</center>
+		<div class="narration_scrollable" >
+    		<?php echo $scene_destination->narration; ?>
+    	</div>
+	</div>
+        
+</div>

@@ -1,0 +1,156 @@
+<?php 
+$title = "Chantiers en cours";
+$this->headTitle($title);
+?>
+<?php $user = $this->zfcUserIdentity(); ?>
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li class="active"> <?php echo $this->escapeHtml($title); ?> </li>
+</ul>
+
+<div class="page-header">
+	<h1> <?php echo $this->escapeHtml($title); ?> 
+	<?php if (count($elements) + count($sous_parcours) > 0) :?>
+		<span class="badge badge-info">
+			<?php echo count($elements) + count($sous_parcours); ?>
+		</span> </h3>
+	<?php endif;?>
+	</h1>
+</div>
+
+<div class="tabbable">
+	<ul class="nav nav-tabs">
+		<li class="active">
+			<a href="#tab1" data-toggle="tab">
+				Eléments de la collection
+				<?php if (count($elements) > 0) :?>
+					<span class="badge badge-info">
+						<?php echo count($elements); ?>
+					</span> </h3>
+				<?php endif;?>
+			</a>
+		</li>
+		<li>
+			<a href="#tab2" data-toggle="tab">
+				Sous-parcours
+				<?php if (count($sous_parcours) > 0) :?>
+					<span class="badge badge-info">
+						<?php echo count($sous_parcours); ?>
+					</span> </h3>
+				<?php endif;?>
+			</a>
+		</li>
+	</ul>
+
+	<div class="tab-content">
+		<!-- Elements de la collection -->
+		<div class="tab-pane active" id="tab1">
+			<?php if (count($elements) == 0) :?>
+				Aucun élément de la collection numérique n'est en chantier
+			<?php else : ?>
+				<table class="table table-hover">
+				<tr>
+					<th>Elément</th>
+					<th>Type</th>
+					<th>Utilisateur</th>
+					<th>Commencé le</th>
+					<th>Visibilité</th>
+					<th></th>
+				</tr>
+				<?php foreach ($elements as $element) :?>
+				<tr>
+					<td>
+						<a href="<?php echo $this->url('element/voir', array('id'=>$element->id));?>">
+							<i class="icon-tag"></i> <?php echo $element->titre; ?>	
+						</a>
+					</td>
+					<?php if ($element instanceOf \Collection\Entity\Artefact) : ?>
+						<td>Artefact</td>
+					<?php  else : ?>
+						<td>Média</td>
+					<?php endif; ?>
+					<td>
+						<a href="mailto:<?php echo $element->utilisateur->email; ?>"> 
+							<?php echo $element->utilisateur->displayName; ?>  <i class="icon-envelope"></i>
+						</a>
+					</td>
+		   			<td><?php echo (($element->utilisateurChange) ? $element->utilisateurChange->format('Y-m-d à H:i') : 'N/A'); ?></td>
+					<td>
+					<?php if ($element->public) :?>
+						<p class="text-error"><i class="icon-warning-sign"></i> Public <i class="icon-warning-sign"></i> </p>
+					<?php else :?>
+						Brouillon
+					<?php endif; ?>
+					</td>
+					<td>
+						<p class="text-right">
+						<a href="<?php echo $this->url('chantier/terminerChantierElement',array(
+								'idElement' => $element->id,
+								'idUser' => $element->utilisateur->id,
+								'return'=>'admin')); ?>" 
+							class="btn btn-primary">
+							<i class="icon-unlock"> </i> Terminer le chantier
+						</a>
+						</p>
+					</td>
+				</tr>
+				<?php endforeach;?>
+				</table>
+			<?php endif;?>
+		</div>
+		
+		<!-- Sous-parcours -->
+		<div class="tab-pane" id="tab2">
+			<?php if (count($sous_parcours) == 0) :?>
+				Aucun sous-parcours n'est en chantier
+			<?php else : ?>
+				<table class="table table-hover">
+				<tr>
+					<th>Sous-parcours</th>
+					<th>Parcours</th>
+					<th>Utilisateur</th>
+					<th>Commencé le</th>
+					<th>Visibilité</th>
+					<th></th>
+				</tr>
+				<?php foreach ($sous_parcours as $sous_parcour) :?>
+				<tr>
+					<td><?php echo $sous_parcour->titre; ?></td>
+					<td>
+						<a href="<?php echo $this->url('parcours/voir', array('id'=>$sous_parcour->parcours->id)); ?>" >
+						<i class="icon-road"></i>
+						<?php echo $sous_parcour->parcours->titre; ?>
+						</a>
+					</td>
+				   <td>
+						<a href="mailto:<?php echo $sous_parcour->utilisateur->email; ?>"> 
+							<?php echo $sous_parcour->utilisateur->displayName; ?>  <i class="icon-envelope"></i>
+						</a>
+					</td>
+		    		<td><?php echo (($sous_parcour->utilisateurChange) ? $sous_parcour->utilisateurChange->format('Y-m-d à H:i') : 'N/A'); ?></td>
+					<td>
+					<?php if ($sous_parcour->parcours->public) :?>
+						<p class="text-error"><i class="icon-warning-sign"></i> Public <i class="icon-warning-sign"></i> </p>
+					<?php else :?>
+						Brouillon
+					<?php endif; ?>
+					</td>
+					<td>
+						<p class="text-right">
+						<a href="<?php echo $this->url('chantier/terminerChantierSousParcours',array(
+								'idSousParcours' => $sous_parcour->id,
+								'idUser' => $sous_parcour->utilisateur->id,
+								'return'=>'admin')); ?>" 
+							class="btn btn-primary">
+							<i class="icon-unlock"> </i> Terminer le chantier
+						</a>
+						</p>
+					</td>
+				</tr>
+				<?php endforeach;?>
+				</table>
+			<?php endif;?>
+		</div> 
+	</div> 
+</div> 

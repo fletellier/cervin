@@ -1,0 +1,44 @@
+<?php
+// module/Album/view/album/album/index.phtml:
+
+$title = 'My albums';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->escapeHtml($title); ?></h1>
+
+<div class="dropdown">
+    <a class="btn dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#">
+        Add new album
+        <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+        <li><a href="<?php echo $this->url('album', array('action'=>'add'));?>">True album</a></li>
+        <li class="divider"></li>
+        <li class="disabled"><a href="<?php echo $this->url('album', array('action'=>'add'));?>">False album</a></li>
+    </ul>
+</div>
+
+<table class="table">
+<tr>
+    <th>Title</th>
+    <th>Artist</th>
+    <th>&nbsp;</th>
+</tr>
+<?php foreach ($albums as $album) : ?>
+<tr>
+    <td><?php echo $this->escapeHtml($album->title);?></td>
+    <td><?php echo $this->escapeHtml($album->artist);?></td>
+    <td>
+
+        <span class="btn-group">
+            <button class="btn"> <a href="<?php echo $this->url('album',
+            array('action'=>'edit', 'id' => $album->id));?>">Edit</a> </button>
+            <button class="btn"> <a href="<?php echo $this->url('album',
+            array('action'=>'delete', 'id' => $album->id));?>">Delete</a> </button>
+        </span>
+    </td>
+</tr>
+<?php endforeach; ?>
+</table>
+
+

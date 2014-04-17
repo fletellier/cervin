@@ -1,0 +1,364 @@
+<?php
+$title = $Parcours->titre;
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li class="active"><i class="icon-road"></i> <?php echo $this->escapeHtml($title); ?></li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Vous êtes sur la page d'accueil d'un parcours. La graphe représente le parcours dans se globalité : 
+    	<ul>
+    	<li> En bleu le chemin recommandé</li>
+    	<li>En gris les chemins secondaires</li>
+    	<li> En rouge les scènes sans transition entrante : attention elles ne sont pas accessibles</li>
+    	</ul>
+    	</p>
+    	<p>
+    	Le menu à gauche détaille les sous-parcours. Si vous avez l'autorisation, vous pouvez créer/supprimer des sous-parcours et ajouter de nouvelles scènes dans un sous-parcours.
+    	</p>
+    	<p>
+    	Pour voir le détail d'une scène, cliquez dessus dans le graphe. Toute modification du parcours (modifier le contenu d'une scène, créer/supprimer/modifier une transition, ...) se fait en allant dans le détail de la scène concernée.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<!-- Dot Modal -->
+<div id="dotModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Source du graphe dans le langage dot</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    		Dot est un langage de descritpion de graphe. Un logiciel comme <a  target="_blank" href="http://www.graphviz.org">Graphviz</a> permet de générer le graphe dans différents formats (svg, png, jpg, ...) à partir de ces sources.
+    	</p>
+    	<textarea readonly class="input-block-level" rows="15" onClick="this.select()"><?php echo $dot ; ?></textarea>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header">
+    <?php if ($this->isAllowed('Parcours') === true) :?>
+    <div class="row-fluid">
+    	<div class="span10">
+		    <h1>
+		    <i class="icon-road"></i> 
+		    <span class="edit CursorPointer"
+		                        data-url="<?php echo $this->url("parcours/modifier", array("id" => $Parcours->id)); ?>"
+		                        data-name="titre" 
+		                        data-type="text" 
+		                        data-inputclass="span10" 
+		                        data-pk="1"><?php echo $this->escapeHtml($title); ?></span>
+		    <small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> 
+		    </h1>
+		    <p class="edit CursorPointer"
+		                        data-url="<?php echo $this->url("parcours/modifier", array("id" => $Parcours->id)); ?>"
+		                        data-inputclass="span10" 
+		                        data-name="description" 
+		                        data-type="textarea" 
+		                        data-pk="1"><?php echo $this->escapeHtml($Parcours->description);?></p>
+		</div>
+		<div class="span2">
+			<a href="<?php echo $this->url('parcours/export', array('id' => $Parcours->id));?>"
+				target="_blank"
+				class="btn">
+				<i class="icon-download"></i> Export Json
+			</a>
+			&nbsp;&nbsp;
+			<a href="#" 
+        		class="info-export"
+        		rel="popover"
+        		data-original-title="Export Json d'un parcours"
+        		data-html = "true"
+        		data-content="La documentation du format Json utilisé pour exporter un parcours est disponible sur
+        			<a target='_blank' href='https://tuleap.cervin.org/wiki/index.php?pagename=Export%20Json%20d%27un%20parcours&action=BackLinks&group_id=105'>
+        			le wiki de Tuleap.</a>">
+        		<i class="icon-question-sign"></i>
+        	</a>  
+		</div>
+	</div>
+    <?php else : ?>
+        <h1>
+        <i class="icon-road"></i><?php echo $this->escapeHtml($title); ?>
+    	<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> 
+    	</h1>
+    	<p><?php echo $this->escapeHtml($Parcours->description);?></p>
+    <?php endif;?>
+</div>
+
+<style type="text/css">
+
+	.elements {
+		width: 208px;
+		text-align: center;
+		padding: 20px 10px 20px 10px;
+	} 
+	
+	a [class^="icon-"],a [class*=" icon-"],a [class^="icon-"]:before,a [class*=" icon-"]:before
+	{
+		display: inline-block;
+	}
+	
+	.sous_parcours {
+		border-style: dashed;
+		border-width: 3px;
+		border-color: #5B7244;
+		padding: 5px 5px 20px 5px;
+	}
+  a {
+    cursor: pointer;
+  }
+
+
+</style>
+
+<script type="text/vnd.graphviz" id="cluster">
+
+//<!--
+<?php echo $dot ; ?>
+//-->
+
+</script>
+
+<?php
+$this->headScript()->appendFile($this->basePath() . '/js/viz.js');
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.panzoom.js');
+?>
+<div class="row-fluid">
+
+
+	<!-- Visibilité et Sous-parcours -->
+	<div class="span3">
+	<?php if ($this->isAllowed('Parcours')) :?>
+		<?php if (!$Parcours->public) :?>
+			<h5><i class="icon-eye-close"></i> Ce parcours est un brouillon</h5>
+				<a href="<?php echo $this->url('parcours/changerVisibilite', array('id' => $Parcours->id, 'return'=>'voir')); ?>" 
+					class="btn btn-primary btn-block">
+					<i class="icon-eye-open"></i> Passer en public
+				</a>
+		<?php else :?>
+			<h5><i class="icon-eye-open"></i> Ce parcours est public</h5>
+			<a href="<?php echo $this->url('parcours/changerVisibilite', array('id' => $Parcours->id, 'return'=>'voir')); ?>" 
+				class="btn btn-primary btn-block">
+				<i class="icon-eye-close"></i> Passer en brouillon
+			</a>
+		<?php endif;?>
+	<?php endif;?>
+	
+	<h3>Sous-parcours :</h3>
+	<?php if ($this->isAllowed('Parcours') === true) :?>
+		<div class="accordion" id="accordion2">
+		<?php $sous_parcours = $Parcours->sous_parcours_depart; ?>
+		<?php while ($sous_parcours != null) : ?>
+			<div class="accordion-group">
+				<div class="accordion-heading" >
+					<a class="accordion-toggle" id="heading<?php echo $sous_parcours->id;?>" data-toggle="collapse" data-parent="#accordion2" href="#<?php echo $sous_parcours->id; ?>">
+			            <h4><?php echo $this->escapeHtml($sous_parcours->titre); ?></h4>
+					</a>
+				</div>
+				<div id="<?php echo $sous_parcours->id; ?>" class="accordion-body collapse">
+					<div class="accordion-inner">
+					
+						<?php if ($sous_parcours->utilisateur === null) :?>
+							<!-- PAS EN CHANTIER -->
+							<a href="<?php echo $this->url('chantier/demarrerChantierSousParcours',array(
+									'idSousParcours' => $sous_parcours->id,
+									'idUser' => $this->zfcUserIdentity()->getId(),
+									'return' => 'parcours')); ?>" 
+								class="btn btn-warning btn-block">
+								<i class="icon-cogs"> </i> Commencer un chantier sur ce sous-parcours
+							</a>
+						<?php elseif ($sous_parcours->utilisateur === $this->zfcUserIdentity()): ?>
+							<!-- FAIT PARTIE DES CHANTIERS DE L'UTILISATEUR -->
+							<p class="text-warning">
+								<em> <i class="icon-cogs"></i> 
+								Ce sous-parcours fait partie de 
+								<a href="<?php echo $this->url('chantier'); ?>" class="text-warning"> vos chantiers en cours </a>
+								</em><br>
+							</p>
+							<a href="<?php echo $this->url('chantier/terminerChantierSousParcours',array(
+									'idSousParcours' => $sous_parcours->id,
+									'idUser' => $this->zfcUserIdentity()->getId(),
+									'return'=>'sousparcours')); ?>" 
+								class="btn btn-warning btn-block">
+								<i class="icon-unlock"> </i> Terminer le chantier
+							</a>
+							<br>
+							<p class="edit CursorPointer"
+					        	data-url="<?php echo $this->url("parcours/editSousParcours",array('idsp'=>$sous_parcours->id)) ?>"
+					            data-name="titre" 
+					            data-type="text"
+					            data-pk="heading<?php echo $sous_parcours->id; ?>">
+					            <?php echo $this->escapeHtml($sous_parcours->titre); ?>
+					        </p>
+							<a href="<?php echo $this->url('scene/creerSceneSecondaire', array("idsp" => $sous_parcours->id)) ?>"
+			                	class="btn btn-primary btn-block">
+			                    	<i class="icon-plus"></i> Ajouter une scène
+			                </a>
+			                <a href="#" 
+			                	data-url="<?php echo $this->url('parcours/supprimerSousParcours', array("idsp" => $sous_parcours->id)) ?>"
+			                	class="btn btn-danger btn-block supprimerSousParcours">
+			                    	<i class="icon-trash"></i> Supprimer le sous-parcours
+			                </a>
+			                
+			            <?php else :?>
+							<!-- EN CHANTIER PAR QUELQU'UN D'AUTRE -->
+							<p class="text-warning">
+								<em><i class="icon-cogs"></i>  Chantier en cours par : 
+								<a class="text-warning" href="mailto:<?php echo $sous_parcours->utilisateur->email; ?>"> 
+									<?php echo $sous_parcours->utilisateur->displayName; ?>  <i class="icon-envelope"></i>
+								</a>
+								</em> 
+							</p>
+						<?php endif;?>
+			                
+						<a href="<?php echo $this->url('parcours/ajouterSousParcours', array("type" => "ajAvant", "idsp" => $sous_parcours->id)) ?>"
+							class="btn btn-primary btn-block">
+		                    	<i class="icon-mail-reply"></i> Ajouter un sous-parcours avant
+		                </a>
+		                <a href="<?php echo $this->url('parcours/ajouterSousParcours', array("type" => "ajApres", "idsp" => $sous_parcours->id)) ?>"
+		                	class="btn btn-primary btn-block">
+		                    	<i class="icon-mail-forward icon-rotate-180"></i> Ajouter un sous-parcours après
+		                </a>
+		                
+					</div>
+				</div>
+			</div>
+		<?php $sous_parcours = $sous_parcours->sous_parcours_suivant;
+		endwhile; ?>
+		</div>
+
+	<?php else : ?>
+		<?php $sous_parcours = $Parcours->sous_parcours_depart; ?>
+		<?php while ($sous_parcours != null) : ?>
+		<h4><?php echo $this->escapeHtml($sous_parcours->titre); ?></h4>
+		<?php $sous_parcours = $sous_parcours->sous_parcours_suivant;
+		endwhile; ?>
+	<?php endif; ?>
+	</div>
+	
+	<div class="span9">
+		<div class="btn-group">
+		  <button class="zoom-out btn btn-primary"><i class="icon-minus-sign"></i></button>
+		  <button class="zoom-in btn btn-primary"><i class="icon-plus-sign"></i></button>
+		  <!-- <input type="range" class="zoom-range"> -->
+		  <button class="reset btn btn-primary"><i class="icon-fullscreen"></i></button>
+		  <button class="btn btn-primary refresh"><i class="icon-refresh"></i></button>
+		<button class="btn btn-primary afficherDot"><i class="icon-code"> </i></button>
+		</div>
+		<!-- Graphe -->
+		<div style="overflow: hidden; position: relative; border:3px solid black;"> 
+		
+			<div id="panzoom" style="text-align: center; height: 1000px">
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<div id="confirmDiv"></div>
+
+<script>
+    // https://github.com/timmywil/jquery.panzoom
+      $("#panzoom").panzoom({
+        $zoomIn: $(".zoom-in"),
+        $zoomOut: $(".zoom-out"),
+        $zoomRange: $(".zoom-range"),
+        $reset: $(".reset"),
+        minScale: 0.1,
+        maxScale: 3,
+        increment: 0.2,
+      });
+      
+      function inspect(s) {
+        return "<pre>" + s.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;") + "</pre>"
+      }
+      
+      function src(id) {
+        return document.getElementById(id).innerHTML;
+      }
+      
+      function example(id, format) {
+        var result;
+        try {
+          result = Viz(src(id), format);
+          if (format === "svg")
+            return result;
+          else
+            return inspect(result);
+        } catch(e) {
+          return inspect(e.toString());
+        }
+      }
+      $('#panzoom').html(example("cluster", "svg"));
+      //document.body.innerHTML += example("cluster", "svg");
+
+ </script>
+
+<?php
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js');
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+?>
+
+<?php $this->inlineScript()->captureStart(); ?>
+
+
+$('.edit').editable({
+	emptytext: 'Vide', mode: 'inline'
+});
+
+$('.edit').on('save', function(e, params) {
+	$('#'+$(this).attr('data-pk')).html('<h4>'+params.newValue+'</h4>');
+});
+
+// Suppression d'un sous-parcours
+$(".supprimerSousParcours").click(function(e){
+	var dataURL = $(this).attr('data-url');
+	$('#confirmDiv').confirmModal({
+	    heading:'Confirmation',
+	    body:
+	    	"<p class='lead'>Êtes-vous sûr de vouloir supprimer définitivement ce sous-parcours ?</p>" + 
+	    	"<p class='muted'>Un sous-parcours ne peut être supprimé que lorsqu'il ne contient qu'une seule scène et qu'il n'est pas le seul sous-parcours du parcours.</p>" +
+	    	"<p class='muted'>Si ce n'est pas le cas, la suppression n'aura pas lieu, commencez par vider le contenu du sous-parcours.</p>",
+	    callback: function() {
+	    	$('body').css('cursor', 'wait');
+	       	$.post(
+	            dataURL,
+	           	function(response) {
+			        document.location.reload();
+			    }
+	        );
+	    }
+	});
+});
+
+// Affichage du dot
+$(".afficherDot").click(function(e){
+	$("#dotModal").modal("show");
+});
+
+$(".refresh").click(function(e){
+	document.location.reload();
+});
+
+$(".info-export").popover({placement:'left', trigger:'click'}); 
+
+<?php $this->inlineScript()->captureEnd();?>

@@ -1,0 +1,58 @@
+<?php
+$title = 'Création d\'une Sémantique';
+$this->headTitle($title);
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+	<li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+	<li><a href="<?php echo $this->url('semantiquetransition') ?>">Gestion des sémantiques</a> <span class="divider">/</span></li>
+    <li class="active"> Création d'une sémantique </li>
+</ul>
+
+<div class="page-header">
+    <h1><?php echo $this->escapeHtml($title); ?> <!-- <small>Subtext for header</small> --></h1>
+</div>
+
+<div>
+	<?php
+	$form = $this->form;
+	$form->prepare();
+	$form->setAttribute('action', $this->url('semantiquetransition/ajouter'));
+	$form->setAttribute('method', 'post');
+	$form->setAttribute('class','form-horizontal no-submit');
+	?>
+
+<?php echo $this->form()->openTag($form) ?>
+    <?php foreach ($form as $element): ?>
+    	<?php if (!$element instanceof Zend\Form\Element\Hidden): ?>
+    	
+    		<?php if (!$element instanceof Zend\Form\Element\Button &&
+        		  !$element instanceof Zend\Form\Element\Hidden): ?>
+          		<div class="control-group">
+            	<label class="control-label">	
+                	<?php echo $this->formLabel($element, $element->getLabel()); ?>
+                </label>
+	       	<?php endif ?>
+	            
+	      	<?php if ($element instanceof Zend\Form\Element\Button): ?>
+	            <div class="form-actions">
+	                <?php echo $this->formButton($element) ?>
+	                <a href="<?php echo $this->url('semantiquetransition') ?>" role="button" class="btn"> Annuler </a>
+	        <?php else: ?>
+	            <div class="controls">
+			    		<?php if ($element instanceof Zend\Form\Element\Textarea) {
+							echo $this->formTextarea($element);
+						} else {
+		        			echo $this->formInput($element); 
+						} ?> 
+	            	<?php echo $this->formElementErrors($element) ?>
+	            </div>
+	        <?php endif ?>
+	        </div>
+	        
+	    <?php endif; ?>
+	<?php endforeach ?>
+<?php echo $this->form()->closeTag() ?>
+

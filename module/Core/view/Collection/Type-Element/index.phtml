@@ -1,0 +1,366 @@
+<?php
+$title = 'Gestion des types d\'éléments';
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+?>
+
+<div class="messageEditUsers"></div>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+	<li><a href="<?php echo $this->url('collection') ?>">Collection Numérique</a> <span class="divider">/</span></li>
+    <li class="active"> Structure : Gestion des types d'éléments</li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>Cette page vous permet en tant qu'administrateur de l'application de gérer les types d'éléments stockés dans la collection numériques. 
+    	La collection est constituée d'<strong>artefacts</strong> et de <strong>médias</strong>, vous pouvez gérer ici les types d'artefacts (colonne de gauche) et les types de média (colonne de droite).
+    	</p>
+    	<p>
+    	En cliquant sur un type d'artefact (ou de média), vous accédez à l'ensemble des champs qui le décrivent. Un champ a un label, un format et une description.
+    	Par défaut, il y a toujours un champ <em>titre</em> (label : 'titre', format : 'texte') et un champ <em>description</em> (label : 'description', format : 'zone de texte').
+    	</p>
+    	<p>
+    	Vous pouvez <strong>gérer les champs existants</strong> (modifier leur label et leur description en cliquant dessus), <strong>les supprimer</strong> (clic sur la poubelle, attention vous perdez toutes les données correspondantes !!) et <strong>en ajouter de nouveaux</strong>.
+    	</p>
+    	<p>
+    	Vous pouvez également <strong>modifier le nom du type d'artefact (ou de média)</strong> en cliquant dessus, ou <strong>le supprimer</strong> en cliquant sur la poubelle (attention, tous les éléments de ce type dans la collection seront supprimés !!).
+    	</p>
+    	<p>
+    	Enfin, vous pouvez <strong>créer un nouveau type d'artefact ou de média</strong> via les boutons en haut de l'écran.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header row-fluid">
+	<div class="span9">
+		<h1><?php echo $this->escapeHtml($title); ?> 
+	    <small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+	</div>
+	<div class="span3">
+	    <a class="ajTypeMedia btn btn-primary btn-block" href="#ajTypeMedia" data-url="<?php echo $this->url('typeElement/add',array('media-artefact'=> 'artefact')) ?>"><i class="icon-white icon-plus"></i> Ajouter un type d'artefact</a>
+		<a class="ajTypeMedia btn btn-primary btn-block" href="#ajTypeMedia" data-url="<?php echo $this->url('typeElement/add',array('media-artefact'=> 'media')) ?>"><i class="icon-white icon-plus"></i> Ajouter un type de média</a>
+	</div>
+</div>
+
+<div class="row-fluid">
+    <div class="span6">
+        <h3><p><i class="icon-tag"></i>  Types d'Artefacts</h3>
+            <div class="accordion" id="TEartefact">
+                <?php foreach ($TEartefacts as $TEartefact) : ?>
+                <div class="accordion-group parent">
+
+                    <div class="accordion-heading">
+                        <a class="accordion-toggle nomValue" pk="nom<?php echo $TEartefact->id ;?>" data-toggle="collapse" data-parent="#TEartefact" href="#collapse<?php echo $TEartefact->id ;?>">
+                            <?php echo $this->escapeHtml($TEartefact->nom); ?>
+                        </a>
+                    </div>
+                    <div id="collapse<?php echo $TEartefact->id ;?>" class="accordion-body collapse">
+                        <div class="accordion-inner">
+                            <h4>
+                            	<a href="#" data-name="supprimerTypeElement"
+                            		data-value="Si vous supprimez le Type d'Element [<?php echo $this->escapeHtml($TEartefact->nom); ?>], <strong> tous les éléments de ce type seront supprimés</strong>."
+                            		data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEartefact->id));?>"
+                            		class="confirmDiv">
+                            		<i class="icon-white icon-trash"></i>
+                            	</a> 
+                            	Liste des champs : 
+                            	<span class="edit CursorPointer" data-name="nom" data-type="text" data-pk="<?php echo $TEartefact->id ;?>"
+                        			data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEartefact->id)) ?>">
+                        			<?php echo $this->escapeHtml($TEartefact->nom); ?>
+                        		</span>
+                    		</h4>
+                            <dl>
+                                <dt class="muted">Titre [texte]
+                                </dt>
+                                <dd></dd>
+                                <dt class="muted">Description [textarea]
+                                </dt>
+                                <dd></dd>
+                            <?php foreach ($TEartefact->champs as $champ) : ?>
+                            <div class="parent">
+                                <dt>
+                                    <a href="#" 
+                                        data-name="supprimerChamp" 
+                                        data-value="Si vous supprimez ce champ [<?php echo $this->escapeHtml($champ->label); ?>], <strong>toutes les données associées pour tous les éléments de ce type seront supprimées</strong>." 
+                                        data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEartefact->id,'idChamp'=>$champ->id)) ?>" 
+                                        class="confirmDiv">
+                                        <i class="icon-white icon-trash"></i>
+                                    </a> 
+                                    
+                                        <span class="edit CursorPointer" 
+                                            data-name="label" 
+                                            data-type="text" data-pk="1" 
+                                            data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEartefact->id,'idChamp'=>$champ->id)) ?>">
+                                            <?php echo $this->escapeHtml($champ->label); ?>
+                                        </span> 
+                            
+                                    [<?php echo $this->escapeHtml($champ->format); ?>]
+                                </dt>
+                                <dd>
+                                    <p class="edit CursorPointer" 
+                                       data-name="description" 
+                                       data-inputclass="" 
+                                       data-type="textarea" 
+                                       data-rows="2" 
+                                       data-pk="1" 
+                                       data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEartefact->id,'idChamp'=>$champ->id)) ?>"><?php echo $champ->description;?></p></dd>
+                            </div>    
+                            <?php endforeach; ?>
+                        </dl>
+                        <a class="ajChamp btn btn-primary" data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEartefact->id)) ?>" href="#ajChamp"><i class="icon-white icon-plus"></i> Nouveau Champ</a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach ;?>
+    </div>
+
+</div>
+<div class="span6">
+    <h3><i class="icon-picture"></i>  Types de Médias </h3>
+    <div class="accordion" id="TEmedia">
+        <?php foreach ($TEmedias as $TEmedia) : ?>
+        <div class="accordion-group parent">
+
+            <div class="accordion-heading">
+                <a class="accordion-toggle nomValue" pk="nom<?php echo $TEmedia->id ;?>" data-toggle="collapse" data-parent="#TEmedia" href="#collapse<?php echo $TEmedia->id ;?>">
+                    <?php echo $this->escapeHtml($TEmedia->nom); ?>
+                </a>
+            </div>
+            <div id="collapse<?php echo $TEmedia->id ;?>" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <h4>
+                    	<a href="#" data-name="supprimerTypeElement"
+                    		data-value="Si vous supprimez ce Type d'Element [<?php echo $this->escapeHtml($TEmedia->nom); ?>], <strong>toutes les données associées pour chaque champs de ce type seront supprimées</strong>."
+                    		data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEmedia->id)); ?>"
+                    		class="confirmDiv">
+                    		<i class="icon-white icon-trash"></i>
+                    	</a>
+                    	Liste des champs :
+                    	<span class="edit CursorPointer" data-name="nom" data-type="text" data-pk="<?php echo $TEmedia->id ;?>"
+                    		data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEmedia->id)) ?>">
+                    		<?php echo $this->escapeHtml($TEmedia->nom); ?>
+                    	</span>
+                    </h4>
+                    <dl>
+                        <dt class="muted">Titre [texte]
+                        </dt>
+                        <dd></dd>
+                        <dt class="muted">Description [textarea]
+                        </dt>
+                        <dd></dd>
+                        <?php foreach ($TEmedia->champs as $champ) : ?>
+                        <div class="parent">
+
+                            <dt>
+                                <a href="#" 
+                                    data-name="supprimerChamp" 
+                                    data-value="Si vous supprimez ce champ [<?php echo $this->escapeHtml($champ->label); ?>], <strong>toutes les données associées pour tous les medias de ce type seront supprimées</strong>."
+                                    data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEmedia->id,'idChamp'=>$champ->id)) ?>" 
+                                    class="confirmDiv">
+                                    <i class="icon-white icon-trash"></i>
+                                </a> 
+                                    
+                                        <span class="edit CursorPointer" 
+                                            data-name="label" 
+                                            data-type="text" 
+                                            data-pk="1" 
+                                            data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEmedia->id,'idChamp'=>$champ->id)) ?>">
+                                            <?php echo $this->escapeHtml($champ->label); ?>
+                                        </span> 
+                            
+                                [<?php echo $this->escapeHtml($champ->format); ?>]
+
+                            </dt>
+                            <dd><p class="edit CursorPointer" data-name="description" data-inputclass="" data-type="textarea" data-rows="2" data-pk="1" data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEmedia->id,'idChamp'=>$champ->id)) ?>"><?php echo $champ->description;?></p></dd>
+                        </div>
+                    <?php endforeach ;?>
+                </dl>
+                <a class="ajChamp btn btn-primary" data-url="<?php echo $this->url("typeElement/editTypeElementAjax",array('id'=>$TEmedia->id)) ?>" href="#ajChamp"><i class="icon-white icon-plus"></i> Nouveau Champ</a>
+            </div>
+        </div>
+    </div>
+<?php endforeach ;?>
+</div>
+</div>
+</div>
+
+<div id="modalDiv"></div>
+
+<?php 
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js');
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+
+$this->inlineScript()->captureStart();
+ ?>
+	$(function() {
+		$('.edit').on('save', function(e, params) {
+		    $('[pk="'+$(this).attr('data-name')+$(this).attr('data-pk')+'"]').html(params.newValue);
+		});
+		
+		$('.edit').editable({
+		    mode: 'inline',
+		    emptytext: 'Vide'
+		});
+		
+		$('.confirmDiv').on("click", function(){
+		    var URL = $(this).attr('data-url');
+		    var dataName = $(this).attr('data-name');
+		    var datavalue = $(this).attr('data-value');
+		    var ThisParent = $(this).closest('div.parent');
+		    $("#modalDiv").confirmModal({
+		    heading:'Confirmation',
+		    body:'<div class="container-fluid"><div class="row-fluid"><div class="span2"><center><i class="icon-warning-sign icon-4x"></i></center></div><div class="span8"><p>'+datavalue+'</p><p>Êtes-vous sur de vouloir effectuer cette action ?</p></div><div class="span2"><center><i class="icon-warning-sign icon-4x"></i></center></div></div></div>',
+		    callback: function() {
+		        $.post( 
+		            URL,
+		            { name: dataName },
+		            function(response) {
+                        var resp = jQuery.parseJSON(response);
+		                if(resp.success == true) {
+		                    ThisParent.remove();
+                            $('.messageEditUsers').showInfos(resp.message, resp.type);
+		               // location.reload();
+		
+		            } else {
+		                alert('Impossible de supprimer')
+		            }
+		            });
+		    	}
+			});
+		});
+		
+		$(".ajChamp").on("click", function(e){
+			$('body').css('cursor', 'wait');
+		    var URL = $(this).attr('data-url');
+		    $.ajax({
+		        url: URL,
+		        type: "POST",
+		        data:{ name:'ajChamp', submit:'false' }, 
+		        success:function(response){
+		        	$('body').css('cursor', 'auto');
+		            $('#modalDiv').html('<div id="ChampModal" class="modal">' + response + '</div>').modal();
+		
+		            $('form.ajChampForm').attr('action', URL);
+		            $('form.ajChampSelectForm').attr('action', URL);
+		            //console.info($('form.ajChampForm').attr('action')+'::'+ URL);
+		        },
+		        error: function(){
+		            alert('Impossible d\'ajouter des champ');
+		        }
+		    });
+		});
+		
+		$("#modalDiv").on("click",".ajChampSubmit", function(e){
+		    var $form = $('.ajChampForm');
+		    var formatVal = $form.find( 'select[name="format"]' ).val();
+		    var descriptionVal = $form.find( 'textarea[name="description"]' ).val();
+		    var labelVal = $form.find( 'input[name="label"]' ).val();
+		    var URL = $form.attr( 'action' );
+		
+		    $.ajax({
+		        url: URL,
+		        type: "POST",
+		        data:{ name:'ajChamp',typeChamp:'classique', submit:'true', format: formatVal, description: descriptionVal, label: labelVal }, 
+		        success:function(response){
+		
+		            if(response == 'true') {
+		                location.reload();
+		            } else {
+		                $('#modalDiv').html('<div id="ChampModal" class="modal">' + response + '</div>').modal();
+		                $('form.ajChampForm').attr('action', URL);
+                        $('form.ajChampSelectForm').attr('action', URL);
+		            }
+		        },
+		        error: function(response){
+		            alert('Impossible d\'ajouter des champ');
+		        }
+		    });
+		});
+
+        $("#modalDiv").on("click",".ajChampSelectSubmit", function(e){
+            var $form = $('.ajChampSelectForm');
+            var labelVal = $form.find( 'input[name="label"]' ).val();
+            var selectVal = $form.find( 'select[name="select"]' ).val();
+            var descriptionVal = $form.find( 'textarea[name="description"]' ).val();
+            var URL = $form.attr( 'action' );
+        
+            $.ajax({
+                url: URL,
+                type: "POST",
+                data:{ name:'ajChamp',typeChamp:'champSelect', submit:'true', select: selectVal, description: descriptionVal, label: labelVal  }, 
+                success:function(response){
+        
+                    if(response == 'true') {
+                        location.reload();
+                    } else {
+        
+                        $('#modalDiv').html('<div id="ChampModal" class="modal">' + response + '</div>').modal();
+                        $('form.ajChampForm').attr('action', URL);
+                        $('form.ajChampSelectForm').attr('action', URL);
+                    }
+                },
+                error: function(response){
+                    alert('Impossible d\'ajouter des champ');
+                }
+            });
+        });
+		
+		$(".ajTypeMedia").on("click", function(e){
+			$('body').css('cursor', 'wait');
+		    var URL = $(this).attr('data-url');
+		    $.ajax({
+		        url: URL,
+		        type: "POST",
+		        data:{ name:'ajTypeMedia', submit:'false' }, 
+		        success:function(response){
+		        	$('body').css('cursor', 'auto');
+		            $('#modalDiv').html('<div id="ChampModal" class="modal">' + response + '</div>').modal();
+		
+		            $('form.ajTypeMediaForm').attr('action', URL);
+		
+		            //console.info($('form.ajTypeMediaForm').attr('action')+'::'+ URL);
+		        },
+		        error: function(){
+		            alert('Impossible d\'ajouter des champ');
+		        }
+		    });
+		});
+		
+		$("#modalDiv").on("click",".ajTypeMediaSubmit", function(e){
+		    var $form = $('.ajTypeMediaForm');
+		    var nomVal = $form.find( 'input[name="nom"]' ).val();
+		    var URL = $form.attr( 'action' );
+		
+		    $.ajax({
+		        url: URL,
+		        type: "POST",
+		        data:{ name:'ajTypeMedia', submit:'true', nom: nomVal }, 
+		        success:function(response){
+		
+		            if(response == 'true') {
+		                location.reload();
+		            } else {
+		                $('#modalDiv').html('<div id="ChampModal" class="modal">' + response + '</div>').modal();
+		                $('form.ajChampForm').attr('action', URL);
+		            }
+		
+		        },
+		        error: function(response){
+		            alert('Impossible d\'ajouter des champ');
+		        }
+		    });
+		});
+
+	});
+<?php $this->inlineScript()->captureEnd(); ?>

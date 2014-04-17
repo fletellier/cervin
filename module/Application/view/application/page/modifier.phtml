@@ -1,0 +1,77 @@
+<?php
+$title = 'Modifier la page '.$page->titre;
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-wysihtml5.css');
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li class="active"> Edition de la page <?php echo $this->escapeHtml($page->titre); ?> </li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Le contenu de la page <?php echo $page->titre;?> est modulable, en tant qu'administrateur de l'application vous pouvez ici modifier son contenu
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header">
+    <h1><?php echo $this->escapeHtml($title); ?> 
+    <small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+</div>
+
+<div class="container">
+
+	<form method="post" action="<?php echo $this->url('page/modifier',array('slug'=>$page->slug)) ?>" class="form-horizontal span11">
+		<div class="well">
+			<textarea 
+			class="textarea-wysihtml5 input-block-level" 
+			name="wysihtml5" 
+			rows="20" ><?php echo $page->texte;?></textarea>
+		</div>
+
+		<div class="form-actions">
+        	<button type="submit" role="submit" class="btn btn-primary"> Valider </button>
+        	<a href="<?php echo $this->url('page/voir',array('slug'=>$page->slug)); ?>" role="button" class="btn"> Annuler </a>
+    	</div>
+
+	</form>
+
+</div>
+
+<?php $this->inlineScript()->captureStart(); ?>
+
+	$(function () {
+		$('.textarea-wysihtml5').wysihtml5({
+			image:false, 
+			locale: "fr-FR",
+			color:false,
+			stylesheets: ["/css/bootstrap.css"],
+			"events": {
+				"load": function() { 
+					$("editor.composer.iframe").wysihtml5_size_matters();
+				}
+			}
+		}); 
+    });
+    
+<?php 
+$this->inlineScript()->captureEnd();
+
+$this->headScript()->appendFile($this->basePath() . '/js/wysihtml5-0.3.0.min.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-wysihtml5.js') ; 
+$this->headScript()->appendFile($this->basePath() . '/js/locales/bootstrap-wysihtml5.fr-FR.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.wysihtml5_size_matters.js') ;
+?>

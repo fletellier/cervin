@@ -1,0 +1,424 @@
+<?php 
+$is_artefact = ($element instanceOf \Collection\Entity\Artefact);
+$is_artefact ? $icon='<i class="icon-tag"></i> ' : $icon='<i class="icon-picture"></i> ';
+$title = $element->titre;
+$this->headTitle($title);
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datatable.css');
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('collection') ?>">Collection Numérique</a> <span class="divider">/</span></li>
+    <li class="active"> <?php echo $icon.$this->escapeHtml($element->titre); ?> </li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Vous êtes sur la fiche d'un élément de la collection numérique. Cette page permet de consulter les informations relatives à cet élément.
+    	</p>
+    	<p>
+    	La description détaillée de l'artefact se trouve à gauche. Le menu à droite permet de voir les valeurs des champs pour cet élément,et les liaisons vers d'autres éléments.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header row-fluid">
+	<!-- TITRE -->
+	<div class="span9">
+		<h1>
+		<?php echo $icon.$this->escapeHtml($title); ?> 
+		<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+	</div>
+	
+	<div class="span3">
+
+	<!-- ACTIONS -->
+	<?php if ($this->isAllowed('Collection') === true) :?>
+	
+		<?php if ($element->public) :?>
+			<p><strong><i class="icon-eye-open"></i> 
+				<?php echo $is_artefact ? 'Cet artefact est public' : 'Ce média est public'; ?>
+			</strong></p>
+			<?php $btn_visibilite = '<i class="icon-eye-close"></i> Passer en brouillon'; ?>
+		<?php else :?>
+			<p><strong><i class="icon-eye-close"></i>
+				<?php echo $is_artefact ? 'Cet artefact est un brouillon' : 'Ce média est un brouillon'; ?>
+			</strong></p>
+			<?php $btn_visibilite = '<i class="icon-eye-open"></i> Passer en public'; ?>
+		<?php endif;?>
+		
+		<?php if ($element->utilisateur === null) :?>
+			<!-- Pas en chantier -->
+		    <div class="btn-group btn-block">
+    			<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+    				Actions 
+    				<span class="caret"></span>
+    			</a>
+    			<ul class="dropdown-menu">
+	   				<li>
+						<a href="<?php echo $this->url('chantier/demarrerChantierElement',array(
+								'idElement' => $element->id,
+								'idUser' => $this->zfcUserIdentity()->getId())); ?>">
+							<span class="text-warning"><i class="icon-cogs"> </i></span> Commencer un chantier
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo $this->url('element/changerVisibilite', array('id' => $element->id, 'return'=>'voir')); ?>">
+							<?php echo $btn_visibilite; ?>
+						</a>
+					</li>
+					<li>
+						<a href="#confirmModal" data-toggle="modal">
+							<span class="text-error"><i class="icon-trash"></i></span>  
+							<?php echo $is_artefact ? 'Supprimer cet artefact' : 'Supprimer ce média'; ?>
+						</a>
+					</li>
+					<li class="divider"></li>
+					<li class="disabled"><a tabindex="-1" href="#">Crée le <?php echo (($element->created) ? $element->created->format('Y-d-m') : 'N/A');?></a></li>
+					<li class="disabled"><a tabindex="-1" href="#">Modifié le <?php echo (($element->updated) ? $element->updated->format('Y-d-m') : 'N/A');?></a></li>
+				</ul>
+    		</div>
+		<?php elseif ($element->utilisateur === $this->zfcUserIdentity()): ?>
+			<!-- En chantier par l'utilisateur courant -->
+			<p class="text-warning">
+				<em> <i class="icon-cogs"></i> 
+				<?php echo $is_artefact ? 'Cet artefact' : 'Ce média'; ?> fait partie de 
+				<a href="<?php echo $this->url('chantier'); ?>" class="text-warning"> vos chantiers en cours </a>
+				</em>
+			</p>
+			 <div class="btn-group btn-block">
+    			<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+    				Actions 
+    				<span class="caret"></span>
+    			</a>
+    			<ul class="dropdown-menu">
+	   				<li>
+						<a href="<?php echo $this->url('chantier/terminerChantierElement',array(
+								'idElement' => $element->id,
+								'idUser' => $this->zfcUserIdentity()->getId(),
+								'return'=>'element')); ?>">
+							<span class="text-warning"> <i class="icon-unlock"> </i></span> Terminer le chantier
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo $this->url('element/changerVisibilite', array('id' => $element->id, 'return'=>'voir')); ?>">
+							<?php echo $btn_visibilite; ?>
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo $this->url('element/editer',array('id' => $element->id)) ?>">
+							<span class="text-info"> <i class="icon-pencil"> </i></span>
+							<?php echo $is_artefact ? 'Modifier cet artefact' : 'Modifier ce média'; ?>
+						</a>
+					</li>
+					<li>
+						<a href="#confirmModal" data-toggle="modal">
+							<span class="text-error"> <i class="icon-trash"> </i></span>  
+							<?php echo $is_artefact ? 'Supprimer cet artefact' : 'Supprimer ce média'; ?>
+						</a>
+					</li>
+					 <li class="divider"></li>
+					<li class="disabled"><a tabindex="-1" href="#">Crée le <?php echo (($element->created) ? $element->created->format('Y-d-m') : 'N/A');?></a></li>
+					<li class="disabled"><a tabindex="-1" href="#">Modifié le <?php echo (($element->updated) ? $element->updated->format('Y-d-m') : 'N/A');?></a></li>
+				</ul>
+    		</div>
+
+		<?php else :?>
+			<!-- En chantier par un autre utilisateur -->
+			<p class="text-warning">
+				<em><i class="icon-cogs"></i>  Chantier en cours par : 
+				<a class="text-warning" href="mailto:<?php echo $element->utilisateur->email; ?>"> 
+					<?php echo $element->utilisateur->displayName; ?>  <i class="icon-envelope"></i>
+				</a>
+				</em> 
+			</p>
+    		<div class="btn-group btn-block">
+    			<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+    				Actions 
+    				<span class="caret"></span>
+    			</a>
+    			<ul class="dropdown-menu">
+					<li>
+						<a href="<?php echo $this->url('element/changerVisibilite', array('id' => $element->id, 'return'=>'voir')); ?>">
+							<?php echo $btn_visibilite; ?>
+						</a>
+					</li>
+				</ul>
+    		</div>
+		<?php endif;?>
+    <?php endif; ?>
+    </div>
+</div>
+
+<!--Confirm Modal -->
+<div id="confirmModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Confirmation : suppression d'un élément</h3>
+    </div>
+    <div class="modal-body">
+    	Êtes-vous sur de vouloir supprimer l'élément "<?php echo $this->escapeHtml($element->titre); ?>" ?
+    </div>
+    <div class="modal-footer">
+	    <a href="<?php echo $this->url('element/supprimer',
+            array('id' => $element->id)) ?>#" class="btn btn-primary">Supprimer</a>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="row-fluid">
+	<!-- DESCRIPTION -->
+	<div class="span6">
+		<p><?php echo $element->description;?></p> <!-- créé avec le wysihtml5 donc pas de escapehtml -->
+	</div>
+	
+	
+	<div class="span6 well">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#tab1" data-toggle="tab"><i class="icon-info-sign"></i> Informations</a></li>
+			<li><a href="#tab2" data-toggle="tab"><i class="icon-sitemap"></i> Artefacts liés</a></li>
+			<?php if ($is_artefact) :?>
+				<li><a href="#tab3" data-toggle="tab"><i class="icon-sitemap"></i> Médias liés</a></li>
+			<?php endif;?>
+		</ul>
+		<div class="tab-content" style="padding-bottom: 9px; border-bottom: 1px solid #ddd;">
+		
+			<!-- INFORMATIONS -->
+			<div class="tab-pane active" id="tab1">
+				<dl>
+					<dt>Type d'élément</dt>
+					<dd>
+						<?php 
+							echo $this->escapeHtml($element->type_element->nom); 
+							echo '<br/><br/>';
+						?>
+					</dd>
+
+					<?php foreach( ($ChampsDatasElement) as $champData) : ?>
+						<dt>
+							<?php echo $this->escapeHtml($champData['champ']->label); ?> 
+							<?php if ($champData['champ']->description != null) : ?>
+						       	<a href="#" 
+					        		class="description"
+					        		rel="popover"
+					        		data-content="<?php echo $this->escapeHtml($champData['champ']->description); ?>"
+					        		data-original-title="Description du champ">
+					        		<i class="icon-question-sign"></i>
+					        	</a>  
+				        	<?php endif; ?>
+						</dt>
+						<dd>
+							<?php 
+							// Valeur si le data n'est pas renseigné
+							$null = 'Non renseigné';
+							
+							switch ($champData['champ']->format) :
+								case 'select':
+									if ($champData['data']) {
+										echo ($champData['data']->option) ? $this->escapeHtml($champData['data']->option->text) : $null ;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+									break;
+	        					case 'texte':
+									if ($champData['data']) {
+										echo ($champData['data']->texte) ? $this->escapeHtml($champData['data']->texte) : $null ;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+								break;
+								case 'textarea':
+									if ($champData['data']) {
+										echo ($champData['data']->textarea) ? $this->escapeHtml($champData['data']->textarea) : $null ;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+								break;
+								case 'date':
+									if ($champData['data']) {
+										switch ($champData['data']->format) :
+											case 2:
+												echo ($champData['data']->date) ? $champData['data']->date->format('Y') : $null ;
+												break;
+											case 1:
+												echo ($champData['data']->date) ? $champData['data']->date->format('Y-m') : $null ;
+												break;
+											default:
+												echo ($champData['data']->date) ? $champData['data']->date->format('Y-d-m') : $null ;
+												break;
+										endswitch;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+								break;
+								case 'nombre':
+									if ($champData['data']) {
+										echo ($champData['data']->nombre) ? $this->escapeHtml($champData['data']->nombre) : $null ;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+								break;
+								case 'fichier':
+									if ($champData['data']) {
+										echo ($champData['data']->fichier) ? '<a href="' . ROOT_DIR . $champData['data']->fichier.'">'.$this->escapeHtml(basename($champData['data']->fichier)).'</a>' : $null ;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+								break;
+								case 'url':
+									if ($champData['data']) {
+										echo ($champData['data']->url) ? '<a href="' . $champData['data']->url.'">'.$this->escapeHtml($champData['data']->url).'</a>' : $null ;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+								break;
+								case 'geoposition':
+									if ($champData['data']) {
+										echo ($champData['data']->adresse) ? 'Adresse : '.$this->escapeHtml($champData['data']->adresse).'' : $null ;
+										echo '<br/>';
+										echo ($champData['data']->latitude && 
+											$champData['data']->longitude) ? 
+										'Latitude : '.$this->escapeHtml($champData['data']->latitude).'<br> Longitude : '.$this->escapeHtml($champData['data']->longitude).'' : $null ;
+									} else {
+										echo $null;
+									}
+									echo '<br/><br/>';
+								break;
+								?>
+							<?php endswitch ;?>
+						</dd>
+					<?php endforeach ; ?>
+
+				</dl>
+			</div>
+			
+			<div class="tab-pane" id="tab2">
+				<?php if ($is_artefact) : ?>
+					<!-- ARTEFACT : ARTEFACTS LIES -->
+					<?php if ($element->relations_origine!= null || $element->relations_destination!= null) : ?>
+						<table class="table">
+						<tr>
+							<th> Origine  </th>
+							<th> Sémantique  </th>
+							<th> Destination </th>
+						</tr>
+						<?php foreach($element->relations_origine as $relation) : ?>
+							<tr>
+								<td> <?php echo $this->escapeHtml($element->titre); ?>  </td>
+								<td> <?php echo $this->escapeHtml($relation->semantique->semantique); ?>  </td>
+								<td>
+									<a href="<?php echo $this->url('element/voir',array('id' => $relation->destination->id)); ?>">
+									<i class="icon-tag"></i>
+									<?php echo $this->escapeHtml($relation->destination->titre); ?> 
+									[<?php echo $this->escapeHtml($relation->destination->type_element->nom); ?>]
+									</a>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+						<?php foreach($element->relations_destination as $relation) : ?>
+							<tr>
+								<td>
+									<a href="<?php echo $this->url('element/voir',array('id' => $relation->origine->id)); ?>">
+									<i class="icon-tag"></i>
+									<?php echo $this->escapeHtml($relation->origine->titre); ?> 
+									[<?php echo $this->escapeHtml($relation->origine->type_element->nom); ?>]
+									</a>
+								</td>
+								<td> <?php echo $this->escapeHtml($relation->semantique->semantique); ?>  </td>
+								<td> <?php echo $this->escapeHtml($element->titre); ?>  </td>
+							</tr>
+						<?php endforeach; ?>
+						</table>
+					<?php else : ?>
+						<p> Aucun artefact n'est lié à cet artefact. </p>
+					<?php endif; ?>
+					
+				<?php else: ?>
+					<!-- MEDIA : ARTEFACTS LIES -->
+					<?php if ($element->artefacts->count() > 0) : ?>
+						<table class="table">
+						<?php foreach( ($element->artefacts) as $artefact) : ?>
+							<tr>
+							<td>
+								<a href="<?php echo $this->url('element/voir',array('id' => $artefact->id)); ?>">
+								<i class="icon-tag"></i> 
+								<?php echo $this->escapeHtml($artefact->titre); ?> 
+								[<?php echo $this->escapeHtml($artefact->type_element->nom); ?>]
+								</a>
+							</td>
+							</tr>
+						<?php endforeach; ?>
+						</table>
+					<?php else : ?>
+						<p> Aucun artefact n'est lié à ce média. </p>
+					<?php endif; ?>
+				<?php endif;?>
+			</div>
+			
+			<!-- ARTEFACT : MEDIAS LIES -->
+			<?php if ($is_artefact) : ?>
+				<div class="tab-pane" id="tab3">
+					<?php if ($element->medias->count() > 0) : ?>
+						<table class="table">
+						<?php foreach( ($element->medias) as $media) : ?>
+							<tr>
+							<td>
+								<a href="<?php echo $this->url('element/voir',array('id' => $media->id)); ?>">
+								<i class="icon-picture"></i>  
+								<?php echo $this->escapeHtml($media->titre); ?>
+								[<?php echo $this->escapeHtml($media->type_element->nom); ?>] 
+								</a>
+							</td>
+							</tr>
+						<?php endforeach; ?>
+						</table>
+					<?php else : ?>
+						<p> Aucun média n'est lié à cet artefact. </p>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+		</div>
+	</div>
+</div>
+
+<?php $this->inlineScript()->captureStart(); ?>
+	$(function () {
+							
+		$(".description").popover({placement:'top', trigger:'hover'}); 
+		
+		$('body').on('click', 'input.span2', function(event) {
+			$(this).datepicker({
+				showOn: 'focus',
+				yearRange: '1900:+0',
+				changeMonth: true,
+				changeYear: true
+			}).focus();
+		});
+
+    });
+    
+<?php 
+$this->inlineScript()->captureEnd(); 
+
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.dataTables.js');
+$this->headScript()->appendFile($this->basePath() . '/js/ResultSet.js'); 
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-datepicker.js'); 
+?>

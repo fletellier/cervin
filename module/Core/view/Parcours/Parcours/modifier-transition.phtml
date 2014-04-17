@@ -1,0 +1,159 @@
+<?php 
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+
+$title = "Modifier une transition";
+$this->headTitle($title); 
+
+$scene_origine = $transition->scene_origine; 
+$scene_destination = $transition->scene_destination; 
+
+$parcours = ($transition->parcours) ? $transition->parcours : $transition->sous_parcours->parcours;
+
+?>
+
+<?php if ($parcours->public) :?>
+	<div class="alert alert-error">
+	  <button type="button" class="close" data-dismiss="alert">&times;</button>
+	  <h2><i class="icon-warning-sign"></i> Attention ! <i class="icon-warning-sign"></i></h2> Ce parcours est <strong>public</strong>, pensez à le passer en brouillon si vous ne voulez pas que vos modifications soit immédiatement visibles
+	  (depuis <a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>">la page d'accueil du parcours</a>).
+	</div>
+<?php endif;?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>"> <i class="icon-road"></i>  <?php echo $this->escapeHtml($parcours->titre); ?></a> <span class="divider">/</span></li>
+    <!--  <li class="active"> <?php echo $this->escapeHtml($sous_parcours->titre); ?> <span class="divider">/</span></li> -->
+    <li class="active"> Modifier une transition </li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header">
+	<h1><?php echo $this->escapeHtml($title); ?> <!-- <small>Subtext for header</small> -->
+	<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </p></h1></h1>
+</div>
+
+<div class="row-fluid">
+
+	<div class="span3">
+		<center>
+		<h4>Scène origine</h4>
+		<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene_origine->id)) ?>"> 
+			<?php if ($scene_origine instanceof \Parcours\Entity\SceneRecommandee) : ?>
+				<p class="text-info">
+			<?php else : ?>
+				<p class="muted">
+			<?php endif;?>
+			<i class="icon-file-alt"></i>  
+			<em> <?php echo $this->escapeHtml($scene_origine->titre); ?> </em>
+			</p>
+		</a>
+		</center>
+	</div>
+	<div class="span6 well">
+		<center>
+		<h3>Transition</h3>
+		</center>
+		<dl class="dl-horizontal">
+  			<dt>Sémantique</dt>
+  			<dd>
+				<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+					<a href="#" 
+		            class="selectSemantiques" 
+		            data-value="<?php echo ($transition->semantique) ? $transition->semantique->id : 'null' ; ?>"
+		            data-url="<?php echo $this->url('parcours/modifierTransition', array('id' => $transition->id)) ?>">
+		            <i class="icon-pencil"></i>  
+		        </a>
+			</dd>
+			<dt>Narration</dt>
+			<dd>
+		        <span class="edit CursorPointer"
+			       	data-url="<?php echo $this->url("parcours/modifierTransition", array("id" => $transition->id)); ?>"
+		            data-name="narration" 
+		            data-type="textarea"
+		            data-pk="1"><?php echo $this->escapeHtml($transition->narration); ?>
+		        </span>
+		    </dd>
+		</dl>
+    </div>
+    <div class="span3">
+    	<center>
+    	<h4>Scène destination</h4>
+    	<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene_destination->id)) ?>"> 
+			<?php if ($scene_destination instanceof \Parcours\Entity\SceneRecommandee) : ?>
+				<p class="text-info">
+			<?php else : ?>
+				<p class="muted">
+			<?php endif;?>
+			<i class="icon-file-alt"></i>  
+			<em> <?php echo $this->escapeHtml($scene_destination->titre); ?> </em>
+			</p>
+		</a>
+		</center>
+	</div>
+        
+</div>
+
+<div id="confirmDiv" >
+</div>
+
+<?php $this->inlineScript()->captureStart(); ?>
+
+	$(function () {
+	
+		$('.edit').editable({
+			mode: 'inline',
+			emptytext: 'Vide'
+		});
+	
+		// affichage le modal avec les semantiques
+	    $(".selectSemantiques").on("click", function(e){
+	        var dataURL = $(this).attr('data-url');
+	        var dataValue = $(this).attr('data-value');
+	
+	        var body = new String('<form id="semantiqueTransitions" action="'+dataURL+'"><dl><?php foreach ($SemantiqueTransitions as $semantique) { ?><label class="radio"><dt><input type="radio" name="SemantiqueTransitions" id="SemantiqueTransitions<?php echo $this->escapeHtml($semantique->id) ;?>" value="<?php echo $this->escapeHtml($semantique->id) ;?>" ><?php echo $this->escapeHtml($semantique->semantique) ;?></dt><dd><?php echo $this->escapeHtml($semantique->description) ;?></dd></label><?php } ?></dl></form>');
+	        body = body.replace('id="SemantiqueTransitions'+dataValue+'"', 'id="SemantiqueTransitions'+dataValue+'" checked="checked"' );
+	        $('#confirmDiv').confirmModal({
+	            heading:"Sélectionner la sémantique",
+	            body:body,
+	            callback: function() {
+	            	$('body').css('cursor', 'wait');
+	                var $form = $('#semantiqueTransitions');
+	                var inputVal = $form.find( 'input[name="SemantiqueTransitions"]:checked' ).val();
+	                var URL = $form.attr( 'action' );
+	                 $.post(
+	                    dataURL,
+	                    { name: "semantique",value:inputVal },
+	                    function() {
+	                       	document.location.reload();
+	                    }
+	                );
+	            }
+	        });
+	        $('#SemantiqueTransitions'+dataValue).prop('checked');
+	    });
+	    
+	});
+        
+<?php $this->inlineScript()->captureEnd(); 
+
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+
+?>

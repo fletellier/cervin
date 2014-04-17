@@ -1,0 +1,119 @@
+<?php
+$title = 'La collection numérique';
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datatable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/pillbox.css');
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li class="active">Collection Numérique</li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide : collection numérique</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Vous êtes sur la page de consultation de la collection numérique, centre de ressource de base de Cervin.
+    	</p>
+    	<p>
+    	La collection est composée d'artefacts (éléments du monde réél : matériel, logiciel, institution, ...) et de médias (ressources numériques : image, vidéo, son, ...).
+    	</p>
+    	<p>
+    	Un système de recherche par tags vous est proposé. Vous pouvez ainsi rechercher plusieurs titre parmis les types d'artefacts et de médias que vous voulez : cliquez sur le 'plus' pour chaque tag que vous souhaitez ajouter, puis sur 'Lancer la recherche'.
+    	Par défaut, la recherche s'effectue parmis tous les types d'artefacts et de médias. Pour réinitialiser la recherche, le bouton 'Vider' permet de retirer tous les tags.
+    	</p>
+    	<p>
+    	Les résultats s'affichent sous forme de tableau, le lien sur chaque ligne permet d'accéder à la fiche détaillée de l'élément.
+    	</p>
+    	<p>
+    	Si vous avez l'autorisation, un bouton vous permet d'ajouter un nouvel élément à la collection en haut à droite de l'écran.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header row-fluid">
+	<div class="span9">
+		<h1><?php echo $this->escapeHtml($title); ?> 
+	    <small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+	</div>
+	<div class="span3">
+	<?php if ($this->isAllowed('Collection') === true) :?>
+		<a href="<?php echo $this->url('element/ajouter', array('type'=>'artefact')) ?>" class="btn btn-primary btn-block"> <i class="icon-white icon-plus"></i> &nbsp;Ajouter un artefact</a>
+		<a href="<?php echo $this->url('element/ajouter', array('type'=>'media')) ?>" class="btn btn-primary btn-block"> <i class="icon-white icon-plus"></i> &nbsp;Ajouter un média</a>
+	<?php endif; ?>
+	</div>
+</div>
+
+<div class="well">
+	<h3>Recherche</h3>
+	<form id="form-multi" name="form-multi" class="">
+		<div class="row-fluid">
+		
+			<div class="span6 input-append">
+				<input class="form-titre span10" type="text" placeholder="Titre" data-type="titre" />
+				<button class="btn btn-info form-plus-titre" type="button"><i class="icon-plus"> </i></button>
+			</div>
+
+			<div class="span3">
+				<div class="input-prepend input-append">
+					<span class="add-on"><i class="icon-tag"> </i></span>
+					<select class="form-type span9">
+						<option class="type-all" data-type="type" data-value="artefact" >Tous types d'artefacts</option>
+						<?php 
+							foreach ($allTypeArtefact as $typeElement){
+								echo '<option data-type="id" data-value="'.$typeElement->id.'" >'.$this->escapeHtml($typeElement->nom).'</option>';
+							}
+						?>
+					</select>
+					<button class="btn btn-success form-plus-type" type="button"><i class="icon-plus"> </i></button>
+				</div>
+			</div>
+			
+			<div class="span3">
+				<div class="input-prepend input-append">
+					<!-- <label>Média</label> -->
+					<span class="add-on"><i class="icon-picture"> </i></span>
+					<select class="form-type span9">
+						<option class="type-all" data-type="type" data-value="media" >Tous types de médias</option>
+						<?php 
+							foreach ($allTypeMedia as $typeElement){
+								echo '<option data-type="id" data-value="'.$typeElement->id.'" >'.$this->escapeHtml($typeElement->nom).'</option>';
+							}
+						?>
+					</select>
+					<button class="btn btn-warning form-plus-type" type="button"><i class="icon-plus"> </i></button>
+				</div>
+			</div>
+			
+		</div> <!-- /row-fluid -->
+
+		<div class="form-actions">
+			<div id="form-pillbox" class="pillbox" style="width:100%;">
+				<p><strong>Tags :</strong></p> 
+				<ul>
+				</ul>
+			</div>
+			<button id="submit" class="btn btn-primary"><i class="icon-search"> </i> Lancer la recherche</button>
+			<button class="btn btn-danger form-clear"><i class="icon-remove"> </i> Vider</button>
+		</div>
+
+	</form>
+</div>
+
+<?php 
+echo $this->DatatableWidget();
+
+$this->headScript()->appendFile($this->basePath() . '/js/pillbox.js') ;
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.dataTables.js');
+$this->headScript()->appendFile($this->basePath() . '/js/ResultSet.js');;
+?>

@@ -1,0 +1,49 @@
+<?php
+$title = 'Création d\'un parcours';
+$this->headTitle($title);
+?>
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li class="active">Création d'un parcours</li>
+</ul>
+
+<div class="page-header">
+	<h1><?php echo $this->escapeHtml($title); ?> <!-- <small>Subtext for header</small> --></h1>
+</div>
+
+<?php
+$form = $this->form;
+$form->setAttribute('action', $this->url('parcours/ajouter'));
+$form->setAttribute('class','form-horizontal no-submit');
+$form->setAttribute('method', 'post');
+$form->prepare();
+$form->get('submit')->setLabel('Valider')->setAttribute('class','btn btn-primary');
+
+echo $this->form()->openTag($form);
+echo $this->formHidden($form->get('id'));
+?>
+<div class="control-group">
+	<label class="control-label">
+		<?php echo $this->formLabel($form->get('titre')) ?>
+	</label>
+	<div class="controls">
+		<?php echo $this->formInput($form->get('titre')) ?>
+		<?php echo $this->formElementErrors($form->get('titre')) ?>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label">
+		<?php echo $this->formLabel($form->get('description')) ?>
+	</label>
+	<div class="controls">
+		<?php echo $this->formTextarea($form->get('description')) ?>
+		<?php echo $this->formElementErrors($form->get('description')) ?>
+	</div>
+</div>
+
+<div class="form-actions">
+	<?php echo $this->formSubmit($form->get('submit')); ?>
+	<a href="<?php echo $this->url('semantique') ?>" role="button" class="btn"> Annuler </a>
+</div>
+<?php echo $this->form()->closeTag(); ?>

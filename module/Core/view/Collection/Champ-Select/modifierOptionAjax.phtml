@@ -1,0 +1,56 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Modifier les options</h3>
+</div>
+<div class="modal-body">
+<div id="response"></div>
+    <table id="ListeOption" class="table table-hover">
+        <tr>
+            <th>Liste des valeurs</th>
+            <th>Action</th>
+        </tr>
+        <?php
+        foreach ($select->select_options as $select_option) {
+            echo '<tr><td id="'.$select_option->id.'"><span id="label" 
+                        class="text CursorPointer" 
+                        data-url="'.$this->url("champSelect/modifierOptionAjax", array("id" => $select->id, "idOption" => $select_option->id)).'" 
+                        data-option="'.$this->escapeHtml($select_option->text).'" 
+                        data-name="modifierTexte" 
+                        data-placement="right" 
+                        data-type="text" 
+                        data-pk="1">'.$this->escapeHtml($select_option->text).'
+                    </span></td>';
+
+
+
+            echo '<td>
+            <a class="btn btn-danger SupprimerOption" 
+            data-url="'.$this->url("champSelect/modifierOptionAjax", array("id" => $select->id, "idOption" => $select_option->id)).'"
+            href="#">
+                <i class="icon-trash "></i> 
+            </a>
+                </td>';
+
+
+
+            echo '</tr>';
+
+
+        }
+
+        ?>
+    </table>
+
+</div>
+<div class="modal-footer">
+    <div class="input-append pull-left" >
+        <input id="ajouterOptionInput" type="text" name="ajouterOptionInput">
+        <button class="btn AjouterOption" 
+            data-url="<?php echo $this->url("champSelect/modifierOptionAjax", array("id" => $select->id));?>"
+            href="#">
+                <i class="icon-plus "></i> 
+        </button>
+    </div>
+    
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+</div>

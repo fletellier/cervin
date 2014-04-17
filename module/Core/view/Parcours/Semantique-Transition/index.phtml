@@ -1,0 +1,116 @@
+<?php
+$title = 'Sémantique des transitions entre scènes';
+$this->headTitle($title);
+?>
+
+<?php $this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css'); ?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+	<li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li class="active"> Gestion des sémantiques </li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide : sémantique des transitions entre scènes</h3>
+    </div>
+    <div class="modal-body">
+    	 <p>Un transition entre deux scènes d'un parcours est marquée d'une sémantique qui explique la logique du passage d'une scène à l'autre.
+    	 </p>
+    	 <p>
+    	 Cette page vous permet de gérer les sémantiques possibles pour les transitions.
+    	 </p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="page-header row-fluid">
+	<div class="span9">
+		<h1><?php echo $this->escapeHtml($title); ?>
+	    <small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+	</div>
+	<a href="<?php echo $this->url('semantiquetransition/ajouter') ?>" class="btn btn-primary span3"><i class="icon-white icon-plus"></i> Ajouter une sémantique </a>
+</div>
+
+<table class="table table-hover">
+	<tr>
+		<th>Sémantique</th>
+		<th>Description</th>
+		<th></th>
+	</tr>
+	<?php foreach ($semantiques as $semantique): ?>
+		<tr>
+			<td>
+				<span class="edit CursorPointer"
+                    	data-url="<?php echo $this->url("semantiquetransition/modifier", array("id" => $semantique->id)); ?>"
+                    	data-name="semantique" 
+                    	data-type="text" 
+                    	data-pk="1">
+            		<?php echo $this->escapeHtml($semantique->semantique); ?>
+                </span>
+            </td>
+            <td>
+				<span class="edit CursorPointer"
+                    	data-url="<?php echo $this->url("semantiquetransition/modifier", array("id" => $semantique->id)); ?>"
+                    	data-name="description" 
+                    	data-type="textarea" 
+                    	data-pk="1">
+            		<?php  echo $this->escapeHtml($semantique->description); ?>
+                </span>
+            </td>
+            <td>
+            	<!-- Le boutton supprimer déclenche en javascript une modale de confirmation -->
+            	<a href="#" 
+            		data-url="<?php echo $this->url('semantiquetransition/supprimer', array('id' => $semantique->id)); ?> "
+            		data-value="<?php  echo $this->escapeHtml($semantique->semantique); ?>"
+            		class="btn btn-danger SupprimerSemantique">
+            	<i class="icon-trash"></i>
+            	</a>
+            </td>
+		</tr>
+	<?php endforeach; ?>
+</table> 
+
+<!-- Contiendra la pop-up de confirmation lors d'un clic sur un bouton 'supprimer' -->
+<div id="confirmDiv" >
+</div>
+
+<?php 
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js');
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+
+$this->inlineScript()->captureStart();
+?>
+	
+	$(function() {
+		
+		$('.edit').editable({ mode: 'inline', emptytext: 'Vide'});
+		
+		// Modale de confirmation pour la suppression d'un sémantique
+		$(".SupprimerSemantique").click(function(event){
+        	var dataURL = $(this).attr('data-url');
+            var dataValue = $(this).attr('data-value');
+            $('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir supprimer définitivement la sémantique <i>" + dataValue + " </i>?",
+                callback: function() {
+                     $.post(
+                     	dataURL,
+                        { name: "supprimer" },
+                        function(response) {
+		                	document.location.reload();
+		            	}
+                    );
+                }
+          	});
+      	});
+      	
+	});
+	
+<?php $this->inlineScript()->captureEnd(); ?>

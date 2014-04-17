@@ -1,0 +1,414 @@
+<?php
+$title = 'Gestion des champs select';
+$this->headTitle($title);
+
+$this->headLink()->prependStylesheet($this->basePath() . '/css/select2.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-editable.css');
+$this->headLink()->prependStylesheet($this->basePath() . '/css/datatable.css');
+?>
+
+<div class="messageEditUsers"></div>
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li class="active"> Gestion des champs select </li>
+</ul>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Cette page vous permet de modifier les champs select.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+
+<div class="page-header row-fluid">
+    <div class="span9">
+        <h1><?php echo $this->escapeHtml($title); ?> 
+        <small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </h1>
+    </div>
+    <div class="span3">
+    	<a class="ajouterSelect btn btn-primary btn-block" href="#ajouterSelectModal" data-toggle="modal"><i class="icon-plus"></i> Ajouter un select</a>
+    </div>
+</div>
+
+
+<!-- AjouterSelect Modal -->
+<div id="ajouterSelectModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Ajouter un Select</h3>
+    </div>
+    <div class="modal-body">
+    <div class="form-horizontal">
+        <div class="control-group">
+            <label class="control-label" for="nom">Label du select</label>
+            <div class="controls">
+                <input type="text" name="labelSelect" placeholder="Label" value="">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="nom">Description</label>
+            <div class="controls">
+                <textarea name="descriptionSelect" placeholder="Description" class=""></textarea>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-primary ajouterSelectSubmit">Créer</a>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<!-- AjouterCSV Modal -->
+<div id="ajouterCSVModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Ajouter une liste d'option</h3>
+    </div>
+    <div class="modal-body">
+    <div class="form-horizontal">
+        <div class="control-group">
+            <label class="control-label" for="nom">Delimiteur ex:","</label>
+            <div class="controls">
+                <input type="text" name="delimiteurSelect" value=",">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="nom">Liste d'élément</label>
+            <div class="controls">
+                <textarea name="listeSelect" placeholder='ex : "France,Espagne,Italie"' class=""></textarea>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-primary ajouterCSVSubmit">Ajouter</a>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <div>
+                <table class="table table-striped table-bordered data">
+                    <thead>
+                        <tr>
+                            <th>Label</th>
+                            <th>Description</th>
+                            <th>Apercu</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4">En cours de téléchargement</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmDiv" > </div>
+
+<div id="modalDiv"> </div>
+
+<div id="exportModalDiv" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="exportCSVLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="exportCSVLabel">Export CSV de la liste d'options</h3>
+    </div>
+    <div class="modal-body">
+    <div class="form-horizontal">
+        <div class="control-group">
+            <label class="control-label" for="nom">Delimiteur ex:","</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input type="text" name="delimiteurSelect" class="delimiteurSelect input-medium" value=",">
+                    <button class="btn changeDelimiteurSelect"  type="button"><i class="icon-caret-right"> </i></button>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="nom">Liste d'élément</label>
+            <div class="controls">
+                <textarea name="listeSelect" class="listeSelect input-large" rows="6"></textarea>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<?php $this->inlineScript()->captureStart(); ?>
+	var table;
+	$(function() {
+	
+	    table = ResultSet.paginate(
+	    	$('.data'),
+			{
+				"aaSorting": [ [1,'desc'] ],
+				"aoColumns": [
+		           	           	null,
+		           	           	null, 
+                                { "bSortable": false },
+		           	        	{ "bSortable": false },
+	           	           	 ],
+	           	"iColumns": 4,
+	           	"bAutoWidth": false,
+				"bSortClasses":false,
+	           	"bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "<?php echo $this->url("champSelect"); ?>",
+                "fnDrawCallback": function () {
+    
+                    $('[data-toggle="popover"],.classPopover').popover({placement:'top', trigger:'hover'}); 
+                    
+    
+                    $('.text').editable({ 
+                        mode: 'inline',
+                        emptytext: "Vide"
+                     });
+
+                    $(".select").select2({
+                    	dropdownAutoWidth: true
+                    });
+
+                    $(document).on( 'click', '.modifierOption', function(e){
+                        var dataURL = $(this).attr('data-url');
+                        $('body').css('cursor', 'wait');
+                        $.ajax({
+                            url: dataURL,
+                            type: "POST",
+                            data:{ name:'voirListe' }, 
+                            success:function(response){
+                    
+                                if(response == 'true') {
+                                    location.reload();
+                                } else {
+                                    $('#modalDiv').html('<div id="SelectOptionsModal" class="modal">' + response + '</div>').modal();
+                                     $('.text').editable({ 
+                                        mode: 'inline',
+                                        emptytext: "Vide",
+                                    });
+                                }
+                            $('body').css('cursor', 'auto');
+                            },
+                            error: function(response){
+                                alert('Error');
+                                $('body').css('cursor', 'auto');
+                            }
+                        });
+                    });
+                     
+                }
+			}
+		);
+
+        // ajouter un select
+        $(document).on( 'click', '.ajouterSelectSubmit', function(e){
+            var label = $('input[name="labelSelect"]');
+            var description = $('textarea[name="descriptionSelect"]');
+            $('body').css('cursor', 'wait');
+            $.ajax({
+                url: "<?php echo $this->url("champSelect/ajouter");?>",
+                type: "POST",
+                data:{ 
+                name:'ajouterSelect', 
+                labelSelect: label.val(),
+                descriptionSelect: description.val()}
+            }).done(function(e){
+                table.fnDraw(); 
+                var resp = jQuery.parseJSON(e);
+                $('.messageEditUsers').showInfos(resp.message, resp.type);
+                $('#ajouterSelectModal').modal('hide');
+                label.val('');
+                description.val('');
+                $('body').css('cursor', 'auto');
+            });
+        });
+
+        // supprimer un select
+        $(document).on( 'click', '.supprimerSelect', function(e){
+            var dataURL = $(this).attr('data-url');
+            $('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir supprimer définitivement ce select ?",
+                callback: function() {
+                    $('body').css('cursor', 'wait');
+                    $.ajax({
+                        url: dataURL,
+                        type: "POST",
+                        data:{ name:'supprimerSelect'}
+                    }).done(function(e){
+                        $('body').css('cursor', 'auto');
+                        table.fnDraw();
+                        var resp = jQuery.parseJSON(e);
+                        $('.messageEditUsers').showInfos(resp.message, resp.type);
+                    });
+                }
+            });
+            
+        });
+
+        // on passe l'url du select a la modal 
+        $(document).on( 'click', '.ajouterCSV', function(e){
+            var dataURL = $(this).attr('data-url');
+            $('a.ajouterCSVSubmit').attr('data-url', dataURL);
+        });
+
+        // ajouter un une liste d'option ( CSV )
+        $(document).on( 'click', '.ajouterCSVSubmit', function(e){
+            var dataURL = $(this).attr('data-url');
+            var delimiteur1 = $('input[name="delimiteurSelect"]');
+            var liste1 = $('textarea[name="listeSelect"]');
+            $('body').css('cursor', 'wait');
+            $.ajax({
+                url: dataURL,
+                type: "POST",
+                data:{ 
+                name:'ajouterOptionCSV', 
+                delimiteur: delimiteur1.val(),
+                liste: liste1.val()}
+            }).done(function(e){
+                table.fnDraw(); 
+                var resp = jQuery.parseJSON(e);
+                $('.messageEditUsers').showInfos(resp.message, resp.type);
+                $('#ajouterCSVModal').modal('hide');
+                liste1.val('');
+                delimiteur1.val(',');
+                $('body').css('cursor', 'auto');
+            });
+        });
+
+        // supprimer une valeur d'un select 
+        $(document).on( 'click', '.SupprimerOption', function(e){
+            var dataURL = $(this).attr('data-url');
+            var thisTR = $(this).parents('tr');
+            $('body').css('cursor', 'wait');
+            $.ajax({
+                url: dataURL,
+                type: "POST",
+                data:{ name:'supprimerOption' }
+            }).done(function(e){
+                var resp = jQuery.parseJSON(e);
+                $('#response').html('<div class="alert alert-'+resp.type+'"><button type="button" class="close" data-dismiss="alert">&times;</button>'+resp.message+'</div>');
+                if(resp.type == 'success'){
+                    thisTR.remove();
+                }
+                $('body').css('cursor', 'auto');
+            });
+        });
+
+        // on recharge le tableu quand on ferme la modal SelectOptionsModal
+        $('#modalDiv').on('hidden', function () {
+            table.fnDraw();
+        })
+
+        // ajouter une valeur a un select
+        $(document).on( 'click', '.AjouterOption', function(e){
+            var dataURL = $(this).attr('data-url');
+            var thisTable = $(this).parents('table');
+            var dataOption = $('#ajouterOptionInput');
+            $('body').css('cursor', 'wait');
+            $.ajax({
+                url: dataURL,
+                type: "POST",
+                data:{ name:'ajouterOption', value:dataOption.val() }
+            }).done(function(e){
+                var resp = jQuery.parseJSON(e);
+                $('#response').html('<div class="alert alert-'+resp.type+'"><button type="button" class="close" data-dismiss="alert">&times;</button>'+resp.message+'</div>');
+                if(resp.type == 'success'){
+                    $('#ListeOption').append('<tr id="eee">'+resp.addTable+'</tr>');
+                    $('.modal-body').animate({  
+                        scrollTop:$('#'+resp.id).offset().top  
+                    }, 'slow');  
+                    dataOption.val('');
+                    $('.text').editable({ 
+                        mode: 'inline',
+                        emptytext: "Vide",
+                    });
+                    $('body').css('cursor', 'auto');
+                }
+
+            });
+        });
+        
+        //Export de la liste en CSV
+        $(document).on( 'click', '.exportCSV', function(e){
+            var id = $(this).data('id');
+
+            $('#exportModalDiv .changeDelimiteurSelect').data('id', id);
+            $("#exportModalDiv .changeDelimiteurSelect").click();
+            $('#exportModalDiv').modal();
+            e.preventDefault();
+        });
+
+        $(document).on( 'click', '#exportModalDiv .changeDelimiteurSelect', function(e){
+            var id           = $(this).data('id');
+            var listeCSV     = '';
+            var listeOptions = $("#select2_"+id+" option");
+            var delim        = ( $('#exportModalDiv .delimiteurSelect').val() !== 'undefined' && $('#exportModalDiv .delimiteurSelect').val() !== '' ? $('#exportModalDiv .delimiteurSelect').val() : ',' );
+
+            $.each( listeOptions, function(index, option){
+
+                listeCSV += $.trim( $(option).text() );
+
+                if( index < listeOptions.length-1 ){
+                    listeCSV += delim;
+                }
+            });
+
+            $('#exportModalDiv .listeSelect').val(listeCSV);
+        });
+
+        $(document).on( 'keypress', '#exportModalDiv .delimiteurSelect', function(e){
+            if( e.which == 13 ){ // Code touche entrée = 13
+                $("#exportModalDiv .changeDelimiteurSelect").click();
+                $(this).blur();
+                e.preventDefault();
+            }
+        });
+        
+        $(document).on( 'focus', '#exportModalDiv .delimiteurSelect', function(e){
+            $(this).select();
+        });
+                
+        $(document).on( 'mouseup', '#exportModalDiv .delimiteurSelect', function(e){
+            e.preventDefault();
+        });
+        
+        $(document).on( 'focus', '#exportModalDiv .listeSelect', function(e){
+            $(this).select();
+        });
+                
+        $(document).on( 'mouseup', '#exportModalDiv .listeSelect', function(e){
+            e.preventDefault();
+        });
+        
+	});
+<?php
+$this->inlineScript()->captureEnd();
+
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-editable.js');
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+$this->headScript()->appendFile($this->basePath() . '/js/jquery.dataTables.js');
+$this->headScript()->appendFile($this->basePath() . '/js/ResultSet.js');
+$this->headScript()->appendFile($this->basePath() . '/js/select2.js');
+$this->headScript()->appendFile($this->basePath() . '/js/locales/select2_locale_fr.js') ;
+?>

@@ -1,0 +1,410 @@
+<?php 
+$title = $scene->titre;
+$this->headTitle($title); ?>
+
+<?php $sous_parcours = $scene->sous_parcours; ?>
+<?php $parcours = $sous_parcours->parcours; ?>
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>"> Accueil </a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours') ?>">Parcours</a> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('parcours/voir', array('id'=>$parcours->id)) ?>"> <i class="icon-road"></i>  <?php echo $this->escapeHtml($parcours->titre); ?></a> <span class="divider">/</span></li>
+    <li class="active"> <?php echo $this->escapeHtml($sous_parcours->titre); ?> <span class="divider">/</span></li>
+    <li class="active"><i class="icon-file-alt"></i>  <?php echo $this->escapeHtml($scene->titre); ?></li>
+</ul>
+
+<style type="text/css">
+	.sous_parcours {
+		border-style: dashed;
+		border-width: 3px;
+		border-color: #006699;
+	}
+	
+</style>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">Aide</h3>
+    </div>
+    <div class="modal-body">
+    	<p>
+    	Vous êtes sur la fiche d'une scène. Cette page permet de consulter les informations relatives à une scène.
+    	</p>
+    	<p>
+    	L'onglet 'Contenu de la scène' contient a description détaillée de la scène ainsi que des liens vers les éléments de la collection à voir dans cette scène.
+    	</p>
+    	<p>
+    	L'onglet 'Scènes voisines' contient toutes les transitions entrantes et sortantes de la scène, détaillant ainsi l'ensemble des scènes voisines dans le parcours.
+    	</p>
+    	<p>
+    	Si vous avez l'autorisation, vous pouvez modifier ces informations grâce au bouton en haut à gauche.
+    	</p>
+    </div>
+    <div class="modal-footer">
+	    <button class="btn" data-dismiss="modal" aria-hidden="true">Retour</button>
+    </div>
+</div>
+
+<?php $estRecommandee = ($scene instanceof \Parcours\Entity\SceneRecommandee);?>
+
+	<!-- Titre -->
+	<div class="page-header">
+		<div class="row-fluid">
+			<div class="span9">
+			<h3><?php echo $this->escapeHtml($sous_parcours->titre); ?></h3>
+			<h1>
+			<?php if ($estRecommandee) :?>
+				<p class="text-info">
+			<?php else : ?>
+				<p class="muted">
+			<?php endif;?>
+				<i class="icon-file-alt"></i>
+			<?php echo $this->escapeHtml($title); ?> 
+			<small> <a href="#helpModal" data-toggle="modal"><i class="icon-info-sign"> </i></a></small> </p>
+			</h1>
+				<div class="messageInfos">&nbsp;</div>
+			</div>
+			
+			<div class="span3">
+			
+			<?php if ($this->isAllowed('Parcours') === true) :?>
+				<?php if ($parcours->public) :?>
+					<p><strong><i class="icon-eye-open"></i> Ce parcours est public</strong></p>
+				<?php else :?>
+					<p><strong><i class="icon-eye-close"></i> Ce parcours est un brouillon</strong></p>
+				<?php endif;?>
+				<?php if ($sous_parcours->utilisateur === null) :?>
+				    <div class="btn-group btn-block">
+		    			<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+		    				Actions 
+		    				<span class="caret"></span>
+		    			</a>
+		    			<ul class="dropdown-menu">
+			   				<li>
+								<a href="<?php echo $this->url('chantier/demarrerChantierSousParcours',array(
+										'idSousParcours' => $sous_parcours->id,
+										'idUser' => $this->zfcUserIdentity()->getId(),
+										'return' => 'scene',
+										'idReturn' => $scene->id)); ?>">
+									<span class="text-warning"><i class="icon-cogs"> </i></span> Commencer un chantier sur ce sous-parcours
+								</a>
+							</li>
+						</ul>
+		    		</div>
+				<?php elseif ($sous_parcours->utilisateur === $this->zfcUserIdentity()): ?>
+					<p class="text-warning">
+						<em> <i class="icon-cogs"></i> 
+						Ce sous-parcours fait partie de 
+						<a href="<?php echo $this->url('chantier'); ?>" class="text-warning"> vos chantiers en cours </a>
+						</em>
+					</p>
+					 <div class="btn-group btn-block">
+		    			<a class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" href="#">
+		    				Actions 
+		    				<span class="caret"></span>
+		    			</a>
+		    			<ul class="dropdown-menu">
+			   				<li>
+								<a href="<?php echo $this->url('chantier/terminerChantierSousParcours',array(
+										'idSousParcours' => $sous_parcours->id,
+										'idUser' => $this->zfcUserIdentity()->getId(),
+										'return'=>'sousparcours')); ?>">
+									<span class="text-warning"> <i class="icon-unlock"> </i></span> Terminer le chantier
+								</a>
+							</li>
+							<li>
+								<a href="<?php echo $this->url('scene/editScene',array('id' => $scene->id)) ?>">
+									<span class="text-info"><i class="icon-pencil"> </i></span> Modifier cette scène
+							    </a>
+							</li>
+							<li>
+								<?php if (!$estRecommandee) :?>
+									<a href="#" data-url="<?php echo $this->url('scene/retirerSceneSecondaire',array('id' => $scene->id)) ?>" 
+										class="supprSceneSec">
+										<span class="text-error"> <i class="icon-trash"> </i></span> Supprimer cette scène
+								    </a>
+							    <?php else :?>
+									<a href="#" 
+										class="retirerCheminRecommande"
+										data-url="<?php echo $this->url('scene/retirerSceneRecommandee', array('id'=>$scene->id));?>">
+										<span class="text-error"> <i class="icon-remove"> </i></span>Retirer cette scène du chemin recommandé
+									</a>
+								<?php endif;?>
+							</li>
+						</ul>
+		    		</div>
+		
+				<?php else :?>
+					<p class="text-warning">
+						<em><i class="icon-cogs"></i>  Chantier en cours par : 
+						<a class="text-warning" href="mailto:<?php echo $sous_parcours->utilisateur->email; ?>"> 
+							<?php echo $sous_parcours->utilisateur->displayName; ?>  <i class="icon-envelope"></i>
+						</a>
+						</em> 
+					</p>
+		    		<a class="btn btn-primary btn-block disabled" data-toggle="dropdown" href="#">
+		    			Aucune action disponible
+		    		</a>
+				<?php endif;?>
+		    <?php endif; ?>
+		
+		    </div>
+	    </div>
+	</div>
+	
+	<div class="tabbable"> 
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#tab1" data-toggle="tab">Contenu de la scène</a></li>
+			<li><a href="#tab2" data-toggle="tab">Scènes voisines</a></li>
+		</ul>
+
+		<div class="tab-content">
+		
+			<!-- Contenu de la scène -->
+			<div class="tab-pane active" id="tab1">
+		
+				<div class="row-fluid">
+				
+					<!-- Narration de la scène -->
+					<div class="span8">
+						<p><?php echo $scene->narration;?></p> <!-- créé avec le wysihtml5 donc pas de escapehtml -->
+					</div>
+					
+					<!-- Eléments à voir dans la scène -->
+					<div class="span4">
+						<div class="well">
+							<h3> A voir dans cette scène </h3>
+							<?php if ($scene->elements->count() == 0): ?>
+								Aucun élément de la collection n'est lié à cette scène.
+							<?php endif; ?>
+							<ul class="nav nav-list">
+							<?php foreach( ($scene->elements) as $element) : ?>
+								<?php if($element instanceof Collection\Entity\Artefact): ?>
+									<li>
+										<a href="<?php echo $this->url('element/voir',array('id' => $element->id)); ?>">
+										<i class="icon-tag"></i>  <?php echo $this->escapeHtml($element->titre); ?> 
+										</a>
+									</li>
+								<?php else : ?>
+									<li class="">
+										<a href="<?php echo $this->url('element/voir',array('id' => $element->id)); ?>">
+										<i class="icon-picture"></i>  <?php echo $this->escapeHtml($element->titre); ?> 
+										</a>
+									</li>
+								<?php endif;  ?>
+							<?php endforeach; ?>
+							</ul>
+						</div>
+						
+					</div>
+					
+				</div>
+				
+			</div> <!-- /tab1 -->
+			
+			<!-- Transitions autour de cette scène -->
+			<div class="tab-pane" id="tab2">
+			
+				<!-- Transitions recommandées autour de cette scène -->
+				<?php if ($estRecommandee) :?>
+				<div class="row-fluid">
+				
+					<!-- Transition recommandée entrante -->
+					<div class="span6">
+						<h3><p class="text-info">Transition recommandée entrante</p></h3>
+							<table class="table">
+							<?php if ($scene->transition_recommandee_entrante == null) :?>
+								<p class="text-info">Première scène recommandée du parcours</p>
+							<?php else: ?>
+								<tr>
+									<td>
+										<a href="<?php echo $this->url('scene/voirScene', array('id' => $scene->transition_recommandee_entrante->scene_origine->id)) ?>"> 
+											<p class="text-info">
+											<i class="icon-file-alt"></i>  
+											<em> <?php echo $this->escapeHtml($scene->transition_recommandee_entrante->scene_origine->titre); ?> </em>
+											<i class="icon-arrow-right"></i>  
+											</p>
+										</a>
+									</td>
+									<td>
+										<p class="text-info">
+										<?php echo ($scene->transition_recommandee_entrante->semantique) ? $scene->transition_recommandee_entrante->semantique->semantique : 'Sémantique inconnue' ; ?>
+							           	<a href="<?php echo $this->url('transition/voir', array('id' => $scene->transition_recommandee_entrante->id)) ?>"> 
+											(voir détail)
+										</a>
+								        </p>
+									</td>
+								</tr>
+							<?php endif;?>
+						</table>
+					</div> <!-- /span6 transition recommandée entrante -->
+					
+					<!-- Tranition recommandée sortante -->
+					<div class="span6">
+						<h3><p class="text-info">Transition recommandée sortante</p></h3>
+						<table class="table">
+							<?php if ($scene->transition_recommandee == null ) :?>
+								<p class="text-info">Dernière scène recommandée du parcours</p>
+							<?php else: ?>
+								<?php $transition = $scene->transition_recommandee; ?>
+								<tr>
+									<td>
+										<p class="text-info">
+										<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+							            <a href="<?php echo $this->url('transition/voir', array('id' => $transition->id)) ?>"> 
+											(voir détail)
+										</a>
+								        </p>
+									</td>
+							        <td>
+										<a href="<?php echo $this->url('scene/voirScene', array('id' => $transition->scene_destination->id)) ?>"> 
+											<p class="text-info">
+											<i class="icon-arrow-right"></i>  
+											<i class="icon-file-alt"></i>  
+											<em> <?php echo $this->escapeHtml($transition->scene_destination->titre); ?> </em>
+											</p>
+										</a>
+									</td>
+								</tr>
+							<?php endif;?>
+				       	</table>
+					</div> <!-- /span6 transition recommandée sortante -->
+				</div> <!-- /row-fluid transitions recommandée -->
+				<hr>
+				<?php endif;?>
+			
+				<!-- Transitions secondaires autour de cette scène -->
+				<div class="row-fluid">
+				
+					<!-- Transitions secondaires entrantes -->
+					<div class="span6">
+						<h3><p class="muted">Transitions secondaires entrantes</p></h3>
+						<table class="table">
+							<?php if ($scene->transitions_secondaires_entrantes == null
+									|| $scene->transitions_secondaires_entrantes->count() == 0):?>
+								<p class="muted">Aucune tansition secondaire ne mène à cette scène.</p>
+							<?php else: ?>
+								<?php foreach ($scene->transitions_secondaires_entrantes as $transition) : ?>
+									<tr>
+										<td>
+											<a href="<?php echo $this->url('scene/voirScene', array('id' => $transition->scene_origine->id)) ?>"> 
+												<?php if ($transition->scene_origine instanceof \Parcours\Entity\SceneRecommandee) :?>
+														<p class="text-info">
+												<?php else : ?>
+														<p class="muted">
+												<?php endif;?>
+												<i class="icon-file-alt"></i>  
+												<em> <?php echo $this->escapeHtml($transition->scene_origine->titre); ?> </em>
+												<i class="icon-arrow-right"></i> 
+												</p>
+											</a>
+										</td>
+										<td>
+											<p class="muted">
+											<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+											<a href="<?php echo $this->url('transition/voir', array('id' => $transition->id)) ?>"> 
+												(voir détail)
+											</a>
+											</p>
+										</ul>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif;?>
+						</table>
+					</div> <!-- /span6 transition secondaires entrantes -->
+					
+					<!-- Transitions secondaires sortantes -->
+					<div class="span6">
+						<h3><p class="muted">Transitions secondaires sortantes</p></h3>
+						<table class="table">
+							<?php if ($scene->transitions_secondaires == null 
+									|| $scene->transitions_secondaires->count() == 0) :?>
+								<p class="muted">Aucune tansition secondaire ne part de cette scène.</p>
+							<?php else: ?>
+								<?php foreach ($scene->transitions_secondaires as $transition) : ?>
+									<tr>
+										<td>
+											<p class="muted">
+											<?php echo ($transition->semantique) ? $transition->semantique->semantique : 'Sémantique inconnue' ; ?>
+											<a href="<?php echo $this->url('transition/voir', array('id' => $transition->id)) ?>"> 
+												(voir détail)
+											</a>
+											</p>
+										</td>
+										<td>
+											<a href="<?php echo $this->url('scene/voirScene', array('id' => $transition->scene_destination->id)) ?>"> 
+												<?php if ($transition->scene_destination instanceof \Parcours\Entity\SceneRecommandee) :?>
+														<p class="text-info">
+												<?php else : ?>
+														<p class="muted">
+												<?php endif;?>
+												<i class="icon-arrow-right"></i> 
+												<i class="icon-file-alt"></i> 
+												<em> <?php echo $this->escapeHtml($transition->scene_destination->titre); ?> </em>
+												</p>
+											</a>
+										</ul>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif;?>
+				       	</table>
+					</div> <!-- /span6 transition secondaires sortantes -->
+				</div> <!-- /row-fluid transitions recommandée -->
+			</div> <!-- /tab 2 -->
+		</div> <!-- / tab-conttent -->
+	</div> <!-- / tabbable -->
+</div> <!-- / row-fluid -->
+
+<div id="modalDiv"></div>
+
+<div id="confirmDiv" ></div>
+
+<?php 
+$this->inlineScript()->captureStart();
+ ?>
+	$(function() {
+
+		// Retirer la scène du chemin recommandé
+		$(".retirerCheminRecommande").click(function(event){
+        	var dataURL = $(this).attr('data-url');
+        	$('#confirmDiv').confirmModal({
+                heading:'Confirmation',
+                body:"Êtes-vous sûr de vouloir retirer cette scène du chemin recommandé ? Celle-ci deviendra une scène secondaire",
+                callback: function() {
+                	$('body').css('cursor', 'wait');
+                    $.post(
+                     	dataURL,
+                        function(response) {
+      						$(location).attr('href',"<?php echo $this->url('parcours/voir', array('id'=>$scene->sous_parcours->parcours->id));?>");
+		                }
+                    );
+                }
+          	});
+      	});
+	
+		// Affiche la modal de confirmation pour la suppression d'une scène
+		$(document).on( 'click', '.supprSceneSec', function(e){
+	   		e.preventDefault();
+		    var URL = $(this).attr('data-url');
+
+			$.ajax({
+				url: URL,
+				type: "POST",
+				data:{ 'action' : 'delete' }, 
+				success:function(response){
+					$('#modalDiv').html('<div id="ChampModal" class="modal">' + response + '</div>').modal();
+				},
+				error: function(){
+					$('.messageInfos').showInfos("Impossible d'afficher la popup", "error");
+				}
+			});
+		});
+		
+	});
+<?php $this->inlineScript()->captureEnd(); 
+
+$this->headScript()->appendFile($this->basePath() . '/js/bootstrap-confirm.js');
+?>

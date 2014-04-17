@@ -1,0 +1,63 @@
+<?php
+$title = 'Création d\'une Sémantique';
+$this->headTitle($title);
+?>
+
+<ul class="breadcrumb">
+	<li><a href="<?php echo $this->url('page') ?>">Accueil</a> <span class="divider">/</span></li>
+	<li><a href="<?php echo $this->url('collection') ?>">Collection Numérique</a> <span class="divider">/</span></li>
+    <li class="active"> Administration <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('semantique') ?>"> Gestion des sémantiques</a> <span class="divider">/</span></li>
+    <li class="active"> Création d'une sémantique </li>
+</ul>
+
+<div class="page-header">
+    <h1><?php echo $this->escapeHtml($title); ?> <!-- <small>Subtext for header</small> --></h1>
+</div>
+
+
+<?php
+$form = $this->form;
+$form->setAttribute('action', $this->url('semantique/ajouter'));
+$form->prepare();
+
+$form->get('semantique')->setAttributes(array('placeholder'=>'Semantique','class'=>'span8'));
+$form->get('description')->setAttributes(array('placeholder'=>'Description','class'=>'span12'));
+$form->get('type_origine')->setAttributes(array('class'=>'span12'));
+$form->get('type_destination')->setAttributes(array('class'=>'span12'));
+
+$form->get('submit')->setLabel('Valider')->setAttribute('class','ajChampSubmit btn btn-primary');
+
+
+echo $this->form()->openTag($form);
+
+echo $this->formHidden($form->get('id'));
+?>
+<div class="row-fluid">
+	<div class="span3">
+		<?php echo $this->formLabel($form->get('type_origine')) ?>
+		<?php echo $this->formSelect($form->get('type_origine')) ?>
+		<?php echo $this->formElementErrors($form->get('type_origine')) ?>
+	</div>
+	<div class="span6">
+		<?php echo $this->formLabel($form->get('semantique')) ?>
+		<?php echo $this->formInput($form->get('semantique')) ?>
+		<?php echo $this->formElementErrors($form->get('semantique')) ?>
+		
+		<?php echo $this->formLabel($form->get('description')) ?>
+		<?php echo $this->formTextarea($form->get('description')) ?>
+		<?php echo $this->formElementErrors($form->get('description')) ?>
+	</div>
+	<div class="span3">
+		<?php echo $this->formLabel($form->get('type_destination')) ?>
+		<?php echo $this->formSelect($form->get('type_destination')) ?>
+		<?php echo $this->formElementErrors($form->get('type_destination')) ?>
+	</div>
+	</div>
+
+<div class="form-actions">
+	<?php echo $this->formSubmit($form->get('submit')); ?>
+	<a href="<?php echo $this->url('semantique') ?>" role="button" class="btn"> Annuler </a>
+</div>
+<?php echo $this->form()->closeTag(); ?>
+

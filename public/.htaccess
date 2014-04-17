@@ -1,0 +1,95 @@
+# Config OVH
+	SetEnv PHP_VER 5_4
+	SetEnv REGISTER_GLOBALS 0
+# END Config OVH
+
+# Config Zend Framework 2
+	RewriteEngine On
+	RewriteBase /
+	# The following rule tells Apache that if the requested filename
+	# exists, simply serve it.
+	RewriteCond %{REQUEST_FILENAME} -s [OR]
+	RewriteCond %{REQUEST_FILENAME} -l [OR]
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^.*$ - [NC,L]
+	# The following rewrites all other queries to index.php. The 
+	# condition ensures that if you are using Apache aliases to do
+	# mass virtual hosting, the base path will be prepended to 
+	# allow proper resolution of the index.php file; it will work
+	# in non-aliased environments as well, providing a safe, one-size 
+	# fits all solution.
+	RewriteCond %{REQUEST_URI}::$1 ^(/.+)(.+)::\2$
+	RewriteRule ^(.*) - [E=BASE:%1]
+	RewriteRule ^(.*)$ %{ENV:BASE}index.php [NC,L]
+# END Config Zend Framework 2
+
+# Config Sécurité
+	Options -Indexes
+
+	### SEUL LE FICHIER index.php EST SERVI COMME PREMIER FICHIER PAR DEFAUT. LES AUTRES SONT INTERDITS
+	DirectoryIndex index.php
+
+	### INTERDIRE LES AUTRES TYPES DE FICHIER INDEX
+	<Files ~ "^(index)\.(p?s?x?htm?|txt|aspx?|cfml?|cgi|pl|php[3-9]|jsp|xml)$">
+	order allow,deny
+	deny from all
+	</Files>
+
+	### INTERDIRE L'AFFICHAGE DE CERTAINS FORMATS DE FICHIER 
+	### EXÉCUTÉS PAR LE SERVEUR MAIS INTERDIT D'AFFICHAGE PAR LE NAVIGATEUR WEB
+	<Files ~ "\.(inc|class|sql|ini|conf|exe|dll|bin|tpl|bkp|dat|c|h|py|spd|theme|module)$">
+	deny from all
+	</Files>
+
+	### INTERDIRE L'AFFICHAGE DE CERTAINS FICHIERS COMME config, option, login, setup, install, admin.
+	### A ADAPTER SI CELA POSE PROBLEME
+	<Files ~ "^((wp-)?config(\.inc)?|configure|configuration|login|options?\.inc|option|settings?(\.inc)?|functions?(\.inc)?|setup(\.inc)?|default|home|main|install?|admin|errors?|hacke?r?d?|[-_a-z0-9.]*mafia[-_a-z0-9.]*|[-_a-z0-9.]*power[-_a-z0-9.]*|[-_a-z0-9.]*jihad[-_a-z0-9.]*|php|shell|ssh|root|cmd|[0-9]{1,6}|test|data)\.(p?s?x?htm?l?|txt|aspx?|cfml?|cgi|pl|php[3-9]{0,1}|jsp?|sql|xml)$">
+	order allow,deny
+	deny from all
+	</Files>
+
+	<Files .htaccess>
+	order allow,deny
+	deny from all
+	</Files>
+	
+	# Ancienne redirection
+	#RewriteEngine on
+	#Rewritecond %{HTTP_HOST} ^moving-bo.cervin.org
+	#Rewritecond %{REQUEST_URI} !^/public
+	#Rewriterule ^(.*)$ /public/
+
+	###FILTRE CONTRE ROBOTS DES PIRATES ET ASPIRATEURS DE SITE WEB
+	### LISTE ICI: http://www.bg-pro.com/?goto=badbot
+	## EXCEPTION: TOUS LES ROBOTS MEMES ANONYMES OU BANNIS PEUVENT ACCEDER A CES FICHIERS
+	RewriteCond %{REQUEST_URI} !^/robots.txt
+	RewriteCond %{REQUEST_URI} !^/sitemap.xml
+	## 
+	RewriteCond %{HTTP_USER_AGENT} ^-?$ [OR] ## ANONYMES
+	RewriteCond %{HTTP_USER_AGENT} ^[bcdfghjklmnpqrstvwxz\ ]{8,}|^[0-9a-z]{15,}|^[0-9A-Za-z]{19,}|^[A-Za-z]{3,}\ [a-z]{4,}\ [a-z]{4,} [OR] ## CEUX QUI INVENTENT DES NOMS AU HASARD 
+	RewriteCond %{HTTP_USER_AGENT} ^<sc|<\?|8484\ Boston\ Project|autoemailspider|@nonymouse|ADSARobot|Advanced\ Email\ Extractor|^adwords|ah-ha|aktuelles|amzn_assoc|Anarchie|anonymous|Art-Online|ASPSeek|ASSORT|ATHENS|Atomz|attach|autoemailspider|BackWeb|Bandit|BatchFTP|bdfetch|big.brother|BlackWidow|blogsearchbot-martin|bmclient|Boston\ Project|BravoBrian\ SpiderEngine\ MarcoPolo|Bullseye|bumblebee|capture|CherryPicker|ChinaClaw|CICC|clipping|compatible\ \;|Crescent|Crescent\ Internet|Custo|cyberalert|Deweb|diagem|Digger|Digimarc|DIIbot|DirectUpdate|disco|DISCoFinder|Downloader|Download\ Accelerator|Download\ Demon|Download\ Wonder|Drip|DSurf15a|DTS.Agent|EasyDL|eCatch|echo\ extense|ecollector|efp@gmx\.net|EirGrabber|EmailCollector|EmailSiphon|Email\ Siphon|EmailWolf|Email\ Extractor|Express\ WebPictures|ExtractorPro [NC,OR] ## VRAIS ET FAUX ROBOTS NE RESPECTANT PAS LES REGLES
+	RewriteCond %{HTTP_USER_AGENT} EyeNetIE|fastlwspider|FavOrg|Favorites\ Sweeper|^Fetch|FEZhead|FileHound|flashget|FlashGet\ WebWasher|FlickBot|fluffy|frontpage|GalaxyBot|Generic|Getleft|GetRight|GetSmart|GetWeb!|GetWebPage|gigabaz|Girafabot|Go!Zilla|go-ahead-got-it|GornKer|Grabber|GrabNet|Grafula|Green\ Research|grub-client|grub\ crawler|hanzoweb|Harvest|hhjhj@yahoo|hloader|HMView|HomePageSearch|HTTPConnect|httpdown|httplib|HttpProxy|HTTP\ agent|http\ generic|HTTrack|ia_archive|IBM_Planetwide|IDBot|id-search|imagefetch|Image\ Stripper|Image\ Sucker|IncyWincy|Indy\ Library|informant|Ingelin|InterGET|InternetLinkAgent|InternetSeer\.com|^Internet\ Explorer|Internet\ Ninja|IPiumBot|Iria|Irvine|Jakarta\ Commons|JBH*Agent [NC,OR] ## VRAIS ET FAUX ROBOTS NE RESPECTANT PAS LES REGLES
+	RewriteCond %{HTTP_USER_AGENT} JetCar|JOC|JOC\ Web\ Spider|JustView|Kapere|KWebGet|Lachesis|larbin|LeechFTP|LexiBot|lftp|likse|Link*Sleuth|LINKS\ ARoMATIZED|LinkWalker|Mac\ Finder|Mag-Net|Magnet|Mass\ Downloader|MCspider|Microsoft\ URL|Microsoft\ Data|MIDown\ tool|minibot\(NaverRobot\)|Mirror|Missigua|Mister\ PiX|MJ12bot|MMMtoCrawl\/UrlDispatcherLLL|Movable\ Type|Moozilla|^Mozilla$|^MSIE|Murzillo|MSProxy|multithreaddb|nationaldirectory|Navroad|NearSite|NetAnts|NetCarta|NetMechanic|netprospector|NetResearchServer|NetSpider|NetZIP|NetZippy|NetZip\ Downloader|Net\ Vampire|NEWT|nicerspro|NICErsPRO|NPBot|Nutch|Nutscrape/|Octopus|Offline\ Explorer|Offline\ Navigator|OmniExplorer|OpaL|Openfind|OpenTextSiteCrawler [NC,OR] ## VRAIS ET FAUX ROBOTS NE RESPECTANT PAS LES REGLES
+	RewriteCond %{HTTP_USER_AGENT} OrangeBot|PackRat|PageGrabber|Papa\ Foto|pavuk|pcBrowser|PersonaPilot|PingALink|Pockey|Program\ Shareware|Proxy|psbot|PSurf|psycheclone|^puf|Pump|PushSite|PussyCat|PycURL|python|QRVA|QuepasaCreep|RealDownload|Reaper|Recorder|ReGet|replacer|RepoMonkey|almaden|Robozilla|Rover|RPT-HTTPClient|Rsync|SearchExpress|searchhippo|searchterms\.it|Second\ Street\ Research|Seeker|Shai|sitecheck|SiteMapper|SiteSnagger|SlySearch|SmartDownload|snagger|SpaceBison|Spegla|SpiderBot|SqWorm|Star\ Downloader|Stripper|sucker|SuperBot|SuperHTTP|Surfbot|SurfWalker|SurveyBot|Szukacz|tAkeOut|tarspider|Teleport\ Pro|Telesoft|Templeton|TrackBack|TrueRobot|Turing|TurnitinBot [NC,OR] ## VRAIS ET FAUX ROBOTS NE RESPECTANT PAS LES REGLES
+	RewriteCond %{HTTP_USER_AGENT} TV33_Mercator|UIowaCrawler|URL_Spider_Pro|^user|^User\ Agent:\ |^User-Agent:\ |UtilMind|Vacuum|vagabondo|vayala|visibilitygap|vobsub|VoidEYE|vspider|w3mir|WebaltBot|WebAuto|webbandit|WebCapture|Webclipping|webcollage|webcollector|WebCopier|webcraft@bea|WebDAV|webdevil|webdownloader|Webdup|WebEmailExtractor|WebFetch|WebGo\ IS|WebHook|Webinator|WebLeacher|WEBMASTERS|WebMiner|WebMirror|webmole|WebReaper|WebSauger|WEBsaver|Website\ eXtractor|Website\ Quester|WebSnake|Webster|WebStripper|websucker|webvac|webwalk|webweasel|WebWhacker|WebZIP|Web\ Data\ Extractor|Web\ Downloader|Web\ Image\ Collector|Web\ Sucker|web\.by\.mail|whizbang|WhosTalking|Widow|Widows|WISEbot|WISEnutbot|WUMPUS|Wweb|WWWOFFLE|Wysigot|x-Tractor|Xaldon\ WebSpider|XGET|Yandex|Zeus|Zeus.*Webster [NC] ## VRAIS ET FAUX ROBOTS NE RESPECTANT PAS LES REGLES
+	RewriteCond %{HTTP_USER_AGENT} ^curl|^Fetch\ API\ Request|GT\:\:WWW|^HTTP\:\:Lite|httplib|^Java/1.|^Java\ 1.|^LWP|libWeb|libwww|^PEAR|PECL\:\:HTTP|PHPCrawl|^Program\ Shareware|python|Rsync|Snoopy|^URI\:\:Fetch|WebDAV|^Wget [NC] ## BIBLIOTHEQUES / CLASSES HTTP DONT ON NE VEUT PAS. ATTENTION, CELA PEUT BLOQUER CERTAINES FONCTIONS DE VOTRE CMS. NE PAS TOUT EFFACER, MAIS CHERCHEZ LE NOM DE LA CLASSE HTTP CONCERNEE (DEMANDEZ AUX DEVELOPPEURS DE VOTRE CMS). CETTE LISTE BLOQUE 80% DES ROBOTS SPAMMEURS. IL FAUT LA CONSERVER.
+	RewriteRule (.*) - [F]
+
+	### DES FAUX URLS, ON LES NEUTRALISE
+	RedirectMatch gone ^/_vti.*
+	RedirectMatch gone ^/MSOffice.*
+	RedirectMatch gone ^[-_a-z0-9/\.]*//.*
+	RedirectMatch gone ^.*/etc/passwd.*
+
+	### FILTRE CONTRE XSS, REDIRECTIONS HTTP, base64_encode, VARIABLE PHP GLOBALS VIA URL, MODIFIER VARIABLE _REQUEST VIA URL, TEST DE FAILLE PHP, INJECTION SQL SIMPLE
+	RewriteCond %{REQUEST_METHOD} (GET|POST) [NC]
+	RewriteCond %{QUERY_STRING} ^(.*)(%3C|<)/?script(.*)$ [NC,OR]
+	RewriteCond %{QUERY_STRING} ^(.*)(%3D|=)?javascript(%3A|:)(.*)$ [NC,OR]
+	RewriteCond %{QUERY_STRING} ^(.*)document\.location\.href(.*)$ [OR]
+	RewriteCond %{QUERY_STRING} ^(.*)(%3D|=)http(%3A|:)(/|%2F){2}(.*)$ [NC,OR] ## ATTENTION A CETTE REGLE. ELLE PEUT CASSER CERTAINES REDIRECTIONS RESSEMBLANT A: http://www.truc.fr/index.php?r=http://www.google.fr ##
+	RewriteCond %{QUERY_STRING} ^(.*)base64_encode(.*)$ [OR]
+	RewriteCond %{QUERY_STRING} ^(.*)GLOBALS(=|[|%[0-9A-Z]{0,2})(.*)$ [OR]
+	RewriteCond %{QUERY_STRING} ^(.*)_REQUEST(=|[|%[0-9A-Z]{0,2})(.*)$ [OR]
+	RewriteCond %{QUERY_STRING} ^(.*)(SELECT(%20|\+)|UNION(%20|\+)ALL|INSERT(%20|\+)|DELETE(%20|\+)|CHAR\(|UPDATE(%20|\+)|REPLACE(%20|\+)|LIMIT(%20|\+))(.*)$ [NC]
+	RewriteRule (.*) - [F]
+# END Config Sécurité

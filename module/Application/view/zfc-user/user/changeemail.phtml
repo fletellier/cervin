@@ -1,0 +1,67 @@
+<?php
+$title = 'Changer mon email';
+$this->headTitle($title);
+
+if ($status === true) : ?>
+    <!-- <div class="alert alert-success">L'adresse Email a été modifiée avec succès.</div> <!-- -->
+    <!-- 
+    <script type="text/javascript">
+        function delayer(){
+            window.location = "/user";
+        }
+        setTimeout('delayer()', 3000);
+    </script>
+    <!-- -->
+    <?php //include 'index.phtml'; ?>
+    <script type="text/javascript">
+        $(location).attr('href', '<?php echo $this->url("zfcuser", array("statut"=>true, "source"=>"email")); ?>');
+    </script>
+
+<?php else : ?>
+    <div class="page-header">
+        <h1><?php echo $this->escapeHtml($title); ?> <!-- <small>Subtext for header</small> --></h1>
+    </div>
+
+    <?php if ($status === false) : ?>
+        <div class="alert alert-error">Impossible de modifier l'adresse. Veuillez réessayer.</div>
+    <?php
+    endif;
+    $form = $this->changeEmailForm;
+    
+    $form->prepare();
+    $form->setAttribute('action', $this->url('zfcuser/changeemail'));
+    $form->setAttribute('method', 'post');
+    $form->setAttribute('class','form-horizontal');
+    $form->get('newIdentity')->setLabel('Nouvel Email')->setAttribute('placeholder','nouvelEmail@exemple.com')->setLabelAttributes(array('class' => 'control-label'));
+    $form->get('newIdentityVerify')->setLabel('Confirmation')->setAttribute('placeholder','nouvelEmail@exemple.com')->setLabelAttributes(array('class' => 'control-label'));
+    $form->get('credential')->setLabel('Mot de passe')->setAttribute('placeholder','******')->setLabelAttributes(array('class' => 'control-label'));
+    
+    ?>
+    <?php echo $this->form()->openTag($form) ?>
+        <?php foreach ($form as $element): ?>
+            <?php if (!$element instanceof Zend\Form\Element\Button): ?>
+            <div class="control-group">
+                <?php echo $this->formLabel($element, $element->getLabel()); ?>
+            <?php endif ?>
+            
+            <?php if ($element instanceof Zend\Form\Element\Button): ?>
+                <div class="form-actions">
+                    <?php echo $this->formButton($element) ?>
+    
+            <?php elseif ($element instanceof Zend\Form\Element\Captcha): ?>
+                <?php echo $this->formCaptcha($element) . $this->formElementErrors($element) ?></div>
+            <?php else: ?>
+                <div class="controls"><?php echo $this->formInput($element) . $this->formElementErrors($element) ?></div>
+            <?php endif ?>
+            
+            </div>
+        <?php endforeach ?>
+        <?php if ($this->redirect): ?>
+            <input type="hidden" name="redirect" value="<?php echo $this->redirect ?>" />
+        <?php endif ?>
+        <div class="form-actions">
+            <input type="submit" value="Valider" class="btn btn-primary" />
+            <a href="/user" role="button" class="btn"> Annuler </a>
+        </div>
+    <?php echo $this->form()->closeTag();
+endif; ?>    

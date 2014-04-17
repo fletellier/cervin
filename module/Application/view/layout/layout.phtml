@@ -1,0 +1,337 @@
+<?php 
+
+// On récupère toutes les notifications
+$notifUser = $this->Notification('user');
+// On additionne toutes les notifications
+$notifAll = $notifUser;
+
+$this->inlineScript()->captureStart(); ?>
+
+	var timer = null;
+	
+	var notifications = {
+		value: "<?php echo ($notifAll > 0) ? $this->escapeHtml($notifAll) : '0' ; ?>",
+		decrement: function(){
+			if(this.value > 0){
+				this.value--;
+			}
+			this.print();
+		},
+		print: function(){
+			if(this.value > 0){
+				$('.notifications').html(notifications.value);
+			} else {
+				$('.notifications').html('');
+			}
+			//console.log("Notifications", notifications);
+		}
+	};
+	
+	$(function() {
+
+		$(document).ready(function() {
+			notifications.print();
+		});
+		
+		//Empêche la validation du formulaire accidentelle du formulaire lorsque l'on presse la touche entrée sur les input text de la classe .no-submit
+		$(document).on( 'keypress', '.no-submit input[type="text"]', function(event){
+			if( event.which == 13 ){ // Code touche entrée = 13
+				event.preventDefault();
+			}
+		});
+		
+		jQuery.fn.extend({
+			showInfos: function(text, type, closable, autoclose){
+				var closable   = ( typeof(closable) == 'undefined' ? true : closable );
+				var autoclose  = ( typeof(autoclose) == 'undefined' ? true : autoclose );
+				var classAlert = null;
+				
+				$(this).fadeOut(500, function() { $(this).removeClass("alert alert-success alert-info alert-error").html(""); });
+
+				// 4 types : info, warning, error, success
+				if(type == 'success'){
+					classAlert = 'alert alert-success';
+				} else if(type == 'info'){
+					classAlert = 'alert alert-info';
+				} else if(type == 'error'){
+					classAlert = 'alert alert-error';
+				} else { //warning
+					classAlert = 'alert';
+				}
+
+				$(this).fadeIn(500, function(){
+					$(this).addClass(classAlert);
+					$(this).text(text);
+					$(this).wrapInner('<span></span>');
+					
+					if( closable === true ){
+						$(this).prepend('<button type="button" class="close" data-dismiss="alert">&times;</button>');
+					}
+					
+					if( autoclose === true ){
+						setTimeout( function(){
+							$(this).fadeOut(500, function() { 
+								$(this).removeClass("alert alert-success alert-info alert-error").html(""); 
+							});
+						}, 3000);
+					}
+				});
+			},
+			
+		    clearInfos: function (time) {
+		        clearTimeout(timer);
+				if(!time){
+					time = 5000; //5s
+				}
+				timer = setTimeout(
+					function(){
+						$(this).fadeOut(1000, function(){
+							$(this).removeClass("alert alert-success alert-info alert-error").html("");
+						});
+					}, time);
+		    }
+		});
+		
+		String.prototype.ucFirst = function() {
+		    return this.charAt(0).toUpperCase() + this.slice(1);
+		}
+		
+	});
+<?php 
+$this->inlineScript()->captureEnd();
+
+echo $this->doctype(); 
+?>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<?php 
+echo $this->headTitle('Moving-BO')->setSeparator(' - ')->setAutoEscape(false); 
+echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0');
+// Le styles 
+
+$this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/cervin.png'));
+// echo $this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap-all.css'); 
+
+$this->headLink()->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.css');
+$this->headLink()->appendStylesheet($this->basePath() . '/css/style.css');
+echo $this->headLink()->prependStylesheet($this->basePath() . '/css/bootstrap.css');
+
+// Le js
+$this->headScript()->prependFile($this->basePath() . '/js/bootstrap.js');
+$this->headScript()->prependFile($this->basePath() . '/js/jquery.js');
+// echo $this->headScript()->prependFile($this->basePath() . '/js/bootstrap-all.js');
+echo $this->headStyle();
+echo $this->headScript(); 
+?>
+
+   </head>
+   <body>
+   
+   		<div id="wrap">
+   		
+	   		<a name="top"></a>
+	        <div class="navbar navbar-inverse ">
+	            <div class="navbar-inner">
+	                <div class="container">
+	                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+	                       <span class="icon-bar"></span>
+	                       <span class="icon-bar"></span>
+	                       <span class="icon-bar"></span>
+	                    </a>
+	                    
+	                    <!-- ACCUEIL -->
+	                    <a class="brand" href="<?php echo $this->url('page'); ?>"><i class="icon-home"></i> Moving-BO</a>
+	                    <div class="nav-collapse collapse">
+	                        <ul class="nav">
+	                            <li class="divider-vertical"></li>
+	                            
+	                    <!-- COLLECTION NUMERIQUE -->
+                            <?php if ($this->isAllowed('Modeleur') === true) :?>
+                            	<li class="dropdown">
+									<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+										<i class="icon-save"></i> Collection numérique
+										<b class="caret"></b>
+									</a>
+									<ul class="dropdown-menu">
+										<li><a href="<?php echo $this->url('collection/consulter'); ?>"><i class="icon-save"></i> La collection</a></li>
+										
+										<li class="dropdown-submenu">
+											<a tabindex="-1" href="#"><i class="icon-sitemap"></i> La structure</a>
+											<ul class="dropdown-menu">
+												<li><a href="<?php echo $this->url('typeElement'); ?>">Types d'éléments
+                                                </a></li>
+                                                <li><a href="<?php echo $this->url('champSelect'); ?>">Champ Select</a></li>
+                                                <li><a href="<?php echo $this->url('semantique'); ?>">Sémantiques des relations</a></li>
+											</ul>
+										</li>
+									
+									</ul>
+								</li>
+                            <?php else :?>
+                            	<li><a href="<?php echo $this->url('collection/consulter'); ?>"><i class="icon-save"></i>  Collection Numérique</a></li>
+                           		<!--  <li class="divider-vertical"></li> -->
+	                        <?php endif; ?>
+	                        
+	                        <li class="divider-vertical"></li>
+	                        
+	                        <!-- PARCOURS -->
+	                            <li><a href="<?php echo $this->url('parcours'); ?>"><i class="icon-road"></i>  Parcours</a></li>
+	                            
+	                        </ul>
+	                        
+	                        <ul class="nav pull-right">
+	                        
+	                        <!-- CONTACT -->
+	                        <li><a href="<?php echo $this->url('page/voir',array('slug'=>'contact')); ?>"><i class="icon-envelope"></i> Contact</a></li>
+	                        
+	                        <!-- ADMIN -->
+                        	<?php if ($this->isAllowed('Admin') === true) :?>
+                        		<?php $notifChantiersAdmin = $this->Notification('chantier_admin'); ?>
+                            	<li class="divider-vertical"></li>
+                                <li class="dropdown">
+                                	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    	<i class="icon-tasks"></i>  Administration 
+                                    	<?php if ($notifAll > 0) :?>
+                    	               		<span class="notifications badge badge-important small"></span>
+                    	               	<?php endif;?>
+										<b class="caret"></b>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                    
+										<li><a href="<?php echo $this->url('admin/gestion-users'); ?>"><i class="icon-group"></i>  Utilisateurs
+                                        	<?php if ($notifAll > 0) :?>
+                                        		<span class="notifications badge badge-important small"></span> 
+                                        	<?php endif;?>
+                                        </a></li>
+												
+										<li class="dropdown-submenu">
+											<a tabindex="-1" href="#"><i class="icon-edit"></i>  Pages éditables</a>
+											<ul class="dropdown-menu">
+												<li><a href="<?php echo $this->url('page/modifier',array('slug'=>'accueil')); ?>">Accueil</a></li>
+	                                            <li><a href="<?php echo $this->url('page/modifier',array('slug'=>'contact')); ?>">Contact</a></li>
+	                                            <li><a href="<?php echo $this->url('page/modifier',array('slug'=>'conditions-generales')); ?>">Conditions générales</a></li>
+											</ul>
+										</li>
+												
+										<li><a href="<?php echo $this->url('admin/logs'); ?>"><i class="icon-flag"></i>  Logs</a></li>
+                                               
+                                        <!-- <li class="divider"></li> -->
+                                               
+                                        <li class="dropdown-submenu">
+											<a tabindex="-1" href="#"><i class="icon-road"></i>  Parcours</a>
+											<ul class="dropdown-menu">
+                                                <li><a href="<?php echo $this->url('semantiquetransition'); ?>"> Sémantiques des transitions</a></li>
+											</ul>
+										</li>
+										
+										<li>
+											<a href="<?php echo $this->url('chantier/admin'); ?>"> 
+												<i class="icon-cogs"></i> Chantiers en cours
+												<?php if ($notifChantiersAdmin > 0) :?>
+			                                    	<span class="notifchantiers badge badge-info small">
+			                                    		<?php echo $this->escapeHtml($notifChantiersAdmin); ?>
+			                                    	</span>
+		                                    	<?php endif;?>
+											</a>
+										</li>
+                                    </ul>
+                            	</li>
+                            <?php endif; ?>
+	                            
+	                            <!-- CONNEXION / COMPTE -->
+	                            <?php
+	                             $zfcUserIdentity = $this->zfcUserIdentity();
+	                             if(!$zfcUserIdentity): ?>
+	                            	<li class="divider-vertical"></li>
+	                                <li class="dropdown">
+	                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown">Connexion<strong class="caret"></strong></a>
+	                                    <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
+	                                        <?php echo $this->zfcUserLoginWidget(); ?>
+	                                    </div>
+	                                </li>
+	                            <?php else: ?>
+	                            	<?php $notifChantiers = $this->Notification('chantier', $this->zfcUserIdentity()); ?>
+	                            	<li class="divider-vertical"></li>
+	                                <li class="dropdown">
+	                                	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+	                                    	<i class="icon-user"></i>  <?php echo $this->escapeHtml($zfcUserIdentity->getDisplayName()); ?> 
+	                                    	<?php if ($notifChantiers > 0) :?>
+	                                    	<span class="notifchantiers badge badge-info small">
+	                                    		<?php echo $this->escapeHtml($notifChantiers); ?>
+	                                    	</span>
+	                                    	<?php endif;?>
+	                                   		<b class="caret"></b>
+	                                   	</a>
+	                                    <ul class="dropdown-menu">
+	                                        <li><a href="<?php echo $this->url('zfcuser'); ?>"><i class="icon-user"></i> Mon compte</a></li>
+	                                        <?php if ($this->isAllowed('Collection')): ?>
+		                                        <li><a href="<?php echo $this->url('chantier'); ?>"><i class="icon-cogs"></i> Mes chantiers en cours
+			                                        <?php if ($notifChantiers > 0) :?>
+			                                    	<span class="notifchantiers badge badge-info small">
+			                                    		<?php echo $this->escapeHtml($notifChantiers); ?>
+			                                    	</span>
+		                                        	<?php endif;?>
+		                                        	</a>
+		                                        </li>
+		                                     <?php endif;?>
+	                                        <li><a href="<?php echo $this->url('zfcuser/logout'); ?>"><i class="icon-off"></i> Déconnexion</a></li>
+	                                    </ul>
+	                                </li>
+	                            <?php endif?>
+	                        </ul>
+	
+	                    </div><!--/.nav-collapse -->
+	                </div>
+	            </div>
+	        </div>
+	
+	        <div class="container-fluid">
+		    <?php foreach ($this->flashMessages() as $namespace => $messages) : ?>
+		        <?php if (count($messages)) : ?>
+		            <?php foreach ($messages as $message) : ?>
+		            <div class="message alert alert-<?php echo $namespace; ?>">
+		                <button type="button" class="close" data-dismiss="alert">&times;</button>
+		                <?php echo $message; ?>
+		            </div>
+		            <?php endforeach; ?>
+		        <?php endif; ?>
+		    <?php endforeach; ?>
+	    
+	        <?php //echo $this->navigation('Navigation')->breadcrumbs(); ?>
+	
+	            <?php echo $this->content; ?>
+	        </div>
+	   
+	   		<div id="push"></div>
+	   		
+	   	</div>     
+        
+       	<div id="footer" class="container-fluid">
+			<hr/>
+			
+			<div class="pull-left" >
+				<span class="text-left">
+					<?php echo date("Y"); ?> - Cervin
+					<br/>
+					<a href="<?php echo $this->url('page/voir',array('slug'=>'conditions-generales'));?>">Conditions générales</a>
+				</span>
+			</div>
+			
+			<div class="pull-right" >
+				<span class="text-right">
+				<?php 
+					$message = urlencode(" Titre de la page : ".substr($this->headTitle(), 7, -19));
+					$message .= urlencode("\n Url de la page : ".strtolower(dirname($_SERVER['SERVER_PROTOCOL'])).'://'.$_SERVER['HTTP_HOST'].':'.$_SERVER['SERVER_PORT'].$_SERVER['REQUEST_URI']);
+					$url = "https://tuleap.cervin.org/plugins/tracker/?tracker=27&func=new-artifact&artifact[901]=".$message;
+				?>
+				<a href="<?php echo $url;?>" target="_blank" class="btn btn-small">Signaler un bug</a>
+				<a href="#top"><i class="icon-arrow-up"></i> Haut de page</a>
+				</span>
+			</div>
+
+	    </div>
+
+    	<?php echo $this->inlineScript(); ?>
+    </body>
+</html>

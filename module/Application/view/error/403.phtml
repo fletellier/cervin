@@ -1,0 +1,25 @@
+<h1>403 Forbidden</h1>
+<p>
+    <?php if (\BjyAuthorize\Guard\Controller::ERROR === $error) : ?>
+        You are not authorized to access <?php echo($controller);?>
+        <?php if ($action) : ?>
+        ::<?php echo($action);?>Action()
+        <?php endif;?>
+        .
+    <?php elseif (\BjyAuthorize\Guard\Route::ERROR === $error)  : ?>
+        You are not authorized to access <?php echo $route;?>.
+    <?php elseif ($error == 'error-unauthorized') : ?>
+        You are not authorized <?php echo $reason; ?>.
+    <?php else : ?>
+    An unknown error occurred.
+    <?php endif;?>
+</p>
+
+<?php if (!$this->zfcUserIdentity()) :?>
+	<div class="well">
+		<i class="icon-info-sign"></i> Vous n'êtes pas connecté à l'application, c'est peut être la raison de cette erreur. 
+		Rendez-vous sur la <a href="<?php echo $this->url('zfcuser/login');?>">page de login</a> ou connectez-vous depuis le bouton en haut à droite !
+		<br/><br/>
+		<a href="<?php echo $this->url('zfcuser/login');?>" class="btn btn-primary">Login</a>
+	</div>
+<?php endif; ?>

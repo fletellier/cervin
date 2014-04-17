@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project name="Cervin" default="ci" basedir="./">
+	 <property name="basedir" value="${project.basedir}" />
+         
+	<target name="ci" description="Tâche principale d'intégration continue."
+		depends="clean,qa">
+	</target>
+
+	<!-- Permet de cleaner les répertoires. -->
+	<target name="clean" description="Vide les répertoires d'artefacts.">
+		<delete dir="${basedir}/build/api" />
+		<delete dir="${basedir}/build/code-browser" />
+		<delete dir="${basedir}/build/coverage" />
+		<delete dir="${basedir}/build/logs" />
+		<delete dir="${basedir}/build/pdepend" />
+
+		<mkdir dir="${basedir}/build/api" />
+		<mkdir dir="${basedir}/build/code-browser" />
+		<mkdir dir="${basedir}/build/coverage" />
+		<mkdir dir="${basedir}/build/logs" />
+		<mkdir dir="${basedir}/build/pdepend" />
+	</target>
+
+	<target name="qa" description="Lance les outils d'analyse.">
+		<phingcall target="phpcs" />
+		<phingcall target="phploc" />
+	</target>
+	
+	
+	<target name="phploc" description="Permet d'appeler l'outil PHP LOC pour lancer des outils de statistiques sur le projet.">
+        <exec executable="phploc">
+            <arg value="--log-csv" />
+            <arg value="${basedir}/build/logs/phploc.csv" />
+            <arg path="${basedir}/module" />
+            <arg path="${basedir}/config" />
+        </exec>
+     </target>
+
+	<target name="phpcs" description="Permet d'appeler l'outil PHP CS pour la vérification de style syntaxique.">
+		<phpcodesniffer standard="PEAR">
+			<fileset dir="${basedir}/">
+				<include name="module/**/*.php" />
+				<include name="config/**/*.php" />
+			</fileset>
+			<formatter type="checkstyle"
+				outfile="${basedir}/build/logs/checkstyle.xml" />
+		</phpcodesniffer>
+	</target>
+</project>
