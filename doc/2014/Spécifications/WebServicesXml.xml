@@ -1,0 +1,63 @@
+
+<!-- Exemple getParcoursArchitectureById -->
+<parcours id="456" value="L'histoire de l'informatique à Grenoble" 
+firstSousParcoursId="12" lastSousPacoursId="13">
+	<sousParcours id="12" value="Les débuts (1950-1965)" 
+	firstSceneId="45" lastSceneId="49" nextSousParcoursId="13">
+		<scenes>
+			<scene id="45" value="Tout commence par le calcul"/>
+			<scene id="46" value="L'automatique, moteur de l'industrie"/>
+			<scene id="47" value="Inventer la formation"/>
+			<scene id="48" value="Les débuts de la recherche en informatique"/>
+			<scene id="49" value="Technologie et composants"/>
+		</scenes>
+		<transitionsPrincipales>
+			<transition from="45" to="46" />
+			<transition from="46" to="47" />
+			<transition from="47" to="48" />
+			<transition from="49" to="50" />
+		</transitionsPrincipales>
+		<transitionsSecondaires />
+	</sousParcours>
+	<sousParcours id="13" value="Développement, perturbation (1965,1980)" 
+		firstSceneId="50" lastSceneId="63" nextSousParcoursId="" >
+		<scenes>
+			<scene id="50" value="Usages de l'informatique"/>
+			<scene id="51" value="Développement de l'industrie"/>
+			<scene id="52" value="Sogeti et la naissance de l'insdutrie des services"/>
+			<scene id="53" value="Avatars des ordinateurs industriels"/>
+			<scene id="54" value="HP à Grenoble"/>
+			<scene id="55" value="La ZIRTS et les 'start-upd'"/>
+			<scene id="56" value="L'industrie des semi-conducteurs"/>
+			<scene id="57" value="Hauts et bas de la recherche"/>
+			<scene id="58" value="L'IMAG"/>
+			<scene id="59" value="La formation"/>
+			<scene id="60" value="Les centres scientifiques"/>
+			<scene id="61" value="Centre IBM"/>
+			<scene id="62" value="Centre CII"/>
+			<scene id="63" value="Difficultés et avancées"/>
+		</scenes>
+			<transitionsPrincipales>
+			<transition from="50" to="51" />
+			<transition from="51" to="57" />
+			<transition from="57" to="59" />
+		</transitionsPrincipales>
+		<transitionsSecondaires>
+			<transition from="51" to="52" />
+			<transition from="52" to="53" />
+			<transition from="53" to="54" />
+			<transition from="54" to="55" />
+			<transition from="55" to="56" />
+			<transition from="56" to="57" />
+			<transition from="57" to="58" />
+			<transition from="58" to="60" />
+			<transition from="60" to="61" />
+			<transition from="60" to="62" />
+			<transition from="60" to="63" />
+			<transition from="61" to="62" />
+			<transition from="61" to="63" />
+			<transition from="62" to="61" />
+			<transition from="62" to="63" />
+		</transitionsSecondaires>
+	</sousParcours>
+</parcours>
