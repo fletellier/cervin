@@ -34,30 +34,35 @@ class Transition implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
 
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text")
+     * @var string
      */
-    protected $narration;
+    public $narration;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\SemantiqueTransition")
+     * @var Parcours\Entity\SemantiqueTransition
      **/
-    protected $semantique;
+    public $semantique;
     
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\Parcours", inversedBy="transitions")
+     * @var Parcours\Entity\Parcours
      **/
-    protected $parcours;
+    public $parcours;
     
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\SousParcours", inversedBy="transitions")
+     * @var Parcours\Entity\SousParcours
      **/
-    protected $sous_parcours;
+    public $sous_parcours;
     
     /**
      * Magic getter to expose protected properties.
@@ -89,6 +94,30 @@ class Transition implements InputFilterAwareInterface
     public function getArrayCopy()
     {
         return get_object_vars($this);
+    }
+    
+    
+    /**
+     * Retourne l'objet sous forme de tableau
+     *
+     * @return array Objet au format tableau
+     */
+    public function toArray()
+    {
+    	foreach ($this as $attribute => $value) {
+    		if (is_object($value)) {
+    			if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+    				$data[$attribute] = $value->toArray(true);
+    				foreach ($data[$attribute] as $att => $val){
+    					$data[$attribute][$att] = $val->toArray();
+    				}
+    			}
+    		}
+    		else{
+    			 $data[$attribute]= $value;
+    		}
+    	}  	 
+    	return $data;
     }
 
     /**

@@ -41,20 +41,23 @@ class Data implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
     
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\Element", inversedBy="datas")
+     * @var Collection\Entity\Element
      **/
-    protected $element;
+    public $element;
     
     /**
      * Le champ auquel la donnée se rapporte
      * 
      * @ORM\ManyToOne(targetEntity="Collection\Entity\Champ", inversedBy="datas")
+     * @var Collection\Entity\Champ
      **/
-    protected $champ;
+    public $champ;
     
     /**
      * Constructeur
@@ -94,6 +97,30 @@ class Data implements InputFilterAwareInterface
     public function getArrayCopy()
     {
         return get_object_vars($this);
+    }
+    
+    /**
+     * Return this object in array form.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+    
+    	foreach ($this as $attribute => $value) {
+    		if (is_object($value)) {
+    			if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+    				$data[$attribute] = $value->toArray(true);
+    				foreach ($data[$attribute] as $att => $val){
+    					$data[$attribute][$att] = $val->toArray();
+    				}
+    			}
+    		}
+    		else{
+    			$data[$attribute]= $value;
+    		}
+    	}
+    	return $data;
     }
 
     /**

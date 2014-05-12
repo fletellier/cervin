@@ -28,27 +28,31 @@ class RelationArtefacts implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
     
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\Artefact", inversedBy="relation_origine")
      * @ORM\JoinColumn(name="origine_id", referencedColumnName="id", nullable=false)
+     * @var Collection\Entity\Artefact
      **/
-    protected $origine;
+    public $origine;
     
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\Artefact", inversedBy="relation_destination")
      * @ORM\JoinColumn(name="destination_id", referencedColumnName="id", nullable=false)
+     * @var Collection\Entity\Artefact
      **/
-    protected $destination;
+    public $destination;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\ManyToOne(targetEntity="Collection\Entity\SemantiqueArtefact", inversedBy="relations")
      * @ORM\JoinColumn(name="semantique_id", referencedColumnName="id", nullable=false)
+     * @var Collection\Entity\SemantiqueArtefact
      **/
-    protected $semantique;
+    public $semantique;
 
     /**
      * Constructeur
@@ -89,6 +93,30 @@ class RelationArtefacts implements InputFilterAwareInterface
     public function getArrayCopy()
     {
         return get_object_vars($this);
+    }
+    
+    /**
+     * Return this object in array form.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+    
+    	foreach ($this as $attribute => $value) {
+    		if (is_object($value)) {
+    			if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+    				$data[$attribute] = $value->toArray(true);
+    				foreach ($data[$attribute] as $att => $val){
+    					$data[$attribute][$att] = $val->toArray();
+    				}
+    			}
+    		}
+    		else{
+    			$data[$attribute]= $value;
+    		}
+    	}
+    	return $data;
     }
 
     /**

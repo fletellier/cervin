@@ -14,36 +14,13 @@ use Zend\View\Model\ViewModel;
 use Zend\Json\Json;
 use Zend\Soap\Server;
 use Zend\Soap\AutoDiscover;
+use Application\Model\ModAutoDiscover;
 
 class ExportController extends AbstractActionController
 {
 	private $_options  = array('soap_version' => SOAP_1_2);
     private $_URI      = '/export';
     private $_WSDL_URI = '/export?wsdl';
-
-	/**
-	 * @var Doctrine\ORM\EntityManager
-	 */
-	protected $em;
-	
-	public function setEntityManager(EntityManager $em)
-	{
-		$this->em = $em;
-	}
-	
-	/**
-	 * Return a EntityManager
-	 *
-	 * @return Doctrine\ORM\EntityManager
-	 */
-	public function getEntityManager()
-	{
-		if ($this->em === null) {
-			$this->em = $this->getServiceLocator()->get('Doctrine\ORM\EntityManager');
-		}
-
-		return $this->em;
-	}
 
     public function indexAction() {
 
@@ -57,23 +34,23 @@ class ExportController extends AbstractActionController
     }
 
     private function handleWSDL() {
-        $serverUrl    = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT'];
-        $autodiscover = new AutoDiscover();
+    	
+        $serverUrl    = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT']."/Moving-BO/public";
+        $autodiscover = new ModAutoDiscover(new \Zend\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex());
 
-        $autodiscover->setClass('Application\WebService\ExportClass')
+        $autodiscover->setClass('Application\Model\ExportModel')
                      ->setUri($serverUrl.$this->_URI);
 
         $autodiscover->handle();
-        //header("Content-Type: text/xml");
-        //echo $autodiscover->toXml();
     }
 
     private function handleSOAP() {
-    	$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT'];
+    	$exportModel = $this->getServiceLocator()->get('Application\Model\ExportModel');
+    	$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT']."/Moving-BO/public";
         $soap      = new Server($serverUrl.$this->_WSDL_URI, $this->_options);
 
-        $soap->setClass('Application\WebService\ExportClass');
-
+        $soap->setClass('Application\Model\ExportModel');
+        $soap->setObject($exportModel);
         $soap->handle();
     }
     

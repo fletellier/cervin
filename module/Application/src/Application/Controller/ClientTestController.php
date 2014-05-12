@@ -10,16 +10,42 @@ class ClientTestController extends AbstractActionController {
 	
 	private $_WSDL_URI = '/export?wsdl';
  
+	/**
+	 * recast stdClass object to an object with type
+	 *
+	 * @param string $className
+	 * @param stdClass $object
+	 * @throws InvalidArgumentException
+	 * @return mixed new, typed object
+	 */
+	function recast($className, \stdClass $object)
+	{
+	
+	    $new = new $className();
+	
+	    foreach($object as $property => &$value)
+	    {
+	        $new->$property = &$value;
+	        unset($object->$property);
+	    }
+	    unset($value);
+	    $object = (unset) $object;
+	    return $new;
+	}
+	
 	public function indexAction() {
  
 		// Appel du WebService
-		$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT'];
+		$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST']."/Moving-BO/public";
 		$client = new Client($serverUrl.$this->_WSDL_URI);
-		$result = $client->getParcours(1);
- 
+		$parcours = $client->getParcoursById(1);
+		$types = $client->getTypes();
+		$sousparcoursdepart = $parcours->sous_parcours_depart;
+		$date = $sousparcoursdepart->created->date;
+		
 		// Passage des informations à la vue
 		return new ViewModel( array(
-			'result' => $result
+			'date' => $date,
 		));
 	}
 	

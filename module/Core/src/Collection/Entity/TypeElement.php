@@ -34,47 +34,54 @@ class TypeElement implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
 
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $nom;
+    public $nom;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $type;
+    public $type;
     
     /**
      * L'ensemble des champs décrivant ce type élément
      * 
      * @ORM\OneToMany(targetEntity="Collection\Entity\Champ", mappedBy="type_element", cascade={"remove"})
      * @ORM\OrderBy({"label" = "ASC"})
+     * @var Collection\Entity\Champ[]
      **/
-    protected $champs;
+    public $champs;
 
     /**
      * L'ensemble des champs décrivant ce type élément
      * 
+     * @var Collection\Entity\Element[]
      * @ORM\OneToMany(targetEntity="Collection\Entity\Element", mappedBy="type_element", cascade={"remove"})
      **/
-    protected $elements;
+    public $elements;
     
     /**
      * Les sémantiques dont le type d'élément est à l'origine
      * @ORM\OneToMany(targetEntity="Collection\Entity\SemantiqueArtefact", mappedBy="type_origine", cascade={"remove"})
+     * @var Collection\Entity\SemantiqueArtefact[]
      **/
-    protected $semantique_origine;
+    public $semantique_origine;
     
     /**
      * Les sémantiques dont le type d'élément est en destination
      * @ORM\OneToMany(targetEntity="Collection\Entity\SemantiqueArtefact", mappedBy="type_destination", cascade={"remove"})
+     * @var Collection\Entity\SemantiqueArtefact[]
      **/
-    protected $semantique_destination;
+    public $semantique_destination;
 
     /**
      * Constructeur

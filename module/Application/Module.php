@@ -341,10 +341,14 @@ class Module implements AutoloaderProviderInterface,
         return array(
             'invokables' => array(
                 'zfcuser_user_service' => 'SamUser\Service\User2',
+            	'EntityManager' => 'EntityManager',
+            	'Application\Model\ExportModel' => 'Application\Model\ExportModel',
             ),
             'factories' => array(
-
-            )
+            ),
+        	'instances' => array(
+        	
+        	),
         );
     }
 }

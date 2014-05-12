@@ -26,8 +26,9 @@ class DataDate extends Data
 	/**
      * @Gedmo\Mapping\Annotation\Versioned
 	 * @ORM\Column(type="date", nullable=true)
+	 * @var object
 	 */
-	protected $date;
+	public $date;
 	
 	/**
      * @Gedmo\Mapping\Annotation\Versioned
@@ -35,8 +36,9 @@ class DataDate extends Data
 	 * 	0 : jour
 	 * 	1 : mois
 	 * 	2 : année
+	 * @var integer
 	 */
-	protected $format;
+	public $format;
 	
 	/**
 	 * Magic getter to expose protected properties.

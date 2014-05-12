@@ -19,13 +19,15 @@ class TransitionInterParcours extends Transition
 
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\Scene", inversedBy="transitions_inter_parcours")
+     * @var Parcours\Entity\Scene
      **/
-    protected $scene_origine;
+    public $scene_origine;
 
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\Scene")
+     * @var Parcours\Entity\Scene
      **/
-    protected $scene_destination;
+    public $scene_destination;
 
     /**
      * Magic getter to expose protected properties.

@@ -16,8 +16,10 @@ return array(
         	'Chantier' => 'Application\Controller\ChantierController',
             'Export' => 'Application\Controller\ExportController',
             'ClientTest' => 'Application\Controller\ClientTestController',
-        	'ExportClass' => 'Application\WebService\ExportClass',
-            'ExportREST' => 'Application\Controller\ExportRESTController',
+        	'ExportClass' => 'Application\Webservice\ExportClass',
+        	'ExportModel' => 'Application\Model\ExportModel',
+            'RESTExportParcours' => 'Application\Controller\RESTExportParcoursController',
+        	'RESTExportCollection' => 'Application\Controller\RESTExportCollectionController',
         ),
     ),
     'router' => array(
@@ -88,18 +90,43 @@ return array(
                 ),
             ),
 
-            'rest' => array(
-                'type'    => 'Segment',
-                'options' => array(
-                    'route'    => '/rest[/:id]',
-                    'constraints' => array(
-                        'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
-                        'controller' => 'ExportREST',
-                    ),
-                ),
+		'rest_export' => array(
+            	'type' => 'Segment',
+            	'options' => array(
+            		'route' => '/rest_export',
+            		'defaults' => array(
+            			'controller' => 'RESTExportParcours',
+            		),
+            	),
+            	'may_terminate' => true,
+            	'child_routes' => array(
+            		'parcours' => array(
+            			'type' => 'Segment',
+            			'options' => array(
+            				'route' => '/parcours[/:params]',
+                    		'constraints' => array(
+                        		'params' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                    		),
+                    		'defaults' => array(
+                        		'controller' => 'RESTExportParcours',
+                   		 	),
+            			),
+            		),
+            		'collection' => array(
+            			'type' => 'Segment',
+            			'options' => array(
+            				'route' => '/collection[/:params]',
+            				'constraints' => array(
+            					'params' => '[a-zA-Z][a-zA-Z0-9_-]*',           				
+            				),
+            				'defaults' => array(
+            					'controller' => 'RESTExportCollection',
+            				),
+            			),
+            		),
+            	),
             ),
+            
             
             'client-test' => array(
             	'type' => 'Zend\Mvc\Router\Http\Literal',

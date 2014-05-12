@@ -14,7 +14,7 @@
         "doctrine/doctrine-module": "dev-master as 0.8.x-dev",
         "doctrine/doctrine-orm-module": "dev-master",
         "zendframework/zend-developer-tools": "dev-master",
-        "zf-commons/zfc-user": "0.1.*",
+        "zf-commons/zfc-user": "1.x",
         "zf-commons/zfc-user-doctrine-orm": "dev-master",
         "bjyoungblood/bjy-authorize": "1.2.*",
         "zendframework/zftool": "dev-master",

@@ -28,8 +28,9 @@ class DataUrl extends Data
      * 
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", nullable=true)
+     * @var string
      */
-    protected $url;
+    public $url;
 	
 	/**
 	 * Magic getter to expose protected properties.

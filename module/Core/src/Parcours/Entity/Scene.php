@@ -35,46 +35,54 @@ class Scene implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public  $id;
 
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $titre;
+    public $titre;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text")
+     * @var string
      */
-    protected $narration;
+    public $narration;
     
     /**
      * @ORM\ManyToMany(targetEntity="Collection\Entity\Element")
 	 * @ORM\JoinTable(name="mbo_scene_element")
+	 * @var Collection\Entity\Element[]
      **/
-    protected $elements;
+    public $elements;
     
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\SousParcours", inversedBy="scenes")
+     * @var Parcours\Entity\SousParcours[]
      **/
-    protected $sous_parcours;
+    public $sous_parcours;
     
     /**
      * @ORM\OneToMany(targetEntity="Parcours\Entity\TransitionInterParcours", mappedBy="scene_origine")
+     * @var Parcours\Entity\TransitionInterParcours[]
      **/
-    protected $transitions_inter_parcours;
+    public $transitions_inter_parcours;
     
     /**
      * @ORM\OneToMany(targetEntity="Parcours\Entity\TransitionSecondaire", mappedBy="scene_origine")
+     * @var Parcours\Entity\TransitionSecondaire[]
      **/
-    protected $transitions_secondaires;
+    public $transitions_secondaires;
     
     /**
      * @ORM\OneToMany(targetEntity="Parcours\Entity\TransitionSecondaire", mappedBy="scene_destination")
+     * @var Parcours\Entity\TransitionSecondaire[]
      **/
-    protected $transitions_secondaires_entrantes;
+    public $transitions_secondaires_entrantes;
     
     /**
      * Magic getter to expose protected properties.
@@ -108,6 +116,30 @@ class Scene implements InputFilterAwareInterface
         return get_object_vars($this);
     }
 
+    /**
+     * Return this object in array form.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+    
+    	foreach ($this as $attribute => $value) {
+    		if (is_object($value)) {
+    			if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+    				$data[$attribute] = $value->toArray(true);
+    				foreach ($data[$attribute] as $att => $val){
+    					$data[$attribute][$att] = $val->toArray();
+    				}
+    			}
+    		}
+    		else{
+    			$data[$attribute]= $value;
+    		}
+    	}
+    	return $data;
+    }
+    
     /**
      * Populate from an array.
      *

@@ -85,9 +85,14 @@ return array(
                 ),
                     
                 array(
-                    'controller' => 'ExportREST',
+                    'controller' => 'RESTExportParcours',
                     'roles' => array('Visiteur')
                 ),
+            		
+            	array(
+            		'controller' => 'RESTExportCollection',
+            		'roles' => array('Visiteur')
+            	),
             		
             	array(
             		'controller' => 'ClientTest',
@@ -209,12 +214,14 @@ return array(
                 array('route' => 'page/voir', 'roles' => array('Visiteur')),
                 array('route' => 'page/modifier', 'roles' => array('Admin')),
 
-                //array('route' => 'export', 'roles' => array('Visiteur')),
-                //array('route' => 'export/parcours', 'roles' => array('Visiteur')),
-                //array('route' => 'client-test', 'roles' => array('Visiteur')),
+                array('route' => 'export', 'roles' => array('Visiteur')),
+                array('route' => 'export/parcours', 'roles' => array('Visiteur')),
+                array('route' => 'client-test', 'roles' => array('Visiteur')),
 
-                //array('route' => 'rest', 'roles' => array('Visiteur')),
-
+                array('route' => 'rest_export', 'roles' => array('Visiteur')),
+            	array('route' => 'rest_export/parcours', 'roles' => array('Visiteur')),
+            	array('route' => 'rest_export/collection', 'roles' => array('Visiteur')),
+            		
             	array('route' => 'chantier', 'roles' => array('Collection')),
             	array('route' => 'chantier/admin', 'roles' => array('Admin')),
             	array('route' => 'chantier/demarrerChantierElement', 'roles' => array('Collection')),

@@ -36,122 +36,124 @@ class User extends ModelAbstract implements UserInterface, ProviderInterface
 	protected $inputFilter;
 	
     /**
-     * @var int
+     * @var integer
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    public $id;
 
     /**
      * @var string
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=255, unique=true, nullable=true)
      */
-    protected $username;
+    public $username;
 
     /**
      * @var string
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=255)
      */
-    protected $email;
+    public $email;
 
     /**
      * @var string
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=50, nullable=true)
      */
-    protected $displayName;
+    public $displayName;
     
     /**
      * @var string
      * @ORM\Column(type="string", length=128)
      */
-    protected $password;
+    public $password;
 
     /**
      * @var string
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=12)
      */
-    protected $telephone;
+    public $telephone;
     
     /**
      * @var string
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=255)
      */
-    protected $adresse;
+    public $adresse;
     
     /**
      * @var integer
      * @Gedmo\Versioned
      * @ORM\Column(type="integer", length=5)
      */
-    protected $code_postal;
+    public $code_postal;
     
     /**
      * @var string
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=255)
      */
-    protected $ville;
+    public $ville;
     
     /**
      * @var string
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=100)
      */
-    protected $pays;
+    public $pays;
     
     /**
-     * @var datetime
+     * @var object
      * @ORM\Column(type="datetime", nullable=true)
      * @Gedmo\Timestampable(on="create")
      */
-    protected $created;
+    public $created;
 
     /**
-     * @var int
+     * @var integer
      * @Gedmo\Versioned
      * @ORM\Column(type="integer", length=1)
      */
-    protected $state;
+    public $state;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var SamUser\Entity\Role
      * @ORM\ManyToMany(targetEntity="SamUser\Entity\Role")
      * @ORM\JoinTable(name="mbo_users_roles",
      * joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      * inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
      * )
      */
-    protected $roles;
+    public $roles;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var SamUser\Entity\Role
      * @Gedmo\Versioned
      * @ORM\ManyToOne(targetEntity="SamUser\Entity\Role")
      **/
-    protected $attenteRole;
+    public $attenteRole;
 
     /**
+     * @var Collection\Entity\Element[]
      * @ORM\OneToMany(targetEntity="Collection\Entity\Element", mappedBy="utilisateur", cascade={"detach"})
      */
-    protected $elements_chantier;
+    public $elements_chantier;
 
     /**
+     * @var Parcours\Entity\SousParcours[]
      * @ORM\OneToMany(targetEntity="Parcours\Entity\SousParcours", mappedBy="utilisateur", cascade={"detach"})
      */
-    protected $sous_parcours_chantier;
+    public $sous_parcours_chantier;
     
 
     /**
-     * @var datetime
+     * @var object
      * @ORM\Column(type="datetime", nullable=true)
      */
-    protected $derniereConnexion;
+    public $derniereConnexion;
     
     /**
      * Initialies the roles variable.

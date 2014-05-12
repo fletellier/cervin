@@ -36,36 +36,42 @@ class Champ implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
 
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $label;
+    public $label;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200, nullable=true)
+     * @var string
      */
-    protected $description;
+    public $description;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $format;
+    public $format;
     
     /**
      * @ORM\OneToMany(targetEntity="Collection\Entity\Data", mappedBy="champ", cascade={"remove"}, fetch="EAGER")
+     * @var Collection\Entity\Data[]
      **/
-    protected $datas;
+    public $datas;
     
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\TypeElement", inversedBy="champs")
+     * @var Collection\Entity\TypeElement
      **/
-    protected $type_element;
+    public $type_element;
     
     /**
      * Constructeur
@@ -122,6 +128,31 @@ class Champ implements InputFilterAwareInterface
     public function getArrayCopy()
     {
         return get_object_vars($this);
+    }
+    
+    
+    /**
+     * Return this object in array form.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+    
+    	foreach ($this as $attribute => $value) {
+    		if (is_object($value)) {
+    			if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+    				$data[$attribute] = $value->toArray(true);
+    				foreach ($data[$attribute] as $att => $val){
+    					$data[$attribute][$att] = $val->toArray();
+    				}
+    			}
+    		}
+    		else{
+    			$data[$attribute]= $value;
+    		}
+    	}
+    	return $data;
     }
 
     /**

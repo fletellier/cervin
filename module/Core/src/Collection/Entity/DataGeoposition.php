@@ -27,20 +27,23 @@ class DataGeoposition extends Data
 	/**
      * @Gedmo\Mapping\Annotation\Versioned
 	 * @ORM\Column(type="decimal", precision=18, scale=15)
+	 * @var float
 	 */
-	protected $latitude;
+	public $latitude;
 	
 	/**
      * @Gedmo\Mapping\Annotation\Versioned
 	 * @ORM\Column(type="decimal", precision=18, scale=15)
+	 * @var float
 	 */
-	protected $longitude;
+	public $longitude;
 
 	/**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $adresse;
+    public $adresse;
 
 	/**
 	 * Magic getter to expose protected properties.

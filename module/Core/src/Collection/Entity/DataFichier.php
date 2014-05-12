@@ -26,14 +26,16 @@ class DataFichier extends Data
 	/**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $fichier;
+    public $fichier;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $format_fichier;
+    public $format_fichier;
 	
 	/**
 	 * Magic getter to expose protected properties.

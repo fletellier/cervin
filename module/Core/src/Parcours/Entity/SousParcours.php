@@ -33,68 +33,76 @@ class SousParcours implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
 
     /**
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $titre;
+    public $titre;
     
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\Parcours", inversedBy="sous_parcours")
+     * @var Parcours\Entity\Parcours
      **/
-    protected $parcours;
+    public $parcours;
     
     /**
      * @ORM\OneToMany(targetEntity="Parcours\Entity\Transition", mappedBy="sous_parcours", cascade={"remove", "persist"})
+     * @var Parcours\Entity\Transition[]
      **/
-    protected $transitions;
+    public $transitions;
     
     /**
      * @ORM\OneToMany(targetEntity="Parcours\Entity\Scene", mappedBy="sous_parcours", cascade={"persist", "remove"})
+     * @var Parcours\Entity\Scene[]
      **/
-    protected $scenes;
+    public $scenes;
     
     /**
      * @ORM\OneToOne(targetEntity="Parcours\Entity\SceneRecommandee", cascade={"persist"})
+     * @var Parcours\Entity\SceneRecommandee[]
      **/
-    protected $scene_depart;
+    public $scene_depart;
     
     /**
      * @ORM\OneToOne(targetEntity="Parcours\Entity\SousParcours", cascade={"persist"})
+     * @var Parcours\Entity\TransitionRecommandee[]
      **/
-    protected $sous_parcours_suivant;
+    public $sous_parcours_suivant;
 
     /**
      * @ORM\ManyToOne(targetEntity="SamUser\Entity\User", inversedBy="sous_parcours_chantier")
+     * @var SamUser\Entity\User
      */
-    protected $utilisateur;
+    public $utilisateur;
 
     /**
-     * @var date $created
+     * @var object $created
      *
      * @ORM\Column(type="date", nullable=true)
      * @Gedmo\Timestampable(on="create")
      */
-    private $created;
+    public $created;
 
     /**
-     * @var date $updated
+     * @var object $updated
      *
      * @ORM\Column(type="date", nullable=true)
      * @Gedmo\Timestampable
      */
-    private $updated;
+    public $updated;
 
     /**
-     * @var datetime $utilisateurChange
+     * @var object $utilisateurChange
      *
      * @ORM\Column(type="datetime", nullable=true)
      * @Gedmo\Timestampable(on="change", field={"utilisateur"})
      */
-    protected $utilisateurChange;
+    public $utilisateurChange;
 
 
     /**
@@ -151,6 +159,30 @@ class SousParcours implements InputFilterAwareInterface
         return get_object_vars($this);
     }
 
+    /**
+     * Return this object in array form.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+
+    	foreach ($this as $attribute => $value) {
+    		if (is_object($value)) {
+    			if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+    				$data[$attribute] = $value->toArray(true);
+    				foreach ($data[$attribute] as $att => $val){
+    					$data[$attribute][$att] = $val->toArray();
+    				}
+    			}
+    		}
+    		else{
+    			 $data[$attribute]= $value;
+    		}
+    	}  	 
+    	return $data;
+    }
+    
     /**
      * Populate from an array.
      *

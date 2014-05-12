@@ -31,22 +31,25 @@ class Artefact extends Element
 	 * 
 	 * @ORM\ManyToMany(targetEntity="Collection\Entity\Media", inversedBy="artefacts")
 	 * @ORM\JoinTable(name="mbo_artefact_media")
+	 * @var Collection\Entity\Media[]
 	 **/
-	protected $medias;
+	public $medias;
 
 	/**
 	 * L'ensemble des relations entre artefacts (marqués d'une sémantique) qui ont pour origine l'artefact
 	 * 
 	 * @ORM\OneToMany(targetEntity="Collection\Entity\RelationArtefacts", mappedBy="origine", cascade={"remove"})
+	 * @var Collection\Entity\RelationArtefacts[]
 	 **/
-	protected $relations_origine;
+	public $relations_origine;
 	
 	/**
 	 * L'ensemble des relations entre artefacts (marqués d'une sémantique) qui ont pour destination l'artefact
 	 * 
 	 * @ORM\OneToMany(targetEntity="Collection\Entity\RelationArtefacts", mappedBy="destination", cascade={"remove"})
+	 * @var Collection\Entity\RelationArtefacts[]
 	 **/
-	protected $relations_destination;
+	public $relations_destination;
 	
 	/**
 	 * Magic getter to expose protected properties.
@@ -84,6 +87,30 @@ class Artefact extends Element
 		$this->titre = $titre;
 		$this->type_element = $type_element;
 		$this->public = false;
+	}
+	
+	/**
+	 * Return this object in array form.
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+	
+		foreach ($this as $attribute => $value) {
+			if (is_object($value)) {
+				if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+					$data[$attribute] = $value->toArray(true);
+					foreach ($data[$attribute] as $att => $val){
+						$data[$attribute][$att] = $val->toArray();
+					}
+				}
+			}
+			else{
+				$data[$attribute]= $value;
+			}
+		}
+		return $data;
 	}
 	
 }

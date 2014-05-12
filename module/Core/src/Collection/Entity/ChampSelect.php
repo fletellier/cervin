@@ -24,8 +24,9 @@ class ChampSelect extends Champ
 
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\Select", inversedBy="champs_select")
+     * @var Collection\Entity\Select
      **/
-    protected $select;
+    public $select;
 	
 	/**
 	 * Magic getter to expose protected properties.

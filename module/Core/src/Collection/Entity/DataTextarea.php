@@ -26,8 +26,9 @@ class DataTextarea extends Data
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $textarea;
+    public $textarea;
 	
 	/**
 	 * Magic getter to expose protected properties.

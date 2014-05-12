@@ -48,70 +48,78 @@ class Element implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
 
     /**
      * Titre de l'élément
      * 
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $titre;
+    public $titre;
 
     /**
      * Descritpion de l'élément
      * 
      * @Gedmo\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $description;
+    public $description;
     
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\TypeElement", inversedBy="elements")
+     * @var Collection\Entity\TypeElement
      */
-    protected $type_element;
+    public $type_element;
     
     /**
      * @ORM\OneToMany(targetEntity="Collection\Entity\Data", mappedBy="element", cascade={"remove", "persist"}))
+     * @var Collection\Entity\Data[]
      */
-    protected $datas;
+    public $datas;
 
     /**
-     * @var date $created
+     * @var string $created
      *
      * @ORM\Column(type="date", nullable=true)
      * @Gedmo\Timestampable(on="create")
+     * 
      */
-    protected $created;
+    public $created;
 
     /**
-     * @var date $updated
+     * @var string $updated
      *
      * @ORM\Column(type="date", nullable=true)
      * @Gedmo\Timestampable
      */
-    protected $updated;
+    public $updated;
 
     /**
      * @ORM\ManyToOne(targetEntity="SamUser\Entity\User", inversedBy="elements_chantier")
+     * @var SamUser\Entity\User
      */
-    protected $utilisateur;
+    public $utilisateur;
 
     /**
-     * @var datetime $utilisateurChange
+     * @var string $utilisateurChange
      *
      * @ORM\Column(type="datetime", nullable=true)
      * @Gedmo\Timestampable(on="change", field={"utilisateur"})
      */
-    protected $utilisateurChange;
+    public $utilisateurChange;
     
     /**
      * Etat de l'élément : brouillon ou public
      *
      * @ORM\Column(type="boolean")
+     * @var boolean
      */
-    protected $public;
+    public $public;
     
     /**
      * Magic getter to expose protected properties.
@@ -143,6 +151,31 @@ class Element implements InputFilterAwareInterface
     public function getArrayCopy()
     {
         return get_object_vars($this);
+    }
+    
+    
+    /**
+     * Return this object in array form.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+    
+    	foreach ($this as $attribute => $value) {
+    		if (is_object($value)) {
+    			if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+    				$data[$attribute] = $value->toArray(true);
+    				foreach ($data[$attribute] as $att => $val){
+    					$data[$attribute][$att] = $val->toArray();
+    				}
+    			}
+    		}
+    		else{
+    			$data[$attribute]= $value;
+    		}
+    	}
+    	return $data;
     }
     
     /**

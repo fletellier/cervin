@@ -27,24 +27,28 @@ class SelectOption implements InputFilterAwareInterface
 	 * @ORM\Id
 	 * @ORM\Column(type="integer");
 	 * @ORM\GeneratedValue(strategy="AUTO"))
+	 * @var integer
 	 */
-	protected $id;
+	public $id;
 
 	/**
      * @Gedmo\Versioned
 	 * @ORM\Column(type="string")
+	 * @var string
 	 */
-	protected $text;
+	public $text;
 
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\Select", inversedBy="select_options")
+     * @var Collection\Entity\Select
      **/
-    protected $select;
+    public $select;
 
 	/**
      * @ORM\OneToMany(targetEntity="Collection\Entity\DataSelect", mappedBy="option")
+     * @var Collection\Entity\DataSelect[]
      **/
-    protected $datas;
+    public $datas;
 
 
     public function getText()

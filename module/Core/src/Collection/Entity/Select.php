@@ -27,31 +27,36 @@ class Select implements InputFilterAwareInterface
 	 * @ORM\Id
 	 * @ORM\Column(type="integer");
 	 * @ORM\GeneratedValue(strategy="AUTO"))
+	 * @var integer
 	 */
-	protected $id;
+	public $id;
 	 
 	/**
      * @Gedmo\Versioned
 	 * @ORM\Column(type="string")
+	 * @var string
 	 */
-	protected $label;
+	public $label;
 
 	/**
      * @Gedmo\Versioned
      * @ORM\Column(type="string", length=200, nullable=true)
+     * @var string
      */
-    protected $description;
+    public $description;
 
     /**
      * @ORM\OneToMany(targetEntity="Collection\Entity\ChampSelect", mappedBy="select")
+     * @var Collection\Entity\ChampSelect[]
      **/
-    protected $champs_select;
+    public $champs_select;
 
     /**
      * @ORM\OneToMany(targetEntity="Collection\Entity\SelectOption", mappedBy="select", cascade={"remove", "persist"})
      * @ORM\OrderBy({"text" = "ASC"})
+     * @var Collection\Entity\SelectOption[]
      **/
-    protected $select_options;
+    public $select_options;
 
 	/**
 	 * Magic getter to expose protected properties.
@@ -84,7 +89,31 @@ class Select implements InputFilterAwareInterface
 	{
 		return get_object_vars($this);
 	}
-	 
+
+	/**
+	 * Return this object in array form.
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+	
+		foreach ($this as $attribute => $value) {
+			if (is_object($value)) {
+				if(get_class($value) == 'Doctrine\\ORM\\PersistentCollection'){
+					$data[$attribute] = $value->toArray(true);
+					foreach ($data[$attribute] as $att => $val){
+						$data[$attribute][$att] = $val->toArray();
+					}
+				}
+			}
+			else{
+				$data[$attribute]= $value;
+			}
+		}
+		return $data;
+	}
+	
 	/**
 	 * Populate from an array.
 	 *

@@ -23,24 +23,24 @@ use Doctrine\ORM\Mapping as ORM;
 class Role implements HierarchicalRoleInterface
 {
     /**
-	 * @var int
+	 * @var integer
 	 * @ORM\Id
 	 * @ORM\Column(type="integer")
   	 * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    public $id;
 
     /**
      * @var string
      * @ORM\Column(type="string", length=255, unique=true, nullable=true)
      */
-    protected $roleId;
+    public $roleId;
 
     /**
-     * @var Role
+     * @var SamUser\Entity\Role
      * @ORM\ManyToOne(targetEntity="SamUser\Entity\Role")
      */
-    protected $parent;
+    public $parent;
 
     /**
      * Get the id.

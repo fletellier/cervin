@@ -28,8 +28,9 @@ class DataTexte extends Data
      * 
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $texte;
+    public $texte;
 	
 	/**
 	 * Magic getter to expose protected properties.

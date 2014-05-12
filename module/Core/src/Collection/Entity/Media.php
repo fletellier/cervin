@@ -29,8 +29,9 @@ class Media extends Element
 	 * 
 	 * @ORM\ManyToMany(targetEntity="Collection\Entity\Artefact", mappedBy="medias")
 	 * @ORM\JoinTable(name="mbo_artefact_media")
+	 * @var Collection\Entity\Artefact[]
 	 **/
-	protected $artefacts;
+	public $artefacts;
 
 
 	/**

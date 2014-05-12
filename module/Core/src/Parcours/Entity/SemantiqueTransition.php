@@ -27,21 +27,24 @@ class SemantiqueTransition implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
 
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $semantique;
+    public $semantique;
     
     /**
      * Description de la sémantique
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $description;
+    public $description;
     
     /**
      * Magic getter to expose protected properties.

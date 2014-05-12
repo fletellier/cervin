@@ -22,13 +22,15 @@ class TransitionSecondaire extends Transition
 
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\Scene", inversedBy="transitions_secondaires")
+     * @var Parcours\Entity\Scene
      **/
-    protected $scene_origine;
+    public $scene_origine;
     
     /**
      * @ORM\ManyToOne(targetEntity="Parcours\Entity\Scene", inversedBy="transitions_secondaires_entrantes")
+     * @var Parcours\Entity\Scene
      **/
-    protected $scene_destination;    
+    public $scene_destination;    
     
     /**
      * Magic getter to expose protected properties.

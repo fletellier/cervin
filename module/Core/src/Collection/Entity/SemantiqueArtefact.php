@@ -33,37 +33,43 @@ class SemantiqueArtefact implements InputFilterAwareInterface
      * @ORM\Id
      * @ORM\Column(type="integer");
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var integer
      */
-    protected $id;
+    public $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="Collection\Entity\TypeElement", cascade={"persist"})
+     * @var Collection\Entity\TypeElement
      **/
-    protected $type_origine;
+    public $type_origine;
     
     /**
      * $type_destination contient la chaîne décrivant le type du deuxième artefact
      * 
      * @ORM\ManyToOne(targetEntity="Collection\Entity\TypeElement", cascade={"persist"})
+     * @var Collection\Entity\TypeElement
      */
-    protected $type_destination;
+    public $type_destination;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="string", length=200)
+     * @var string
      */
-    protected $semantique;
+    public $semantique;
     
     /**
      * @Gedmo\Mapping\Annotation\Versioned
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
-    protected $description;
+    public $description;
 
     /**
+     * @var Collection\Entity\RelationArtefacts[]
      * @ORM\OneToMany(targetEntity="Collection\Entity\RelationArtefacts", mappedBy="semantique", cascade={"remove"})
      **/
-    protected $relations;
+    public $relations;
     
     /**
      * Magic getter to expose protected properties.

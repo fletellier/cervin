@@ -25,8 +25,9 @@ class DataNombre extends Data
 	/**
      * @Gedmo\Mapping\Annotation\Versioned
 	 * @ORM\Column(type="integer", nullable=true)
+	 * @var integer
 	 */
-	protected $nombre;
+	public $nombre;
 	
 	/**
 	 * Magic getter to expose protected properties.
