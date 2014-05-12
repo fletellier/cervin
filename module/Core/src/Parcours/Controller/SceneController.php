@@ -499,9 +499,9 @@ class SceneController extends AbstractActionController
 		
 				$titre = '';
 				if($element->type_element->type == 'artefact'){
-					$titre = '<p class="text-success"><i class="icon-tag"> </i><a class="href-type-element text-success" href="'.$this->url()->fromRoute('artefact/voirArtefact', array('id' => $element->id)).'">'.$element->titre.'</a></p>';
+					$titre = '<p class="text-success"><i class="icon-tag"> </i><a class="href-type-element text-success" href="'.$this->url()->fromRoute('element/voir', array('id' => $element->id)).'">'.$element->titre.'</a></p>';
 				} elseif($element->type_element->type == 'media'){
-					$titre = '<p class="text-warning"><i class="icon-picture"> </i><a class="href-type-element text-warning" href="'.$this->url()->fromRoute('media/voirMedia', array('id' => $element->id)).'">'.$element->titre.'</a></p>';
+					$titre = '<p class="text-warning"><i class="icon-picture"> </i><a class="href-type-element text-warning" href="'.$this->url()->fromRoute('element/voir', array('id' => $element->id)).'">'.$element->titre.'</a></p>';
 				} else {
 					$titre = $element->titre;
 				}
