@@ -83,16 +83,15 @@ class Element implements InputFilterAwareInterface
     public $datas;
 
     /**
-     * @var string $created
+     * @var object $created
      *
      * @ORM\Column(type="date", nullable=true)
      * @Gedmo\Timestampable(on="create")
-     * 
      */
     public $created;
 
-    /**
-     * @var string $updated
+     /**
+     * @var object $updated
      *
      * @ORM\Column(type="date", nullable=true)
      * @Gedmo\Timestampable
@@ -106,10 +105,11 @@ class Element implements InputFilterAwareInterface
     public $utilisateur;
 
     /**
-     * @var string $utilisateurChange
+     * 
      *
      * @ORM\Column(type="datetime", nullable=true)
      * @Gedmo\Timestampable(on="change", field={"utilisateur"})
+     * @var object $utilisateurChange
      */
     public $utilisateurChange;
     

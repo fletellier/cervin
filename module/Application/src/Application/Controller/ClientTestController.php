@@ -36,16 +36,16 @@ class ClientTestController extends AbstractActionController {
 	public function indexAction() {
  
 		// Appel du WebService
-		$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST']."/Moving-BO/public";
+		$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST']."/cervin/public";
 		$client = new Client($serverUrl.$this->_WSDL_URI);
-		$parcours = $client->getParcoursById(1);
+		$data = $client->getParcoursById(1);
 		$types = $client->getTypes();
-		$sousparcoursdepart = $parcours->sous_parcours_depart;
-		$date = $sousparcoursdepart->created->date;
+
 		
 		// Passage des informations à la vue
 		return new ViewModel( array(
-			'date' => $date,
+			'data' => $data,
+			'types' => $types
 		));
 	}
 	

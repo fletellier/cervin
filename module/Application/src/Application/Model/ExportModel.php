@@ -85,8 +85,8 @@ class ExportModel implements ServiceLocatorAwareInterface
 	 */
 	public function getAllElements()
 	{
-		$parcours = $this->getEntityManager()->getRepository('Collection\Entity\Element')->findAll();
-		return $parcours;
+		$elements = $this->getEntityManager()->getRepository('Collection\Entity\Element')->findAll();
+		return $elements;
 	}
 	
 	/**
@@ -99,6 +99,18 @@ class ExportModel implements ServiceLocatorAwareInterface
 		 
 		$parcours = $this->getEntityManager()->getRepository('Parcours\Entity\Parcours')->findOneBy(array('id'=>$id));
 		return $parcours;
+	}
+	
+	/**
+	 * Retourne un element par son ID
+	 *
+	 * @param integer $id
+	 * @return Collection\Entity\Element
+	 */
+	public function getElementById($id){
+			
+		$element = $this->getEntityManager()->getRepository('Collection\Entity\Element')->findOneBy(array('id'=>$id));
+		return element;
 	}
 	
 	/**
