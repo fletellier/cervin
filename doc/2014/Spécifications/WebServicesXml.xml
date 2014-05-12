@@ -123,11 +123,30 @@
 	
 	
 	<!-- Exemple getSceneById -->
-	<scene id="50" titre="Tout commence par le calcul" recommandee="oui" >
+	<scene id="50" titre="Tout commence par le calcul" recommandee="oui" sousParcoursId="13" >
 		<narration> 
 			L'histoire de l'informatique à Grenoble commence...
 		</narration>
-		
+		<elements> 
+			<element id="12" categorie="artefact" value="Jean Kutzmann" typeId="6" typeName="Personne">
+				<description> Jean Kutzmann fut un mathématicien... </description>
+				<datas>
+					<data type="date" nom="Date de décès" value="12/12/2012" format="dd/mm/yyyy" 
+						description="La date de décès de la personne" />
+					<data type="date" nom="Date de naissance" value="12/06/2012" format="dd/mm/yyyy"  
+						description="La date de naissance de la personne" />
+					<data type="geoposition" nom="Lieu de résidence" description="Lieux de résidence de la personne" 
+						latitude="12.5" longitude="15.3" adresse="3 rue de la Paix, 38000 Grenoble" />
+				</datas>
+			</element>
+			<element id="18" categorie="media" value="Photo calculateur" typeId="11" typeName="Image" >
+				<description>Photo du premier calculateur prise par... </description>
+				<datas>
+					<data type="fichier" nom="Photo calculateur" URL="/media/images/12154545.jpeg" 
+						type="image/jpeg" nomType="Jpeg" longueur="300px" hauteur="200px" description="" />
+				</datas>
+			</element>
+		</elements>
 	</scene>
 	
 	
