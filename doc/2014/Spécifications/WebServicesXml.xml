@@ -122,6 +122,16 @@
 	</sousParcours>
 	
 	
+	<!-- Exemple getTransitionById -->	
+	<transition id="730" type="recommandee" estInterSousParcours="false" 
+		narration="Vers les usages de l'informatique" semenatiqueId="1" semantiqueNom="Chronologique" >
+		<sceneDepart id="50" value="Usages de l'informatique" recommandee="oui"/>
+		<sceneArrivee id="51" value="Développement de l'industrie" recommandee="oui" />
+	</transition>
+	
+	
+
+
 	<!-- Exemple getSceneById -->
 	<scene id="50" titre="Tout commence par le calcul" recommandee="oui" sousParcoursId="13" >
 		<narration> 
@@ -183,5 +193,38 @@
 			<artefact id="12" value="Jean Kutzmann" typeId="6" typeName="Personne">
 		</linkedArtefats>
 	</media>
+	
+	
+	<!-- Exemple getPointdInteretByTag -->
+	<pointdInteret type="scene" id="12" />
+	
+	<!-- Exemple getPointdInteretListByGPSRange -->
+	<pointdInterets>
+		<pointdInteret type="scene" id="12" nom="Usages de l'informatique" >
+			<position>
+				<!-- coordonnées du polygon -->
+				<coordonnee X="0" Y="0" />
+				<coordonnee X="1" Y="2" />
+				<coordonnee X="3" Y="4" />
+				<coordonnee X="5" Y="5" />
+				<coordonnee X="8" Y="2" />
+				<coordonnee X="2" Y="2" />
+			</position>
+		<pointdInteret>
+		<pointdInteret type="scene" id="13" nom="Sogeti et la naissance de l'insdutrie des services" >
+			<position>
+				<!-- coordonnées du polygon -->
+				<coordonnee X="0" Y="0" />
+				<coordonnee X="1" Y="2" />
+				<coordonnee X="3" Y="4" />
+				<coordonnee X="5" Y="5" />
+				<coordonnee X="8" Y="2" />
+				<coordonnee X="2" Y="2" />
+				<coordonnee X="1" Y="1" />
+				<coordonnee X="1" Y="0" />
+			</position>
+		<pointdInteret>
+	</pointdInterets>
+	
 	
 	
