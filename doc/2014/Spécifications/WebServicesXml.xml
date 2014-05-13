@@ -5,11 +5,11 @@
 		<sousParcours id="12" value="Les débuts (1950-1965)" 
 		firstSceneId="45" nextSousParcoursId="13">
 			<scenes>
-				<scene id="45" value="Tout commence par le calcul" recommandee="oui"/>
-				<scene id="46" value="L'automatique, moteur de l'industrie" recommandee="oui"/>
-				<scene id="47" value="Inventer la formation" recommandee="oui"/>
-				<scene id="48" value="Les débuts de la recherche en informatique" recommandee="oui"/>
-				<scene id="49" value="Technologie et composants" recommandee="oui"/>
+				<sceneLnk id="45" value="Tout commence par le calcul" recommandee="oui"/>
+				<sceneLnk id="46" value="L'automatique, moteur de l'industrie" recommandee="oui"/>
+				<sceneLnk id="47" value="Inventer la formation" recommandee="oui"/>
+				<sceneLnk id="48" value="Les débuts de la recherche en informatique" recommandee="oui"/>
+				<sceneLnk id="49" value="Technologie et composants" recommandee="oui"/>
 			</scenes>
 			<transitionsPrincipales>
 				<transition id="236" from="45" to="46" />
@@ -127,26 +127,61 @@
 		<narration> 
 			L'histoire de l'informatique à Grenoble commence...
 		</narration>
-		<elements> 
-			<element id="12" categorie="artefact" value="Jean Kutzmann" typeId="6" typeName="Personne">
-				<description> Jean Kutzmann fut un mathématicien... </description>
-				<datas>
-					<data type="date" nom="Date de décès" value="12/12/2012" format="dd/mm/yyyy" 
-						description="La date de décès de la personne" />
-					<data type="date" nom="Date de naissance" value="12/06/2012" format="dd/mm/yyyy"  
-						description="La date de naissance de la personne" />
-					<data type="geoposition" nom="Lieu de résidence" description="Lieux de résidence de la personne" 
-						latitude="12.5" longitude="15.3" adresse="3 rue de la Paix, 38000 Grenoble" />
-				</datas>
-			</element>
-			<element id="18" categorie="media" value="Photo calculateur" typeId="11" typeName="Image" >
-				<description>Photo du premier calculateur prise par... </description>
-				<datas>
-					<data type="fichier" nom="Photo calculateur" URL="/media/images/12154545.jpeg" 
-						type="image/jpeg" nomType="Jpeg" longueur="300px" hauteur="200px" description="" />
-				</datas>
-			</element>
-		</elements>
+		<artefacts> 
+			<artefact id="12" value="Jean Kutzmann" typeId="6" typeName="Personne" />
+			<artefact id="13" value="Gamma 3" typeId="7" typeName="Matériel" />
+		</artefacts> 
+		<medias>
+			<media id="18" value="Photo calculateur" typeId="11" typeName="Image" />
+			<media id="22" value="Video salle serveur" typeId="12" typeName="Video" />
+		</medias>
 	</scene>
+	
+	
+	<!-- Exemple getArtefactById -->
+	<artefact id="12" value="Jean Kutzmann" typeId="6" typeName="Personne">
+		<description> Jean Kutzmann fut un mathématicien... </description>
+		<datas>
+			<data type="date" nom="Date de décès" value="12/12/2012" format="dd/mm/yyyy" 
+				description="La date de décès de la personne" />
+				<data type="date" nom="Date de naissance" value="12/06/2012" format="dd/mm/yyyy"  
+				description="La date de naissance de la personne" />
+			<data type="geoposition" nom="Lieu de résidence" description="Lieux de résidence de la personne" 
+				latitude="12.5" longitude="15.3" adresse="3 rue de la Paix, 38000 Grenoble" />
+		</datas>
+		
+		<!-- Cet artefact est l'artefact d'origine de la relation : -->
+		<linkedOrigineArtefats>
+			<link semantiqueId="12" semantiqueName="A pour chef">
+				<!-- cela veut dire que Jean Kutzmann a Brad Pitt pour chef -->
+				<aretact id="18" value="Brad Pit" typeId="6" typeName="Personne" />
+			</link>
+		</linkedOrigineArtefats>
+		<linkedDestinationArtefats>
+			<link semantiqueId="12" semantiqueName="A pour chef">
+				<!-- cela veut dire que Ambroise croisat a Jean Kutzmann pour chef -->
+				<aretact id="19" value="Ambroise Croizat" typeId="6" typeName="Personne" />
+			</link>
+		</linkedDestinationArtefats>
+		<linkedMedias>
+			<media id="18" value="Photo calculateur" typeId="11" typeName="Image" />
+			<media id="22" value="Video salle serveur" typeId="12" typeName="Video" />
+		</linkedMedias>
+	</artefact>
+	
+	<!-- Exemple getMediaById -->
+	<media id="18" value="Photo calculateur" typeId="11" typeName="Image" >
+		<description>Photo du premier calculateur prise par... </description>
+		<datas>
+			<data type="fichier" nom="Photo calculateur" URL="/media/images/12154545.jpeg" 
+				type="image/jpeg" nomType="Jpeg" longueur="300px" hauteur="200px" description="" />
+		</datas>
+		<linkedMedias>
+			<media id="22" value="Video salle serveur" typeId="12" typeName="Video" />
+		</linkedMedias>
+		<linkedArtefats>
+			<artefact id="12" value="Jean Kutzmann" typeId="6" typeName="Personne">
+		</linkedArtefats>
+	</media>
 	
 	
