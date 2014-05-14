@@ -5,17 +5,17 @@
 		<sousParcours id="12" value="Les débuts (1950-1965)" 
 		firstSceneId="45" nextSousParcoursId="13">
 			<scenes>
-				<sceneLnk id="45" value="Tout commence par le calcul" recommandee="oui"/>
-				<sceneLnk id="46" value="L'automatique, moteur de l'industrie" recommandee="oui"/>
-				<sceneLnk id="47" value="Inventer la formation" recommandee="oui"/>
-				<sceneLnk id="48" value="Les débuts de la recherche en informatique" recommandee="oui"/>
-				<sceneLnk id="49" value="Technologie et composants" recommandee="oui"/>
+				<scene id="45" value="Tout commence par le calcul" recommandee="oui"/>
+				<scene id="46" value="L'automatique, moteur de l'industrie" recommandee="oui"/>
+				<scene id="47" value="Inventer la formation" recommandee="oui"/>
+				<scene id="48" value="Les débuts de la recherche en informatique" recommandee="oui"/>
+				<scene id="49" value="Technologie et composants" recommandee="oui"/>
 			</scenes>
 			<transitionsPrincipales>
-				<transition id="236" from="45" to="46" />
-				<transition id="237" from="46" to="47" />
-				<transition id="238" from="47" to="48" />
-				<transition id="239" from="49" to="50" />
+				<transition id="236" from="45" to="46" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="237" from="46" to="47" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="238" from="47" to="48" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="239" from="49" to="50" semantiqueId="1" semantiqueName="Chronologique" />
 			</transitionsPrincipales>
 			<transitionsSecondaires />
 		</sousParcours>
@@ -38,28 +38,28 @@
 				<scene id="63" value="Difficultés et avancées" recommandee="non"/>
 			</scenes>
 			<transitionsPrincipales>
-				<transition id="725" from="50" to="51" />
-				<transition id="726" from="51" to="57" />
-				<transition id="727" from="57" to="59" />
+				<transition id="725" from="50" to="51" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="726" from="51" to="57" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="727" from="57" to="59" semantiqueId="1" semantiqueName="Chronologique" />
 			</transitionsPrincipales>
 			<transitionsSecondaires>
-				<transition id="730" from="51" to="52" />
+				<transition id="730" from="51" to="52" semantiqueId="1" semantiqueName="Chronologique" />
 				<transition id="731" from="52" to="53" />
-				<transition id="732" from="53" to="54" />
-				<transition id="733" from="54" to="55" />
-				<transition id="734" from="55" to="56" />
-				<transition id="735" from="56" to="57" />
-				<transition id="736" from="57" to="58" />
+				<transition id="732" from="53" to="54" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="733" from="54" to="55" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="734" from="55" to="56" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="735" from="56" to="57" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="736" from="57" to="58" semantiqueId="1" semantiqueName="Chronologique" />
 				...
 				
-				<transition id="737" from="58" to="60" />
-				<transition id="725" from="60" to="61" />
-				<transition id="738" from="60" to="62" />
-				<transition id="739" from="60" to="63" />
-				<transition id="740" from="61" to="62" />
-				<transition id="741" from="61" to="63" />
-				<transition id="742" from="62" to="61" />
-				<transition id="743" from="62" to="63" />
+				<transition id="737" from="58" to="60" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="725" from="60" to="61" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="738" from="60" to="62" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="739" from="60" to="63" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="740" from="61" to="62" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="741" from="61" to="63" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="742" from="62" to="61" semantiqueId="1" semantiqueName="Chronologique" />
+				<transition id="743" from="62" to="63" semantiqueId="1" semantiqueName="Chronologique" />
 			</transitionsSecondaires>
 		</sousParcours>
 	</parcours>
@@ -98,32 +98,32 @@
 			<scene id="63" value="Difficultés et avancées" recommandee="non"/>
 		</scenes>
 		<transitionsPrincipales>
-			<transition id="725" from="50" to="51" />
-			<transition id="726" from="51" to="57" />
-			<transition id="727" from="57" to="59" />
+			<transition id="725" from="50" to="51" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="726" from="51" to="57" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="727" from="57" to="59" semantiqueId="1" semantiqueName="Chronologique" />
 		</transitionsPrincipales>
 		<transitionsSecondaires>
-			<transition id="730" from="51" to="52" />
-			<transition id="731" from="52" to="53" />
-			<transition id="732" from="53" to="54" />
-			<transition id="733" from="54" to="55" />
-			<transition id="734" from="55" to="56" />
-			<transition id="735" from="56" to="57" />
-			<transition id="736" from="57" to="58" />
-			<transition id="737" from="58" to="60" />
-			<transition id="725" from="60" to="61" />
-			<transition id="738" from="60" to="62" />
-			<transition id="739" from="60" to="63" />
-			<transition id="740" from="61" to="62" />
-			<transition id="741" from="61" to="63" />
-			<transition id="742" from="62" to="61" />
-			<transition id="743" from="62" to="63" />
+			<transition id="730" from="51" to="52" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="731" from="52" to="53" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="732" from="53" to="54" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="733" from="54" to="55" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="734" from="55" to="56" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="735" from="56" to="57" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="736" from="57" to="58" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="737" from="58" to="60" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="725" from="60" to="61" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="738" from="60" to="62" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="739" from="60" to="63" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="740" from="61" to="62" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="741" from="61" to="63" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="742" from="62" to="61" semantiqueId="1" semantiqueName="Chronologique" />
+			<transition id="743" from="62" to="63" semantiqueId="1" semantiqueName="Chronologique" />
 		</transitionsSecondaires>
 	</sousParcours>
 	
 	
 	<!-- Exemple getTransitionById -->	
-	<transition id="730" type="recommandee" estInterSousParcours="false" 
+	<transition id="730" type="recommandee"
 		narration="Vers les usages de l'informatique" semenatiqueId="1" semantiqueNom="Chronologique" >
 		<sceneDepart id="50" value="Usages de l'informatique" recommandee="oui"/>
 		<sceneArrivee id="51" value="Développement de l'industrie" recommandee="oui" />
@@ -145,6 +145,20 @@
 			<media id="18" value="Photo calculateur" typeId="11" typeName="Image" />
 			<media id="22" value="Video salle serveur" typeId="12" typeName="Video" />
 		</medias>
+		<transitionPrincipaleIn id="45" from="12" semantiqueId="1" semantiqueName="Chronologique" 
+			narration="Vers Tout commence par le calcul" />
+		<transitionPrincipaleOut id="46" to="18" semantiqueId="1" semantiqueName="Chronologique" 
+			narration="Vers Développement de l'industrie" />
+		<transitionSecondairesIn>
+			<transition id="63" from="10" semantiqueId="1" semantiqueName="Chronologique" 
+				narration="Vers Tout commence par le calcul" />
+			<transition id="67" from="8" semantiqueId="1" semantiqueName="Chronologique" 
+				narration="Vers Tout commence par le calcul" />
+		</transitionSecondairesIn>
+		<transitionSecondairesOut>
+			<transition id="78" to="23" semantiqueId="1" semantiqueName="Chronologique" 
+				narration="Vers Difficultés et avancées" />
+		</transitionSecondairesOut/>
 	</scene>
 	
 	
