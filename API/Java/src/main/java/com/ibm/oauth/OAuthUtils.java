@@ -1,4 +1,4 @@
-package com.ibm.auth;
+package com.ibm.oauth;
 
 import java.io.IOException;
 import java.io.InputStream;

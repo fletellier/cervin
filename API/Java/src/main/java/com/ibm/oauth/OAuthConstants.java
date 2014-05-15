@@ -1,4 +1,4 @@
-package com.ibm.auth;
+package com.ibm.oauth;
 
 /**
  * cf. : http://www.ibm.com/developerworks/security/library/se-oathjavapt1/index.html

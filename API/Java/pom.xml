@@ -37,7 +37,7 @@
 	       <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>com.ibm.oauth.OAuth2Client</mainClass>
+              <mainClass>cervin.moving.clientapi.Launch</mainClass>
             </manifest>
           </archive>
 	    </configuration>
@@ -80,6 +80,37 @@
 		<artifactId>json-simple</artifactId>
 		<version>1.1.1</version>
 	</dependency>
-	                                                         
+	 <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>1.6.2</version>
+    </dependency>
+    <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-adb</artifactId>
+            <version>1.6.2</version>
+    </dependency>
+	<dependency>
+		<groupId>org.apache.axis2</groupId>
+		<artifactId>axis2</artifactId>
+		<version>1.6.2</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.axis2</groupId>
+		<artifactId>axis2-saaj</artifactId>
+		<version>1.6.2</version>
+	</dependency>      
+	<dependency>
+		<groupId>org.apache.ws.commons.axiom</groupId>
+		<artifactId>axiom-impl</artifactId>
+		<version>1.2.7</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.ws.commons.axiom</groupId>
+		<artifactId>axiom-api</artifactId>
+		<version>1.2.14</version>
+	</dependency>
+            
+	                                                                    
   </dependencies>
 </project>

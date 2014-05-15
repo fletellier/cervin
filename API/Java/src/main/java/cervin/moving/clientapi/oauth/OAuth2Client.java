@@ -1,15 +1,16 @@
-package cervin.moving.clientapi.auth;
+package cervin.moving.clientapi.oauth;
 
 import java.util.Properties;
 
 import javax.naming.ConfigurationException;
 
-import com.ibm.auth.OAuth2Details;
-import com.ibm.auth.OAuthConstants;
-import com.ibm.auth.OAuthUtils;
+import com.ibm.oauth.OAuth2Details;
+import com.ibm.oauth.OAuthConstants;
+import com.ibm.oauth.OAuthUtils;
 
 public class OAuth2Client {
 
+	private Properties config;
 	
 	public OAuth2Client(Properties config) throws ConfigurationException{
 		if(config == null){
@@ -19,10 +20,9 @@ public class OAuth2Client {
 		createClient(config);
 	}
 	public OAuth2Client(String username, String password, 
-			String authenticationServerUrl, String resourceServerUrl ) throws ConfigurationException{
+			String authenticationServerUrl ) throws ConfigurationException{
 
 		Properties config = new Properties();
-		config.setProperty(OAuthConstants.RESOURCE_SERVER_URL, resourceServerUrl);
 		config.setProperty(OAuthConstants.USERNAME, username);
 		config.setProperty(OAuthConstants.PASSWORD, password);
 		config.setProperty(OAuthConstants.AUTHENTICATION_SERVER_URL, authenticationServerUrl);
@@ -34,7 +34,6 @@ public class OAuth2Client {
 	private void createClient(Properties config) throws ConfigurationException{
 
 		
-		String resourceServerUrl = config.getProperty(OAuthConstants.RESOURCE_SERVER_URL);
 		String username = config.getProperty(OAuthConstants.USERNAME);
 		String password = config.getProperty(OAuthConstants.PASSWORD);
 		String authenticationServerUrl = config
@@ -53,22 +52,21 @@ public class OAuth2Client {
 		if (!OAuthUtils.isValid(authenticationServerUrl)){
 			throw new ConfigurationException("Please provide valid values for authenticationServerUrl");
 		}
-		
-		if (!OAuthUtils.isValid(resourceServerUrl)) {
-			// Resource server url is not valid. Only retrieve the access token
-			System.out.println("Retrieving Access Token");
-			OAuth2Details oauthDetails = OAuthUtils.createOAuthDetails(config);
-			String accessToken = OAuthUtils.getAccessToken(oauthDetails);
-			if(OAuthUtils.isValid(accessToken)){
+		this.config = config;
+	}
+	
+	
+	public String getAccessToken(){
+		// Resource server url is not valid. Only retrieve the access token
+		System.out.println("Retrieving Access Token");
+		OAuth2Details oauthDetails = OAuthUtils.createOAuthDetails(config);
+		String accessToken = OAuthUtils.getAccessToken(oauthDetails);
+		if(OAuthUtils.isValid(accessToken)){
 			System.out
-					.println("Successfully retrieved Access token for Password Grant: "
-							+ accessToken);
-			}
-		} else {
-			// Response from the resource server must be in Json or Urlencoded or xml
-			System.out.println("Resource endpoint url: " + resourceServerUrl);
-			System.out.println("Attempting to retrieve protected resource");
-			OAuthUtils.getProtectedResource(config);
+				.println("Successfully retrieved Access token for Password Grant: "
+						+ accessToken);
+			return accessToken;
 		}
+		throw new RuntimeException("Le token n'est pas valide !!");
 	}
 }

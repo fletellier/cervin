@@ -1,4 +1,4 @@
-package com.ibm.auth;
+package com.ibm.oauth;
 
 
 /**
