@@ -36,7 +36,7 @@ class ClientTestController extends AbstractActionController {
 	public function indexAction() {
  
 		// Appel du WebService
-		$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST']."/cervin/public";
+		$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST']."/cervin/moving-BO/public";
 		$client = new Client($serverUrl.$this->_WSDL_URI);
 		$data = $client->getParcoursById(1);
 		$types = $client->getTypes();
