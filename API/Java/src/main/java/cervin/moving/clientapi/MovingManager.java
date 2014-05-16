@@ -6,6 +6,7 @@ import javax.naming.ConfigurationException;
 
 import org.apache.axis2.AxisFault;
 
+import cervin.moving.clientapi.exception.AuthException;
 import cervin.moving.clientapi.interfaces.IToto;
 import cervin.moving.clientapi.oauth.OAuth2Client;
 import cervin.moving.clientapi.ws.MonServiceStub;
@@ -17,7 +18,7 @@ public class MovingManager {
 	//Methode de test
 	 @Deprecated
 	 public MovingManager() throws ConfigurationException, AxisFault{
-		this("testclient","testpass","http://10.67.64.196/cervin/moving-BO/public/oauth", "http://localhost:8080/DemoAuthServer/services/MonService.MonServiceHttpEndpoint/" );
+		this("testclient","testpass","http://google.fr", "http://localhost:8080/DemoAuthServer/services/MonService.MonServiceHttpEndpoint/" );
 		 
 	 }
 	
@@ -31,10 +32,11 @@ public class MovingManager {
 	 }
 	
 	 
-	 public IToto getToto() throws RemoteException{
-		GetToto param = new GetToto();
-		param.setToken(oauthclient.getAccessToken());
+	 public IToto getToto() throws AuthException, RemoteException{
+		
 		try {
+			GetToto param = new GetToto();
+			param.setToken(oauthclient.getAccessToken().toString());
 			return service.getToto(param).get_return();
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -59,6 +61,6 @@ public class MovingManager {
 				throw e;
 			}
 			
-		}
+		} 
 	 }
 }
