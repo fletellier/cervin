@@ -39,8 +39,8 @@ public class OAuth2Client {
 		String authenticationServerUrl = config
 				.getProperty(OAuthConstants.AUTHENTICATION_SERVER_URL);
 		
-		//On force le type a password
-		config.setProperty(OAuthConstants.GRANT_TYPE, "password");
+		//On force le type a client_credentials
+		config.setProperty(OAuthConstants.GRANT_TYPE, "client_credentials");
 	
 		
 		if (!OAuthUtils.isValid(username)){

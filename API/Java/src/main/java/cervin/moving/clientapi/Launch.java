@@ -4,12 +4,14 @@ import java.rmi.RemoteException;
 
 import javax.naming.ConfigurationException;
 
+
 import org.apache.axis2.AxisFault;
 
 public class Launch {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
 		MovingManager manager;
 		try {
 			manager = new MovingManager();

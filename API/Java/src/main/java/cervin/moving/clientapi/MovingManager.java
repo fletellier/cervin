@@ -17,7 +17,7 @@ public class MovingManager {
 	//Methode de test
 	 @Deprecated
 	 public MovingManager() throws ConfigurationException, AxisFault{
-		this("demouser","testpass","http://brentertainment.com/oauth2/lockdin/token", "http://localhost:8080/DemoAuthServer/services/MonService.MonServiceHttpEndpoint/" );
+		this("testclient","testpass","http://10.67.64.196/cervin/moving-BO/public/oauth", "http://localhost:8080/DemoAuthServer/services/MonService.MonServiceHttpEndpoint/" );
 		 
 	 }
 	
