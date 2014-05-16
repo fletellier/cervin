@@ -35,7 +35,7 @@ class ExportController extends AbstractActionController
 
     private function handleWSDL() {
     	
-        $serverUrl    = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT']."/cervin/public";
+        $serverUrl    = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT']."/cervin/moving-BO/public";
         $autodiscover = new ModAutoDiscover(new \Zend\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex());
 
         $autodiscover->setClass('Application\Model\ExportModel')
@@ -46,7 +46,7 @@ class ExportController extends AbstractActionController
 
     private function handleSOAP() {
     	$exportModel = $this->getServiceLocator()->get('Application\Model\ExportModel');
-    	$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT']."/cervin/public";
+    	$serverUrl = strtolower(dirname($_SERVER['SERVER_PROTOCOL']))."://".$_SERVER['HTTP_HOST'].":".$_SERVER['SERVER_PORT']."/cervin/moving-BO/public";
         $soap      = new Server($serverUrl.$this->_WSDL_URI, $this->_options);
 
         $soap->setClass('Application\Model\ExportModel');

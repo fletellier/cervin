@@ -192,6 +192,12 @@ return array(
             		'controller' => 'SemantiqueTransition',
             		'roles' => array('Admin')
             	),
+            	array(
+            		'controller' => 'ZF\OAuth2\Controller\Auth',
+            		'roles' => array('Visiteur')
+            	),
+            		
+            	
             ),
 
             /* If this guard is specified here (i.e. it is enabled), it will block
@@ -315,6 +321,12 @@ return array(
             	array('route' => 'transition/modifier', 'roles' => array('Parcours')),
             	array('route' => 'transition/supprimerTransitionSec', 'roles' => array('Parcours')),
             	array('route' => 'transition/ajouterTransitionSec', 'roles' => array('Parcours')),
+            	
+            	array('route' => 'oauth', 'roles' => array('Visiteur')),
+            	array('route' => 'oauth/authorize', 'roles' => array('Visiteur')),
+            	array('route' => 'oauth/receivecode', 'roles' => array('Visiteur')),
+            	array('route' => 'oauth/code', 'roles' => array('Visiteur')),
+            	array('route' => 'oauth/resource', 'roles' => array('Visiteur')),
             ),
         ), 
     ),

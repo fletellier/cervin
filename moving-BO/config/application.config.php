@@ -20,7 +20,10 @@ return array(
         //'Album',
         //'ZF2FileUploadExamples',
         'Core',
-        'DataTable'
+        'DataTable',
+    	'ZF\ApiProblem',
+    	'ZF\ContentNegotiation',
+    	'ZF\OAuth2',
         ),
     'module_listener_options' => array(
         'module_paths' => array(
