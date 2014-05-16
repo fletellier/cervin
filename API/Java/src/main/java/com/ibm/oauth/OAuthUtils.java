@@ -36,6 +36,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * cf. : http://www.ibm.com/developerworks/security/library/se-oathjavapt1/index.html
+ *
+ */
 public class OAuthUtils {
 
 	public static OAuth2Details createOAuthDetails(Properties config) {

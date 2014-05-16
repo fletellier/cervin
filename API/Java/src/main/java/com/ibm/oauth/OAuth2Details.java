@@ -1,4 +1,10 @@
 package com.ibm.oauth;
+
+
+/**
+ * cf. : http://www.ibm.com/developerworks/security/library/se-oathjavapt1/index.html
+ *
+ */
 public class OAuth2Details {
 
 	private String scope;

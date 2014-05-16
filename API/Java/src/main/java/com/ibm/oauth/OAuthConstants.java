@@ -1,5 +1,9 @@
 package com.ibm.oauth;
 
+/**
+ * cf. : http://www.ibm.com/developerworks/security/library/se-oathjavapt1/index.html
+ *
+ */
 public class OAuthConstants {
 	
 	public static final String ACCESS_TOKEN = "access_token";
@@ -9,7 +13,6 @@ public class OAuthConstants {
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
 	public static final String AUTHENTICATION_SERVER_URL = "authentication_server_url";
-	public static final String CONFIG_FILE_PATH = "com/ibm/oauth/Oauth2Client.config";
 	public static final String RESOURCE_SERVER_URL = "resource_server_url";
 	public static final String GRANT_TYPE = "grant_type";
 	public static final String SCOPE = "scope";
