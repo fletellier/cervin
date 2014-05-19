@@ -1,4 +1,4 @@
-package com.ibm.oauth;
+package cervin.moving.clientapi.oauth;
 
 /**
  * cf. : http://www.ibm.com/developerworks/security/library/se-oathjavapt1/index.html
@@ -7,6 +7,7 @@ package com.ibm.oauth;
 public class OAuthConstants {
 	
 	public static final String ACCESS_TOKEN = "access_token";
+	public static final String EXPIRES_IN= "expires_in";
 	public static final String CLIENT_ID = "client_id";
 	public static final String CLIENT_SECRET = "client_secret";
 	public static final String REFRESH_TOKEN = "refresh_token";
@@ -22,6 +23,9 @@ public class OAuthConstants {
 	public static final String JSON_CONTENT = "application/json";
 	public static final String XML_CONTENT = "application/xml";
 	public static final String URL_ENCODED_CONTENT = "application/x-www-form-urlencoded";
+	
+	//On va rafraichir 30sec le token avant son expiration (pour avoir le temps de faire la requete ! )
+	public static final int refresh_token_before = 30; 
 	
 	public static final int HTTP_OK = 200;
 	public static final int HTTP_FORBIDDEN = 403;

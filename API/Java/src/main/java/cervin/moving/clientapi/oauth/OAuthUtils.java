@@ -1,8 +1,10 @@
-package com.ibm.oauth;
+package cervin.moving.clientapi.oauth;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -35,6 +38,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import cervin.moving.clientapi.exception.AuthException;
+import cervin.moving.clientapi.exception.OAuthErrorType;
 
 /**
  * cf. : http://www.ibm.com/developerworks/security/library/se-oathjavapt1/index.html
@@ -76,7 +82,7 @@ public class OAuthUtils {
 		return config;
 	}
 
-	public static void getProtectedResource(Properties config) {
+	/*public static void getProtectedResource(Properties config) {
 		String resourceURL = config
 				.getProperty(OAuthConstants.RESOURCE_SERVER_URL);
 		OAuth2Details oauthDetails = createOAuthDetails(config);
@@ -133,10 +139,17 @@ public class OAuthUtils {
 			get.releaseConnection();
 		}
 
-	}
+	}*/
 
-	public static String getAccessToken(OAuth2Details oauthDetails) {
+	public static OAuthToken getAccessToken(OAuth2Details oauthDetails) throws AuthException {
+
+		String[] schemes = {"http","https"};
+	    UrlValidator urlValidator = new UrlValidator(schemes);
+	    if ( ! urlValidator.isValid(oauthDetails.getAuthenticationServerUrl())) {
+	    	throw new AuthException(OAuthErrorType.INVALID_URL);
+	    }
 		HttpPost post = new HttpPost(oauthDetails.getAuthenticationServerUrl());
+	
 		String clientId = oauthDetails.getClientId();
 		String clientSecret = oauthDetails.getClientSecret();
 		String scope = oauthDetails.getScope();
@@ -164,7 +177,7 @@ public class OAuthUtils {
 
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpResponse response = null;
-		String accessToken = null;
+		OAuthToken accessToken = null;
 		try {
 			post.setEntity(new UrlEncodedFormEntity(parametersBody, HTTP.UTF_8));
 
@@ -194,21 +207,28 @@ public class OAuthUtils {
 					response = client.execute(post);
 					code = response.getStatusLine().getStatusCode();
 					if (code >= 400) {
-						throw new RuntimeException(
+						if(code == 400){
+							throw new AuthException(OAuthErrorType.LOGIN_ERROR,
 								"Could not retrieve access token for user: "
 										+ oauthDetails.getUsername());
+						}
+						if(code == 404 || code == 405 ){
+							throw new AuthException(OAuthErrorType.AUTH_SERVICE_NOT_FOUND);
+						}
+						throw new AuthException(OAuthErrorType.HTTP_ERROR,"Error "+code+" : "+response.getStatusLine().getReasonPhrase());
+						
 					}
 				}
 
 			}
-			Map<String, String> map = handleResponse(response);
-			accessToken = map.get(OAuthConstants.ACCESS_TOKEN);
+			Map<String, Object> map = handleResponse(response);
+			Long duration = (Long) map.get(OAuthConstants.EXPIRES_IN);
+			accessToken = new OAuthToken(map.get(OAuthConstants.ACCESS_TOKEN).toString(), duration);
+			System.out.println(accessToken);
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new AuthException(OAuthErrorType.HTTP_ERROR,e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new AuthException(OAuthErrorType.UNKNOWN_ERROR,e);
 		}
 
 		return accessToken;
