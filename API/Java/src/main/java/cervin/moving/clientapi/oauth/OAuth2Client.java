@@ -1,17 +1,19 @@
 package cervin.moving.clientapi.oauth;
 
+import java.util.Calendar;
 import java.util.Properties;
 
 import javax.naming.ConfigurationException;
 
-import com.ibm.oauth.OAuth2Details;
-import com.ibm.oauth.OAuthConstants;
-import com.ibm.oauth.OAuthUtils;
+import org.apache.commons.validator.routines.UrlValidator;
+
+import cervin.moving.clientapi.exception.AuthException;
+import cervin.moving.clientapi.exception.OAuthErrorType;
 
 public class OAuth2Client {
 
 	private Properties config;
-	
+	private OAuthToken token; 
 	public OAuth2Client(Properties config) throws ConfigurationException{
 		if(config == null){
 			throw new ConfigurationException("Null config file");
@@ -39,8 +41,8 @@ public class OAuth2Client {
 		String authenticationServerUrl = config
 				.getProperty(OAuthConstants.AUTHENTICATION_SERVER_URL);
 		
-		//On force le type a password
-		config.setProperty(OAuthConstants.GRANT_TYPE, "password");
+		//On force le type a client_credentials
+		config.setProperty(OAuthConstants.GRANT_TYPE, "client_credentials");
 	
 		
 		if (!OAuthUtils.isValid(username)){
@@ -50,23 +52,43 @@ public class OAuth2Client {
 			throw new ConfigurationException("Please provide valid values for password");
 		}
 		if (!OAuthUtils.isValid(authenticationServerUrl)){
-			throw new ConfigurationException("Please provide valid values for authenticationServerUrl");
+			throw new ConfigurationException("Please provide valid values for authenticationServerUrl (empty URL)");
 		}
+		String[] schemes = {"http","https"};
+	    UrlValidator urlValidator = new UrlValidator(schemes);
+	    if ( ! urlValidator.isValid(authenticationServerUrl)) {
+	    	throw new ConfigurationException("Please provide valid values for authenticationServerUrl (bad URL)");
+	    }
 		this.config = config;
 	}
 	
 	
-	public String getAccessToken(){
+	public String getAccessToken() throws AuthException{
+		
+		
+		if(token != null){
+			//un token a déjà été généré, on va vérifier l'expiration
+			Calendar now = Calendar.getInstance();
+			now.add(Calendar.SECOND, OAuthConstants.refresh_token_before);
+			if(token.getExpiration().after(now)){
+				//Le token a expiré, il doit être regénéré
+				System.out.println("Token has expirated...");
+				token = null;
+			}
+			else {
+				return token.getValue();
+			}
+		}
 		// Resource server url is not valid. Only retrieve the access token
 		System.out.println("Retrieving Access Token");
 		OAuth2Details oauthDetails = OAuthUtils.createOAuthDetails(config);
-		String accessToken = OAuthUtils.getAccessToken(oauthDetails);
-		if(OAuthUtils.isValid(accessToken)){
+		OAuthToken accessToken =  OAuthUtils.getAccessToken(oauthDetails);
+		if(OAuthUtils.isValid(accessToken.getValue())){
 			System.out
 				.println("Successfully retrieved Access token for Password Grant: "
 						+ accessToken);
-			return accessToken;
+			return token.getValue();
 		}
-		throw new RuntimeException("Le token n'est pas valide !!");
+		throw new AuthException(OAuthErrorType.INVALID_TOKEN);
 	}
 }
